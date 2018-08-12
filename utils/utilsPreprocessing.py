@@ -175,37 +175,59 @@ def addCuttedOctaves(matrix):
             matrix = np.pad(matrix,[[0,0],[36,32]],'constant')
     return matrix
 
-def pianorollMatrixToTempMidi(matrix, path='tempMidiFiles/temp.mid', prediction=False): 
+def pianorollMatrixToTempMidi(matrix, path='tempMidiFiles/temp.mid', prediction=True,
+    show=True, showPlayer=True, autoplay=False): 
     #MATRIX MUST BE OF DIMENSION LENGTHxPITCH here: (96,128)
  
     ###THIS IS A WORKAROUND SO NO NEW NOTES ARE SET ON THE LAST 2 TICKS
     ###IF NOTE IS SET IT WILL RAISE AN ERROR THAT THERE CANNOT BE A BEGIN AND 
     ###END ON 4.0/4.0 (measures)
-    
-    #print("before")
-    #print(matrix)
     if(prediction):
-        matrix[94:,:] = 0
-    #print("after")
-    #print(matrix)
-    #print(np.argmax(matrix,axis=1))
-        
+        matrix[-2:,:] = 0
+
     tempTrack = ppr.Track(matrix)
     newTrack = ppr.Multitrack()
     newTrack.append_track(tempTrack)
     newTrack.write(path)
-    
-    return path
 
-def tempMidi(show=True, play=True, path='tempMidiFiles/temp.mid'):
-    #PLAY A TEMPORARY MIDIFILE SAVED BY pianorollMatrixToTempMidi function
     score = music21.converter.parse(path)
     if(show):
         score.show()
-    if(play):
+    if(showPlayer):
         score.show('midi')
-        #music21.midi.realtime.StreamPlayer(score).play()
+    if(autoplay):
+        music21.midi.realtime.StreamPlayer(score).play()
 
+    ###TRY EXCEPT TAKES LONGER BUT WORKS BETTER
+    """
+    try:    
+        tempTrack = ppr.Track(matrix)
+        newTrack = ppr.Multitrack()
+        newTrack.append_track(tempTrack)
+        newTrack.write(path)
+        
+        score = music21.converter.parse(path)
+        if(show):
+            score.show()
+        if(showPlayer):
+            score.show('midi')
+        if(autoplay):
+            music21.midi.realtime.StreamPlayer(score).play()
+    except:
+        matrix[-2:,:] = 0
+        tempTrack = ppr.Track(matrix)
+        newTrack = ppr.Multitrack()
+        newTrack.append_track(tempTrack)
+        newTrack.write(path)
+        
+        score = music21.converter.parse(path)
+        if(show):
+            score.show()
+        if(showPlayer):
+            score.show('midi')
+        if(autoplay):
+            music21.midi.realtime.StreamPlayer(score).play()
+    """
 def debinarizeMidi(a, prediction=True,velocity=127):
     if(prediction):
         ###MONOPHONIC###
