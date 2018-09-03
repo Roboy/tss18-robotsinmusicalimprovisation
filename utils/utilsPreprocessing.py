@@ -183,7 +183,7 @@ def pianorollMatrixToTempMidi(matrix, path='tempMidiFiles/temp.mid', prediction=
     ###IF NOTE IS SET IT WILL RAISE AN ERROR THAT THERE CANNOT BE A BEGIN AND 
     ###END ON 4.0/4.0 (measures)
     if(prediction):
-        matrix[-2:,:] = 0
+        matrix[-3:,:] = 0
 
     tempTrack = ppr.Track(matrix)
     newTrack = ppr.Multitrack()
@@ -290,15 +290,3 @@ def deleteZeroMatrices(tensor):
             zeros.append(i)
 
     return np.delete(tensor, np.array(zeros),axis=0)
-
-def checkActivations(matrix):
-    #CHECK IF MIDI ACTIVATION THRESHOLD IS REACHED
-    #INCLUDES RESTS BY USING AN ACTIVATION THRESHOLD FOR A MIDI NOTE
-    #BY LOOKING AT THE MATRICES SET IT TO VALUE FOR NOW
-    """HARDCODED 0.7 --> DYANMIC THRESHOLD BY NORMALIZING PREDICTION?"""
-    activationCheck = np.sum(matrix, axis=1)
-    #print(activationCheck)
-    activationCheck = np.where(activationCheck < 7)[0].tolist()
-    matrix[activationCheck,:] = 0
-    
-    return matrix
