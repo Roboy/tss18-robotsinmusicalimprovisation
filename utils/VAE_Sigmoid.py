@@ -39,12 +39,12 @@ class VAE(nn.Module):
         self.encode31 = nn.Sequential(
             nn.Linear(400,self.embedding_size),
             nn.BatchNorm1d(self.embedding_size),
-            nn.Sigmoid()
+            nn.ReLU()
         )
         self.encode32 = nn.Sequential(
             nn.Linear(400,self.embedding_size),
             nn.BatchNorm1d(self.embedding_size),
-            nn.Sigmoid()
+            nn.ReLU()
         )
 
         ###DECODER###

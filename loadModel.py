@@ -30,10 +30,19 @@ def loadModel(model, pathToModel, dataParallelModel=False):
             print("\n--------GPU data parallel model restored--------\n") 
             return model       
         else:
-            #storage = {"cuda":"cpu"}
+            storage = {"cuda":"cpu"}
             model = torch.load(pathToModel, map_location=lambda storage, loc: storage)
             print("\n--------GPU model restored--------\n")
             return model
     except:
         print("\n--------no saved model found--------\n")
 
+
+def loadStateDict(model, pathToStateDict):
+    try:
+        state_dict = torch.load(pathToStateDict, map_location=lambda storage, loc: storage)
+        model.load_state_dict(state_dict)
+        print("\n--------GPU state dict restored--------\n")
+        return model
+    except:
+        print("\n--------no saved model found--------\n")

@@ -1,7 +1,9 @@
 import numpy as np
 import torch
+import torch.utils.data as data
 import pypianoroll as ppr
 import music21
+import glob
 
 
 def getSlicedPianorollMatrixTorch(pathToFile, binarize=True):
@@ -15,7 +17,7 @@ def getSlicedPianorollMatrixTorch(pathToFile, binarize=True):
 
     #downbeats = track.get_downbeat_steps()
     #print(downbeats)
-    track = track.get_stacked_pianorolls()
+    track = track.get_stacked_pianoroll()
 
     """BINARIZE"""
     if(binarize):
@@ -56,7 +58,7 @@ def getSlicedPianorollMatrixNp(pathToFile, binarize=True):
     track = ppr.Multitrack(pathToFile, beat_resolution=24)
     #downbeats = track.get_downbeat_steps()
     #print(downbeats)
-    track = track.get_stacked_pianorolls()
+    track = track.get_stacked_pianoroll()
 
     """BINARIZE"""
     if(binarize):
@@ -92,7 +94,7 @@ def getSlicedPianorollMatrixList(pathToFile, binarize=True):
     track = ppr.Multitrack(pathToFile, beat_resolution=24)
     #downbeats = track.get_downbeat_steps()
     #print(downbeats)
-    track = track.get_stacked_pianorolls()
+    track = track.get_stacked_pianoroll()
 
     """BINARIZE"""
     if(binarize):
@@ -133,38 +135,64 @@ def getSlicedPianorollMatrixList(pathToFile, binarize=True):
 def transposeNotesHigherLower(a):
     #THIS FUNCTION TRANSPOSES ALL NOTES HIGHER THAN B6 AND LOWER THAN C2
     #INTO 5 OCTAVE RANGE FROM C2 TO B6
-    for i,track in enumerate(a):
-        #print(track.shape)
-        octCheck = np.argwhere(track>0)
+    if(a.ndim>2):
+        for i,track in enumerate(a):
+            octCheck = np.argwhere(track>0)
+            for j in octCheck:
+                #print(j)
+                if(j[1]>=36 and j[1]<96):
+                    continue
+                elif(j[1]<36 and j[1]>=24):
+                    #print('There is a note below 36')
+                    a[i:i+1,j[0]:j[0]+1,:] = np.roll(a[i:i+1,j[0]:j[0]+1,:],12)
+                elif(j[1]<24 and j[1]>=12):
+                    #print('There is a note below 24')
+                    a[i:i+1,j[0]:j[0]+1,:] = np.roll(a[i:i+1,j[0]:j[0]+1,:],24)
+                elif(j[1]<12):
+                    #print('There is a note below 12')
+                    a[i:i+1,j[0]:j[0]+1,:] = np.roll(a[i:i+1,j[0]:j[0]+1,:],36)
+                elif(j[1]>=96 and j[1]<108):
+                    #print('There is a note above 96')
+                    a[i:i+1,j[0]:j[0]+1,:] = np.roll(a[i:i+1,j[0]:j[0]+1,:],-12)
+                elif(j[1]>=108 and j[1]<120):
+                    #print('There is a note above 108')
+                    a[i:i+1,j[0]:j[0]+1,:] = np.roll(a[i:i+1,j[0]:j[0]+1,:],-24)
+                elif(j[1]>=120):
+                    #print('There is a note above 120')
+                    a[i:i+1,j[0]:j[0]+1,:] = np.roll(a[i:i+1,j[0]:j[0]+1,:],-36)
+    else:
+        octCheck = np.argwhere(a>0)
         for j in octCheck:
             if(j[1]>=36 and j[1]<96):
-                break
+                continue
             elif(j[1]<36 and j[1]>=24):
                 #print('There is a note below 36')
-                a[i:i+1,j[0]:j[0]+1,:] = np.roll(a[i:i+1,j[0]:j[0]+1,:],12)
+                a[j[0]:j[0]+1,:] = np.roll(a[j[0]:j[0]+1,:],12)
             elif(j[1]<24 and j[1]>=12):
                 #print('There is a note below 24')
-                a[i:i+1,j[0]:j[0]+1,:] = np.roll(a[i:i+1,j[0]:j[0]+1,:],24)
+                a[j[0]:j[0]+1,:] = np.roll(a[j[0]:j[0]+1,:],24)
             elif(j[1]<12):
                 #print('There is a note below 12')
-                a[i:i+1,j[0]:j[0]+1,:] = np.roll(a[i:i+1,j[0]:j[0]+1,:],36)
+                a[j[0]:j[0]+1,:] = np.roll(a[j[0]:j[0]+1,:],36)
             elif(j[1]>=96 and j[1]<108):
                 #print('There is a note above 96')
-                #print(j[0])
-                #print(j[1])
-                a[i:i+1,j[0]:j[0]+1,:] = np.roll(a[i:i+1,j[0]:j[0]+1,:],-12)
+                a[j[0]:j[0]+1,:] = np.roll(a[j[0]:j[0]+1,:],-12)
             elif(j[1]>=108 and j[1]<120):
                 #print('There is a note above 108')
-                a[i:i+1,j[0]:j[0]+1,:] = np.roll(a[i:i+1,j[0]:j[0]+1,:],-24)
+                a[j[0]:j[0]+1,:] = np.roll(a[j[0]:j[0]+1,:],-24)
             elif(j[1]>=120):
                 #print('There is a note above 120')
-                a[i:i+1,j[0]:j[0]+1,:] = np.roll(a[i:i+1,j[0]:j[0]+1,:],-36)
+                a[j[0]:j[0]+1,:] = np.roll(a[j[0]:j[0]+1,:],-36)
 
     return a
 
-def cutOctaves(tensor): 
-    tensor = tensor[:,:,36:-32]
+def cutOctaves(tensor):
+    if (tensor.ndim==3):
+        tensor = tensor[:,:,36:-32]
+    else:
+        tensor = tensor[:,36:-32]
     return tensor
+
 
 
 def addCuttedOctaves(matrix):
@@ -290,3 +318,87 @@ def deleteZeroMatrices(tensor):
             zeros.append(i)
 
     return np.delete(tensor, np.array(zeros),axis=0)
+
+
+
+
+class createDatasetLSTM(data.Dataset):
+    def __init__(self, pathToFiles, beat_res=4, binarize=True, seq_length=16):
+        self.all_files = glob.glob(pathToFiles)
+        self.beat_res = beat_res
+        self.binarize = binarize
+        self.seq_length = seq_length
+        self.max_length = 0
+
+    def setMaxLength(self):
+        self.max_length = 0
+        for f in self.all_files:
+            temp_length = ppr.Multitrack(f, beat_resolution=self.beat_res).get_max_length()
+            if(temp_length > self.max_length):
+                self.max_length = temp_length
+        print('Longest sequences contains {} ticks'.format(self.max_length))
+
+    def __len__(self):
+        return len(self.all_files)
+
+    def __getitem__(self, idx):
+        track = ppr.Multitrack(self.all_files[idx], beat_resolution=self.beat_res)
+        track = track.get_stacked_pianoroll()
+
+        #binarize
+        if(self.binarize):
+            track[track > 0] = 1 
+
+        #IF 1 TRACK MIDIFILE
+        if(track.shape[2]==1):
+            track = np.squeeze(track,2)
+            track = transposeNotesHigherLower(track)
+            track = cutOctaves(track)
+            pianoroll_length = track.shape[0]
+            seq_length = pianoroll_length-1
+            padded_pianoroll = np.zeros((self.max_length, 60))
+            padded_pianoroll[:pianoroll_length,:] = track
+            
+            input_pianoroll = padded_pianoroll[:-1,:]
+            ground_truth_pianoroll = padded_pianoroll[1:,:]
+
+            return input_pianoroll, ground_truth_pianoroll, seq_length
+
+        
+        #ELSE MULTITRACK MIDIFILE
+        else:
+            endTrack = []
+            print("MULTITRACK CAUTION")
+            #for i in range(track.shape[2]):
+            #    track1 = track[:,:,i]
+            #
+            #    for temp2 in temp:
+            #        endTrack.append(temp2)
+                
+            return endTrack
+    
+def reorderBatch(data, split_size=1):
+    #https://github.com/warmspringwinds/pytorch-rnn-sequence-generation-classification
+    input_lstm, ground_truth, seq_length = data
+
+    input_lstm = input_lstm.split(split_size=split_size)
+    ground_truth = ground_truth.split(split_size=split_size)
+    seq_length = seq_length.split(split_size=split_size)
+
+    data = zip(input_lstm, ground_truth, seq_length)
+    data = sorted(data, key=lambda p: int(p[2]), reverse=True)
+    input_lstm, ground_truth, seq_length = zip(*data)
+
+    input_lstm = torch.cat(input_lstm)
+    ground_truth = torch.cat(ground_truth)
+    seq_length = torch.cat(seq_length)
+
+    #trim to longest batch sequence length
+    input_lstm = input_lstm[:,:seq_length[0],:]
+    ground_truth = ground_truth[:,:seq_length[0],:]
+    seq_length = seq_length.tolist()
+
+    return input_lstm, ground_truth, seq_length
+
+
+
