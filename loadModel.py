@@ -41,6 +41,7 @@ def loadModel(model, pathToModel, dataParallelModel=False):
 def loadStateDict(model, pathToStateDict):
     try:
         state_dict = torch.load(pathToStateDict, map_location=lambda storage, loc: storage)
+        #print(state_dict.keys())
         model.load_state_dict(state_dict)
         print("\n--------GPU state dict restored--------\n")
         return model
