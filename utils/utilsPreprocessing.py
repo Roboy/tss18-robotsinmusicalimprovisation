@@ -114,7 +114,7 @@ def getSlicedPianorollMatrixList(pathToFile, binarize=True):
     #IF 1 TRACK MIDIFILE
     if(track.shape[2]==1):
         track = np.squeeze(track,2)
-        print(track.shape)
+        #print(track.shape)
         track = np.split(track, int(length/seqLength),axis=0)
         #print(len(track))
         #print(track)
@@ -191,8 +191,11 @@ def transposeNotesHigherLower(a):
 def cutOctaves(tensor):
     if (tensor.ndim==3):
         tensor = tensor[:,:,36:-32]
-    else:
+    elif(tensor.ndim==2):
         tensor = tensor[:,36:-32]
+    else:
+        print("WARNING cutOctaves function")
+        tensor = tensor[:,:,:,36:-32]
     return tensor
 
 
