@@ -333,7 +333,7 @@ class createDatasetAE(data.Dataset):
         return len(self.all_files)
 
     def __getitem__(self, idx):
-        #load track from midi files
+        #load song from midi files and parse to numpy
         track = ppr.Multitrack(self.all_files[idx], beat_resolution=self.beat_res)
         track = track.get_stacked_pianoroll()
         #if 1 track midifile
