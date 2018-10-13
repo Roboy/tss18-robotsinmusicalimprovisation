@@ -351,15 +351,6 @@ class createDatasetAE(data.Dataset):
         #full track length in ticks
         length = track.shape[0]
 
-        while(True):
-            #get random (bar long) sequence from the given midi file
-            random = np.random.randint(0,(length-1)-self.seq_length)
-            sequence = track[random:random+self.seq_length,:] 
-            
-            #only return this sequence if it is not a zero for all ticks
-            if(np.any(sequence)):
-                break
-
         #transpose notes out of range of the 5 chosen octaves       
         sequence = transposeNotesHigherLower(sequence)
         #cut octaves to get input shape [96,60]

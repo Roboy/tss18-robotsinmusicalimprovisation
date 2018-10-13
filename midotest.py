@@ -85,7 +85,7 @@ ppq = 24
 bar_length = ppq * 4
 
 #how many bars would you like to record?
-number_seq = 4
+number_seq = 1
 
 midi = LiveParser(bpm=bpm, ppq=ppq, number_seq=number_seq, end_seq_note=127)
 midi.open_port(midi.parse_notes)
@@ -97,7 +97,7 @@ while (True):
 		break
 
 
-print(midi.track)
+#print(midi.track)
 plt.imshow(sequence.transpose(1,0), origin='lower')
 plt.show()
 
