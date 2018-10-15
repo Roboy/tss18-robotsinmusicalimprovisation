@@ -352,7 +352,7 @@ class createDatasetAE(data.Dataset):
         length = track.shape[0]
 
         #transpose notes out of range of the 5 chosen octaves       
-        sequence = transposeNotesHigherLower(sequence)
+        sequence = transposeNotesHigherLower(track)
         #cut octaves to get input shape [96,60]
         sequence = cutOctaves(sequence)
         #unsqueeze first dimension for input
