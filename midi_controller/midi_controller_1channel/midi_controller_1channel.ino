@@ -6,7 +6,7 @@ MIDI_CREATE_DEFAULT_INSTANCE();
 
 //constants
 static const unsigned ledPin = 13;      // LED pin on Arduino Uno
-const int potPin = A0; //pin A0 to read analog input
+const int potPin = A5; //pin A0 to read analog input
 const byte BUTTON_PIN(7); //pin connected to button switch
 const int vel = 100; //constant velocity for notes TEMPORARILY ADD POTI
 

@@ -328,7 +328,7 @@ def deleteZeroMatrices(tensor):
 class createDatasetAE(data.Dataset):
     def __init__(self, file_path, beat_res=24, seq_length=96, binarize=True):
         self.all_files = glob.glob(file_path)
-        self.beat_res = beat_res
+        #self.beat_res = beat_res
         self.binarize = binarize
         self.seq_length = seq_length
 
@@ -336,6 +336,7 @@ class createDatasetAE(data.Dataset):
         return len(self.all_files)
 
     def __getitem__(self, idx):
+        """
         #load song from midi files and parse to numpy
         track = ppr.Multitrack(self.all_files[idx], beat_resolution=self.beat_res)
         track = track.get_stacked_pianoroll()
@@ -345,11 +346,15 @@ class createDatasetAE(data.Dataset):
         #quick fix for multitrack, melody in almost every song on midi[0]
         else:
             track = track[:,:,0]
+        #full track length in ticks
+        length = track.shape[0]
+        """
+        #load track from npz
+        track = np.load(self.all_files[idx])
+
         #binarize
         if(self.binarize):
             track[track > 0] = 1
-        #full track length in ticks
-        length = track.shape[0]
 
         #transpose notes out of range of the 5 chosen octaves       
         sequence = transposeNotesHigherLower(track)

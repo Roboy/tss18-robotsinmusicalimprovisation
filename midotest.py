@@ -63,6 +63,7 @@ class LiveParser():
 					noteOnEntry = 0
 
 				#some midi instruments send note off message with 0 velocity
+				#TO DO USE VELOCITY OF NOTE ON MESSAGE
 				if(note[3] == 0):
 					lastVelocity = pianoroll[noteOnEntry,note[2]]
 					pianoroll[noteOnEntry+1:note[0]+1,note[2]] = lastVelocity	
