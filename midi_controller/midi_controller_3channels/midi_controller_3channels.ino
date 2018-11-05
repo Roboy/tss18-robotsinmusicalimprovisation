@@ -10,7 +10,8 @@ const int
     faderPin2 = A4,
     faderPin3 = A3,
     potPin1 = A1,
-    potPin2 = A0;
+    potPin2 = A0,
+    potPin3 = A2;
     
 const byte
     BUTTON_EOS(2),
@@ -26,9 +27,8 @@ int
     fader2,
     fader3,
     poti1,
-    poti2;
-    
-int 
+    poti2,
+    poti3,
     currentNote1,
     currentNote2,
     currentNote3;
@@ -63,6 +63,8 @@ void loop()
     poti1 = map(poti1, 0, 1023, 127, 0);
     poti2 = analogRead(potPin2);
     poti2 = map(poti2, 0, 1023, 127, 0);
+    poti3 = analogRead(potPin3);
+    poti3 = map(poti3, 0, 1023, 127, 0);
  
     //end of sequence button
     eosBtn.read();
@@ -73,7 +75,7 @@ void loop()
       MIDI.sendNoteOff(127, 0, 1);
     }
  
-    //button1
+    //button 1
     btn1.read();
     if (btn1.wasPressed()){
       MIDI.sendNoteOn(fader1, poti1, 1);
@@ -89,33 +91,31 @@ void loop()
       delay(5);
     }
  
-    //button2
+    //button 2 == major chord
     btn2.read();
-    if (btn2.wasPressed()){
+    if(btn2.wasPressed()){
       MIDI.sendNoteOn(fader2, poti2, 1);
-      currentNote2 = fader2; 
-    }
-    if (btn2.wasReleased()){
-      MIDI.sendNoteOff(currentNote2, 0, 1);
-    } 
-    if(fader2 != currentNote2 && btn2.isPressed()){
-      MIDI.sendNoteOff(currentNote2, 0, 1);
-      MIDI.sendNoteOn(fader2, poti2, 1);
+      MIDI.sendNoteOn(fader2+4, poti2, 1);
+      MIDI.sendNoteOn(fader2+7, poti2, 1);
       currentNote2 = fader2;
-      delay(5);
-    }   
-    
-    //button 3 == chord
+    }                       
+    if(btn2.wasReleased()){
+      MIDI.sendNoteOff(currentNote2, 0, 1);
+      MIDI.sendNoteOff(currentNote2+4, 0, 1);
+      MIDI.sendNoteOff(currentNote2+7, 0, 1);
+    } 
+      
+    //button 3 == minor chord
     btn3.read();
     if(btn3.wasPressed()){
-      MIDI.sendNoteOn(fader3, poti2, 1);
-      MIDI.sendNoteOn(fader3+4, poti2, 1);
-      MIDI.sendNoteOn(fader3+7, poti2, 1);
+      MIDI.sendNoteOn(fader3, poti3, 1);
+      MIDI.sendNoteOn(fader3+3, poti3, 1);
+      MIDI.sendNoteOn(fader3+7, poti3, 1);
       currentNote3 = fader3;
     }                       
     if(btn3.wasReleased()){
       MIDI.sendNoteOff(currentNote3, 0, 1);
-      MIDI.sendNoteOff(currentNote3+4, 0, 1);
+      MIDI.sendNoteOff(currentNote3+3, 0, 1);
       MIDI.sendNoteOff(currentNote3+7, 0, 1);
     } 
 }
