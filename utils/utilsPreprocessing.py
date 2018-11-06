@@ -208,7 +208,7 @@ def addCuttedOctaves(matrix):
             matrix = np.pad(matrix,[[0,0],[36,32]],'constant')
     return matrix
 
-def pianorollMatrixToTempMidi(matrix, path='tempMidiFiles/temp.mid', prediction=True,
+def pianorollMatrixToTempMidi(matrix, path='../tempMidiFiles/temp.mid', prediction=True,
     show=True, showPlayer=True, autoplay=False): 
     #MATRIX MUST BE OF DIMENSION LENGTHxPITCH here: (96,128)
  

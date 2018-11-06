@@ -17,7 +17,8 @@ export PYTHONPATH=${PYTHONPATH}:/path/to/dir
 ```bash
 pip3 install -r requirements.txt
 ```
-5. Install PyTorch
+5. Install PyTorch 
+
 If you don't need GPU Support or you are working on Linux with CUDA 9.0, try:
 ```bash
 pip3 install torch torchvision
