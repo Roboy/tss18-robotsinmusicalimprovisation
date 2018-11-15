@@ -10,12 +10,13 @@ class LiveParser():
 		#pulses per quarter note
 		self.ppq = ppq
 		self.seconds2tick = 60. / (bpm * ppq)
-		self.current_tick = 0
+		self.current_tick = -1
 		self.track = []
 		self.start_time = time.time()
 		self.end_seq_note = end_seq_note
-		self.bar_length = ppq*4
+		self.bar_length = ppq * 4
 		self.seq_length_ticks = self.bar_length * number_seq
+		self.metronome = 0
 
 	def open_port(self, callback_function):
 		self.port = mido.open_input(callback=callback_function)
@@ -23,18 +24,24 @@ class LiveParser():
 		print("Using port: ", self.port)
 
 	def clock(self):
-		self.current_time = time.time()-self.start_time
-		self.temp_tick = int(self.current_time/self.seconds2tick)
+		self.current_time = time.time() - self.start_time
+		self.temp_tick = int(self.current_time / self.seconds2tick)
 		if(self.temp_tick > self.current_tick):
 			self.current_tick = self.temp_tick
-			print("clock {}".format(self.current_tick))
+			# print("clock {}".format(self.current_tick))
+			if(self.current_tick % 24 == 0):
+				self.metronome += 1
+				print(self.metronome)
+				if(self.metronome == 4):
+					self.metronome = 0
+					print("")
 		if(self.current_tick == self.seq_length_ticks):
 			if self.track:
 				return 1
 			else:
-				print("No note was played - starting over!")
+				print("No note was played - starting over!\n")
 				self.start_time = time.time()
-				self.current_tick = 0
+				self.current_tick = -1
 
 	def print_message(self, msg):
 		print(msg)
@@ -43,7 +50,7 @@ class LiveParser():
 		print(msg.bytes())
 
 	def parse_notes(self, message):
-		print(message)
+		# print(message)
 		msg = message.bytes()
 		self.track.append([self.current_tick, msg[0], msg[1], msg[2]])
 
@@ -100,7 +107,6 @@ if __name__ == '__main__':
 		if status_played_notes:
 			sequence = midi.parse_to_matrix()
 			break
-
 
 	#print(midi.track)
 	plt.imshow(sequence.transpose(1,0), origin='lower')
