@@ -92,6 +92,7 @@ def main():
     # get live input
     live_instrument = LiveParser(number_seq = seq_length)
     live_instrument.open_port(live_instrument.parse_notes)
+    live_instrument.reset_clock()
     while (True):
         status_played_notes = live_instrument.clock()
         if status_played_notes:
