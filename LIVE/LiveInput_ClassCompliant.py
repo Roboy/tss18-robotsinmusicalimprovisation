@@ -64,7 +64,6 @@ class LiveParser():
 		pianoroll = np.zeros((self.seq_length_ticks, 128))
 
 		for note in self.sequence:
-			# print(note)
 			# note on range in ints (all midi channels 1-16)
 			if(note[1] >= 144 and note[1] < 160):
 				pianoroll[note[0],note[2]] = note[3]
@@ -72,31 +71,39 @@ class LiveParser():
 			elif(note[1] >= 128 and note[1] < 144):
 				try:
 					noteOnEntry = np.argwhere(pianoroll[:note[0],note[2]])[-1][0]
+					print(noteOnEntry)
 				except:
 					noteOnEntry = 0
-				# some midi instruments send note off message with 0 velocity
-				# TODO USE VELOCITY OF NOTE ON MESSAGE
-				lastVelocity = pianoroll[noteOnEntry,note[2]]
-				pianoroll[noteOnEntry+1:note[0]+1,note[2]] = lastVelocity	
+				# some midi instruments send note off message with 0 or constant velocity
+				# we use the velocity of the corresponding note on message
+ 				# TODO USE VELOCITY OF NOTE ON MESSAGE 
+ 				# BUGGY
+				if(note[3] == 0):
+					lastVelocity = pianoroll[noteOnEntry,note[2]]
+					pianoroll[noteOnEntry+1:note[0]+1,note[2]] = lastVelocity	
+				else:
+					pianoroll[noteOnEntry+1:note[0]+1,note[2]] = note[3]
 
 		return pianoroll
 
 
 
 
+
+
 if __name__ == '__main__':
-	#beat per minute
+	# beats per minute
 	bpm = 120
 
-	#pulses per quarter note
-	#96 PPQ is sufficient to capture enough temporal variation according to wikipedia
-	#we will use 24
+	# pulses per quarter note
+	# 96 PPQ is sufficient to capture enough temporal variation according to wikipedia
+	# we will use 24
 	ppq = 24 
 
 	#4/4
 	bar_length = ppq * 4
 
-	#how many bars would you like to record?
+	# how many bars would you like to record?
 	number_seq = 2
 
 	midi = LiveParser(bpm=bpm, ppq=ppq, number_seq=number_seq, end_seq_note=127)
@@ -109,8 +116,5 @@ if __name__ == '__main__':
 			sequence = midi.parse_to_matrix()
 			break
 
-	#print(midi.track)
 	plt.imshow(sequence.transpose(1,0), origin='lower')
 	plt.show()
-
-
