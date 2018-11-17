@@ -1,6 +1,6 @@
 EESchema Schematic File Version 4
 LIBS:midi_controller_pcb-cache
-EELAYER 26 0
+EELAYER 29 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -15,7 +15,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L 2772:2772 IC1
+L midi_controller_pcb-rescue:2772-2772 IC1
 U 1 1 5BEF06B3
 P 6300 3450
 F 0 "IC1" V 6035 2800 50  0000 C CNN
@@ -608,18 +608,14 @@ Wire Wire Line
 $Comp
 L Device:LED D1
 U 1 1 5C117C70
-P 5350 2300
-F 0 "D1" V 5295 2378 50  0000 L CNN
-F 1 "LED" V 5386 2378 50  0000 L CNN
-F 2 "LED_THT:LED_D1.8mm_W3.3mm_H2.4mm" H 5350 2300 50  0001 C CNN
-F 3 "~" H 5350 2300 50  0001 C CNN
-	1    5350 2300
+P 5350 2525
+F 0 "D1" V 5295 2603 50  0000 L CNN
+F 1 "LED" V 5386 2603 50  0000 L CNN
+F 2 "LED_THT:LED_D1.8mm_W3.3mm_H2.4mm" H 5350 2525 50  0001 C CNN
+F 3 "~" H 5350 2525 50  0001 C CNN
+	1    5350 2525
 	0    1    1    0   
 $EndComp
-Wire Wire Line
-	5350 1900 5350 2150
-Wire Wire Line
-	5350 2450 5350 2850
 Connection ~ 5350 2850
 Wire Wire Line
 	5350 2850 6700 2850
@@ -751,4 +747,21 @@ Wire Wire Line
 	9450 5450 10050 5450
 Wire Wire Line
 	6700 2850 10650 2850
+Wire Wire Line
+	5350 2675 5350 2850
+$Comp
+L Device:R R8
+U 1 1 5BF1C52B
+P 5350 2145
+F 0 "R8" H 5280 2099 50  0000 R CNN
+F 1 "1k" H 5280 2190 50  0000 R CNN
+F 2 "Resistor_SMD:R_0402_1005Metric" V 5280 2145 50  0001 C CNN
+F 3 "~" H 5350 2145 50  0001 C CNN
+	1    5350 2145
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	5350 2375 5350 2295
+Wire Wire Line
+	5350 1995 5350 1900
 $EndSCHEMATC
