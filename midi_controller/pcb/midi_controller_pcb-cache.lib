@@ -112,11 +112,11 @@ X B 2 200 0 100 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# midi_controller_pcb-rescue_2772-2772
+# midi_controller_pcb-rescue_2772-2772-midi_controller_pcb-rescue
 #
-DEF midi_controller_pcb-rescue_2772-2772 IC 0 30 Y Y 1 F N
+DEF midi_controller_pcb-rescue_2772-2772-midi_controller_pcb-rescue IC 0 30 Y Y 1 F N
 F0 "IC" 1650 0 50 H V L CNN
-F1 "midi_controller_pcb-rescue_2772-2772" 1650 -100 50 H V L CNN
+F1 "midi_controller_pcb-rescue_2772-2772-midi_controller_pcb-rescue" 1650 -100 50 H V L CNN
 F2 "2772" 1650 -200 50 H I L CNN
 F3 "https://componentsearchengine.com/Datasheets/1/2772.pdf" 1650 -300 50 H I L CNN
 F4 "ADAFRUIT - 2772 - Adafruit Feather Basic Pro ATSAMD21 Cortex M0 98Y0176" 1650 -400 50 H I L CNN "Description"

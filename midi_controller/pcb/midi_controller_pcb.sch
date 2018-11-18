@@ -1,6 +1,6 @@
 EESchema Schematic File Version 4
 LIBS:midi_controller_pcb-cache
-EELAYER 29 0
+EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -15,7 +15,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L midi_controller_pcb-rescue:2772-2772 IC1
+L midi_controller_pcb-rescue:2772-2772-midi_controller_pcb-rescue IC1
 U 1 1 5BEF06B3
 P 6300 3450
 F 0 "IC1" V 6035 2800 50  0000 C CNN
