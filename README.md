@@ -1,4 +1,4 @@
-# Robots in musical improvisation
+# Robots in Musical Improvisation
 
 ## Prerequisites 
 1. Create virtual environment in the root folder of this project:
@@ -11,7 +11,7 @@ source .rimi/bin/activate
 ```
 3. Set PYTHONPATH to the root directory of this project or add to ~/.bashrc
 ```bash
-export PYTHONPATH=${PYTHONPATH}:/path/to/dir
+export PYTHONPATH=$PYTHONPATH:/path/to/dir
 ```
 4. Pip install all packages
 ```bash
@@ -19,7 +19,7 @@ pip3 install -r requirements.txt
 ```
 5. Install PyTorch 
 
-If you don't need GPU Support or you are working on Linux with CUDA 9.0, try:
+If you are working on Ubuntu with CUDA 9.0, try:
 ```bash
 pip3 install torch torchvision
 ```
