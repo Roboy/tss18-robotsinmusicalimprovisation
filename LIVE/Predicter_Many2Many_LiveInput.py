@@ -15,14 +15,16 @@ from utils.LSTM import LSTM_Many2Many
 from utils.VAE import VAE
 from loadModel import loadModel
 from LIVE.LiveInput_ClassCompliant import LiveParser
+from mido import MidiFile
 
 # argparser
 parser = argparse.ArgumentParser(description='Hyperparameter and port selection')
-parser.add_argument("--port", help='MIDI controller input port', type=str)
-parser.add_argument("--AE_model", help='Path to Autoencoder model. If you trained the AE on multiple GPUs use the --AE_model_dataParallel flag. Defaults to pretrained model', type=str)
+parser.add_argument("--port", help='MIDI controller input port. If you want to set it from bash. You can also set it later. Default = None.', type=str)
+parser.add_argument("--AE_model", help='Path to Autoencoder model. If you trained the AE on multiple GPUs use the --AE_model_dataParallel flag. Defaults to pretrained model.', type=str)
 parser.add_argument("--AE_is_dataParallel", help='Option to allow loading models trained with multiple GPUs. Default: False', action="store_true")
 parser.add_argument("--LSTM_model", help='Path to LSTM model. Defaults to pretrained model', type=str)
-parser.add_argument("--seq_length", help='Set the sequence length. Default: 8', type=int)
+parser.add_argument("--temperature", help='Temperature of improvisation. Default: 0.7', type=float)
+parser.add_argument("--seq_length", help='Set the sequence length. Default: 4', type=int)
 parser.add_argument("--hidden_size", help='Sets the hidden size of the LSTM model. This depends on the model you would like to load. Default: 128', type=int)
 parser.add_argument("--input_size", help='If you trained an autoencoder with a different embedding size, you can change it here. Default: 100', type=int)
 
@@ -33,7 +35,6 @@ if args.port:
     port = args.port
 else:
     port = None
-
 # Autoencoder model
 if args.AE_model:
     path_to_ae_model = args.AE_model
@@ -45,6 +46,11 @@ if args.LSTM_model:
     path_to_lstm_model = args.LSTM_model
 else:
     path_to_lstm_model = "../../new_models_and_plots/LSTM_WikifoniaTP12_128hidden_180epochs_LRe-4_Many2Many.model"
+# temperature
+if args.temperature:
+    temperature = args.temperature
+else:
+    temperature = 0.7
 
 # sequence length
 if args.seq_length:
@@ -102,6 +108,7 @@ def main(live_instrument):
         status_played_notes = live_instrument.clock()
         if status_played_notes:
             sequence = live_instrument.parse_to_matrix()
+            live_instrument.reset_sequence()
             break
 
     # send live recorded sequence through model and get improvisation
@@ -131,18 +138,24 @@ def main(live_instrument):
         prediction = predict
         prediction /= np.abs(np.max(prediction))
 
-        #check midi activations to include rests
-        prediction[prediction < 0.3] = 0
+        # check midi activations to include rests
+        prediction[prediction < (1-temperature)] = 0
         prediction = debinarizeMidi(prediction, prediction=True)
         prediction = addCuttedOctaves(prediction)
 
         print("Prediction")
+        # write temp midi file
         pianorollMatrixToTempMidi(prediction, prediction=True, 
-                                  show=False,showPlayer=False,autoplay=True)        
+                                  show=False,showPlayer=False,autoplay=False)
+        # play temp midi file
+        for msg in MidiFile('../tempMidiFiles/temp.mid').play():
+            live_instrument.out_port.send(msg)
 
 if __name__ == '__main__':
     # get live input
     live_instrument = LiveParser(number_seq = seq_length)
     live_instrument.open_inport(live_instrument.parse_notes)
+    live_instrument.open_outport()
+
     while(True):
         main(live_instrument)

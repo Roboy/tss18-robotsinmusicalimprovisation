@@ -13,11 +13,16 @@ source .rimi/bin/activate
 ```bash
 export PYTHONPATH=$PYTHONPATH:/path/to/dir
 ```
-4. Pip install all packages
+4. OPTIONAL (for Ubuntu): You will need these for python-rtmidi:
+```bash
+sudo apt-get install libasound-dev
+sudo apt-get install libjack-dev
+```
+5. Pip install all packages
 ```bash
 pip3 install -r requirements.txt
 ```
-5. Install PyTorch 
+6. Install PyTorch 
 
 If you are working on Ubuntu with CUDA 9.0, try:
 ```bash
