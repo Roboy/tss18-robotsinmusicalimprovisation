@@ -18,6 +18,7 @@ from LIVE.LiveInput_ClassCompliant import LiveParser
 
 # argparser
 parser = argparse.ArgumentParser(description='Hyperparameter and port selection')
+parser.add_argument("--port", help='MIDI controller input port', type=str)
 parser.add_argument("--AE_model", help='Path to Autoencoder model. If you trained the AE on multiple GPUs use the --AE_model_dataParallel flag. Defaults to pretrained model', type=str)
 parser.add_argument("--AE_is_dataParallel", help='Option to allow loading models trained with multiple GPUs. Default: False', action="store_true")
 parser.add_argument("--LSTM_model", help='Path to LSTM model. Defaults to pretrained model', type=str)
@@ -27,42 +28,48 @@ parser.add_argument("--input_size", help='If you trained an autoencoder with a d
 
 args = parser.parse_args()
 
-#Autoencoder model
+# port
+if args.port:
+    port = args.port
+else:
+    port = None
+
+# Autoencoder model
 if args.AE_model:
     path_to_ae_model = args.AE_model
 else:
     path_to_ae_model = "../../new_models_and_plots/YamahaPC2002_VAE_Reconstruct_NoTW_20Epochs.model"
 
-#LSTM model
+# LSTM model
 if args.LSTM_model:
     path_to_lstm_model = args.LSTM_model
 else:
     path_to_lstm_model = "../../new_models_and_plots/LSTM_WikifoniaTP12_128hidden_180epochs_LRe-4_Many2Many.model"
 
-#sequence length
+# sequence length
 if args.seq_length:
     seq_length = args.seq_length
 else:
     seq_length = 4
 
-#hidden_size
+# hidden_size
 if args.hidden_size:
     hidden_size = args.hidden_size
 else:
     hidden_size = 128
 
-#input_size 
+# input_size 
 if args.input_size:
     input_size = args.input_size
 else:
     input_size = 100
 
-print(args.AE_is_dataParallel)
-print(path_to_ae_model)
-print(path_to_lstm_model)
-print(seq_length)
+# print(args.AE_is_dataParallel)
+# print(path_to_ae_model)
+# print(path_to_lstm_model)
+# print(seq_length)
 
-def main():
+def main(live_instrument):
     # check for gpu support
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -89,9 +96,7 @@ def main():
     if(autoencoderModel.train()):
         autoencoderModel.eval()
 
-    # get live input
-    live_instrument = LiveParser(number_seq = seq_length)
-    live_instrument.open_port(live_instrument.parse_notes)
+    # reset live input clock
     live_instrument.reset_clock()
     while (True):
         status_played_notes = live_instrument.clock()
@@ -136,5 +141,8 @@ def main():
                                   show=False,showPlayer=False,autoplay=True)        
 
 if __name__ == '__main__':
+    # get live input
+    live_instrument = LiveParser(number_seq = seq_length)
+    live_instrument.open_inport(live_instrument.parse_notes)
     while(True):
-        main()
+        main(live_instrument)

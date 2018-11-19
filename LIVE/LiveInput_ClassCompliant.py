@@ -5,7 +5,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 class LiveParser():
-	def __init__(self, bpm=120, ppq=24, number_seq=0, end_seq_note=127):
+	def __init__(self, port=None, bpm=120, ppq=24, number_seq=0, end_seq_note=127):
 		self.bpm = bpm
 		#pulses per quarter note
 		self.ppq = ppq
@@ -18,10 +18,15 @@ class LiveParser():
 		self.seq_length_ticks = self.bar_length * number_seq
 		self.counter_metronome = 0
 		self.metronome = 0
+		self.port = port
 
-	def open_port(self, callback_function):
-		self.in_port = mido.open_input(callback=callback_function)
+	def open_inport(self, callback_function):
 		print("These input ports are available: ", mido.get_input_names())
+		if self.port == None:
+			port = input("Which port would you like to use? ")
+			self.in_port = mido.open_input(port, callback=callback_function)
+		else:
+			self.in_port = mido.open_input(port, callback=callback_function)
 		print("Using input port: ", self.in_port)
 
 	def reset_clock(self):
@@ -71,7 +76,7 @@ class LiveParser():
 			elif(note[1] >= 128 and note[1] < 144):
 				try:
 					noteOnEntry = np.argwhere(pianoroll[:note[0],note[2]])[-1][0]
-					print(noteOnEntry)
+					# print(noteOnEntry)
 				except:
 					noteOnEntry = 0
 				# some midi instruments send note off message with 0 or constant velocity
@@ -85,10 +90,6 @@ class LiveParser():
 					pianoroll[noteOnEntry+1:note[0]+1,note[2]] = note[3]
 
 		return pianoroll
-
-
-
-
 
 
 if __name__ == '__main__':
@@ -107,7 +108,7 @@ if __name__ == '__main__':
 	number_seq = 2
 
 	midi = LiveParser(bpm=bpm, ppq=ppq, number_seq=number_seq, end_seq_note=127)
-	midi.open_port(midi.parse_notes)
+	midi.open_inport(midi.parse_notes)
 	# midi.open_port(midi.print_message)
 	midi.reset_clock()
 	while (True):
