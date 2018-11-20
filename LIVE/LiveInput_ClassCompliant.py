@@ -36,7 +36,20 @@ class LiveParser():
 
     def open_outport(self):
         # TODO autoroute midi port to virtual synth possible??
-        self.out_port = mido.open_output("Robot port", virtual=True)
+        avail_out_ports = mido.get_output_names()
+        ports_dict = {i: avail_out_ports[i] for i in range(len(avail_out_ports))}
+        port = None
+        for i in range(len(avail_out_ports)):
+            if "Synth input" in ports_dict[i]:  # Better way than looking for this string?
+                port = ports_dict[i]
+        if port:
+            self.out_port = mido.open_output(port)
+            print("Found FLUID Synth and autoconnected!")
+        else:
+            self.out_port = mido.open_output("Robot port", virtual=True)
+            print("Could not find FLUID Synth, created virtual midi port called 'Robot port'")
+        # import pdb
+        # pdb.set_trace()
 
     def reset_clock(self):
         self.start_time = time.time()
