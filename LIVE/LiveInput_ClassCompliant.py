@@ -35,7 +35,7 @@ class LiveParser():
         print("Using input port: ", self.in_port)
 
     def open_outport(self):
-        # TODO
+        # TODO autoroute midi port to virtual synth possible??
         self.out_port = mido.open_output("Robot port", virtual=True)
 
     def reset_clock(self):
@@ -92,9 +92,9 @@ class LiveParser():
                 except:
                     noteOnEntry = 0
                 # some midi instruments send note off message with 0 or constant velocity
-                # we use the velocity of the corresponding note on message
+                # use the velocity of the corresponding note on message
                 # TODO USE VELOCITY OF NOTE ON MESSAGE
-                # BUGGY
+                # BUGGY, throws error if you play a note on the last midi tick of the sequence
                 if note[3] == 0:
                     last_velocity = pianoroll[noteOnEntry, note[2]]
                     pianoroll[noteOnEntry+1:note[0]+1, note[2]] = last_velocity

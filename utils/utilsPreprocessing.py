@@ -88,6 +88,7 @@ def getSlicedPianorollMatrixNp(pathToFile, binarize=True):
                 
     return endTrack
 
+
 def getSlicedPianorollMatrixList(pathToFile, binarize=True):
     
     seqLength = 96
@@ -188,6 +189,7 @@ def transposeNotesHigherLower(a):
 
     return a
 
+
 def cutOctaves(tensor):
     if (tensor.ndim==3):
         tensor = tensor[:,:,36:-32]
@@ -199,7 +201,6 @@ def cutOctaves(tensor):
     return tensor
 
 
-
 def addCuttedOctaves(matrix):
     if(matrix.shape[1]!=128):
         if(matrix.ndim==3):
@@ -208,9 +209,10 @@ def addCuttedOctaves(matrix):
             matrix = np.pad(matrix,[[0,0],[36,32]],'constant')
     return matrix
 
+
 def pianorollMatrixToTempMidi(matrix, path='../tempMidiFiles/temp.mid', prediction=True,
-    show=True, showPlayer=True, autoplay=False): 
-    #MATRIX MUST BE OF DIMENSION LENGTHxPITCH here: (96,128)
+    show=False, showPlayer=False, autoplay=False): 
+    #MATRIX MUST BE OF DIMENSION LENGTHxPITCH here: (96 or more,128)
  
     ###THIS IS A WORKAROUND SO NO NEW NOTES ARE SET ON THE LAST 2 TICKS
     ###IF NOTE IS SET IT WILL RAISE AN ERROR THAT THERE CANNOT BE A BEGIN AND 
@@ -261,6 +263,8 @@ def pianorollMatrixToTempMidi(matrix, path='../tempMidiFiles/temp.mid', predicti
         if(autoplay):
             music21.midi.realtime.StreamPlayer(score).play()
     """
+
+
 def debinarizeMidi(a, prediction=True,velocity=127):
     if(prediction):
         ###MONOPHONIC###
@@ -274,11 +278,13 @@ def debinarizeMidi(a, prediction=True,velocity=127):
         a[:] = np.where(a == 1,velocity,0)
     return a
 
+
 def noteThreshold(a, threshold=0.5, velocity=127):
     a[:] = np.where(a > threshold, velocity, 0)
 
     return a
-    
+  
+
 def torchRoll(tensor, shift, axis):
     if shift == 0:
         return tensor
@@ -296,6 +302,7 @@ def torchRoll(tensor, shift, axis):
     after = tensor.narrow(axis, after_start, shift)
     return torch.cat([after, before], axis)
     
+
 def transposeTracks(midiFiles):
     #TRANPOSE OCTAVE BELOW AND ABOVE OF ORIGINAL INPUT
     print("TRANSPOSING... THIS WILL TAKE A WHILE")
@@ -312,6 +319,7 @@ def transposeTracks(midiFiles):
         if(i%100==0):            
             print("({}/{}) {:.0f}%".format(i, midiFiles.size()[0], 100.*i/midiFiles.size()[0]))
     return midiDataset
+ 
     
 def deleteZeroMatrices(tensor):
     #DELETE ZERO MATRICES (SEQUENCES WITH NO NOTE AT ALL)

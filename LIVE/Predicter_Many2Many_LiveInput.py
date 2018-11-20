@@ -145,15 +145,14 @@ def main(live_instrument):
 
         print("Prediction")
         # write temp midi file
-        pianorollMatrixToTempMidi(prediction, prediction=True, 
-                                  show=False,showPlayer=False,autoplay=False)
+        pianorollMatrixToTempMidi(prediction, prediction=True)
         # play temp midi file
         for msg in MidiFile('../tempMidiFiles/temp.mid').play():
             live_instrument.out_port.send(msg)
 
 if __name__ == '__main__':
     # get live input
-    live_instrument = LiveParser(number_seq = seq_length)
+    live_instrument = LiveParser(port = port, number_seq = seq_length)
     live_instrument.open_inport(live_instrument.parse_notes)
     live_instrument.open_outport()
 
