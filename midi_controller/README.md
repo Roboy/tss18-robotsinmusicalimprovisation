@@ -5,5 +5,9 @@
 
 # How to build the W-101 midi controller!
 
+## Order PCB
+
 ## Mouser link to Components
-https://eu.mouser.com/ProjectManager/ProjectDetail.aspx?AccessID=8460c4020a
+https://eu.mouser.com/ProjectManager/ProjectDetail.aspx?AccessID=26290a0530
+
+## Laser cut the case
