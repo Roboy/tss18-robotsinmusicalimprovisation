@@ -1,6 +1,6 @@
 EESchema Schematic File Version 4
 LIBS:midi_controller_pcb-cache
-EELAYER 29 0
+EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -15,7 +15,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L midi_controller_pcb-rescue:2772-2772 IC1
+L midi_controller_pcb-rescue:2772-2772-midi_controller_pcb-rescue IC1
 U 1 1 5BEF06B3
 P 6300 3450
 F 0 "IC1" V 6035 2800 50  0000 C CNN
@@ -359,19 +359,19 @@ NoConn ~ 5000 3450
 $Comp
 L power:GND #PWR05
 U 1 1 5BF6455B
-P 5350 1900
-F 0 "#PWR05" H 5350 1650 50  0001 C CNN
-F 1 "GND" H 5355 1727 50  0000 C CNN
-F 2 "" H 5350 1900 50  0001 C CNN
-F 3 "" H 5350 1900 50  0001 C CNN
-	1    5350 1900
+P 5700 1850
+F 0 "#PWR05" H 5700 1600 50  0001 C CNN
+F 1 "GND" H 5705 1677 50  0000 C CNN
+F 2 "" H 5700 1850 50  0001 C CNN
+F 3 "" H 5700 1850 50  0001 C CNN
+	1    5700 1850
 	-1   0    0    1   
 $EndComp
 Text Notes 4150 3100 0    50   ~ 0
 Fader
 Text Notes 3400 5600 0    50   ~ 0
 Velocity Potis
-Text Notes 5550 2200 0    50   ~ 0
+Text Notes 5650 2500 1    50   ~ 0
 On/Off-LED
 Text Notes 7950 3100 0    50   ~ 0
 Buttons
@@ -618,7 +618,7 @@ F 3 "~" H 5350 2525 50  0001 C CNN
 $EndComp
 Connection ~ 5350 2850
 Wire Wire Line
-	5350 2850 6700 2850
+	5350 2850 5950 2850
 Wire Wire Line
 	7350 3650 7350 3800
 Wire Wire Line
@@ -764,4 +764,44 @@ Wire Wire Line
 	5350 2375 5350 2295
 Wire Wire Line
 	5350 1995 5350 1900
+$Comp
+L Device:LED D2
+U 1 1 5C0042D7
+P 5950 2500
+F 0 "D2" V 5895 2578 50  0000 L CNN
+F 1 "LED" V 5986 2578 50  0000 L CNN
+F 2 "LED_THT:LED_D1.8mm_W3.3mm_H2.4mm" H 5950 2500 50  0001 C CNN
+F 3 "~" H 5950 2500 50  0001 C CNN
+	1    5950 2500
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:R R9
+U 1 1 5C004463
+P 5950 2150
+F 0 "R9" H 5880 2104 50  0000 R CNN
+F 1 "1k" H 5880 2195 50  0000 R CNN
+F 2 "Resistor_SMD:R_0402_1005Metric" V 5880 2150 50  0001 C CNN
+F 3 "~" H 5950 2150 50  0001 C CNN
+	1    5950 2150
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	5950 2300 5950 2350
+Wire Wire Line
+	5950 2650 5950 2850
+Connection ~ 5950 2850
+Wire Wire Line
+	5950 2850 6700 2850
+Wire Wire Line
+	5700 1900 5700 1850
+Wire Wire Line
+	5350 1900 5700 1900
+Wire Wire Line
+	5950 2000 5950 1900
+Wire Wire Line
+	5950 1900 5700 1900
+Connection ~ 5700 1900
+Text Notes 6300 2600 1    50   ~ 0
+Bluetooth-LED
 $EndSCHEMATC

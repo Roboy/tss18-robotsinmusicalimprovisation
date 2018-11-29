@@ -323,7 +323,6 @@ Wire Wire Line
 Wire Wire Line
 	7150 4450 6300 4450
 NoConn ~ 6300 4050
-NoConn ~ 6300 4550
 NoConn ~ 6300 4650
 NoConn ~ 6300 4750
 NoConn ~ 6300 4850
@@ -371,7 +370,7 @@ Text Notes 4150 3100 0    50   ~ 0
 Fader
 Text Notes 3400 5600 0    50   ~ 0
 Velocity Potis
-Text Notes 5550 2200 0    50   ~ 0
+Text Notes 5650 2500 1    50   ~ 0
 On/Off-LED
 Text Notes 7950 3100 0    50   ~ 0
 Buttons
@@ -618,8 +617,6 @@ F 3 "~" H 5350 2525 50  0001 C CNN
 $EndComp
 Connection ~ 5350 2850
 Wire Wire Line
-	5350 2850 6700 2850
-Wire Wire Line
 	7350 3650 7350 3800
 Wire Wire Line
 	7350 3800 7650 3800
@@ -764,4 +761,49 @@ Wire Wire Line
 	5350 2375 5350 2295
 Wire Wire Line
 	5350 1995 5350 1900
+$Comp
+L Device:LED D2
+U 1 1 5C0042D7
+P 6600 5350
+F 0 "D2" V 6545 5428 50  0000 L CNN
+F 1 "LED" V 6636 5428 50  0000 L CNN
+F 2 "LED_THT:LED_D1.8mm_W3.3mm_H2.4mm" H 6600 5350 50  0001 C CNN
+F 3 "~" H 6600 5350 50  0001 C CNN
+	1    6600 5350
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R9
+U 1 1 5C004463
+P 6600 5700
+F 0 "R9" H 6530 5654 50  0000 R CNN
+F 1 "1k" H 6530 5745 50  0000 R CNN
+F 2 "Resistor_SMD:R_0402_1005Metric" V 6530 5700 50  0001 C CNN
+F 3 "~" H 6600 5700 50  0001 C CNN
+	1    6600 5700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6600 5550 6600 5500
+Wire Wire Line
+	6600 5850 6600 5950
+Text Notes 6850 5400 3    50   ~ 0
+Bluetooth-LED
+Wire Wire Line
+	5350 2850 6700 2850
+Wire Wire Line
+	6300 4550 6600 4550
+Wire Wire Line
+	6600 4550 6600 5200
+$Comp
+L power:GND #PWR0101
+U 1 1 5C0886C4
+P 6600 5950
+F 0 "#PWR0101" H 6600 5700 50  0001 C CNN
+F 1 "GND" V 6605 5822 50  0000 R CNN
+F 2 "" H 6600 5950 50  0001 C CNN
+F 3 "" H 6600 5950 50  0001 C CNN
+	1    6600 5950
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
