@@ -1,14 +1,14 @@
 
 //POTI TEST
 //Constants:
-const int potPin = A0; //pin A0 to read analog input
+const int potPin = A5; //pin A0 to read analog input
 
 
 //Variables:
 int value; //save analog value
 
 void setup(){
-  Serial.begin(9600);
+  Serial.begin(115200);
 }
 
 void loop(){
