@@ -39,13 +39,13 @@ else:
 if args.AE_model:
     path_to_ae_model = args.AE_model
 else:
-    path_to_ae_model = "../../new_models_and_plots/YamahaPC2002_VAE_Reconstruct_NoTW_20Epochs.model"
+    path_to_ae_model = "../pretrained/YamahaPC2002_VAE_Reconstruct_NoTW_20Epochs.model"
 
 # LSTM model
 if args.LSTM_model:
     path_to_lstm_model = args.LSTM_model
 else:
-    path_to_lstm_model = "../../new_models_and_plots/LSTM_WikifoniaTP12_128hidden_180epochs_LRe-4_Many2Many.model"
+    path_to_lstm_model = "../pretrained/LSTM_WikifoniaTP12_128hidden_180epochs_LRe-4_Many2Many.model"
 # temperature
 if args.temperature:
     temperature = args.temperature
