@@ -94,9 +94,10 @@ class LiveParser():
         pianoroll = np.zeros((self.seq_length_ticks, 128))
 
         for note in self.sequence:
+            # print(note)
             # note on range in ints (all midi channels 1-16)
             if(note[1] >= 144 and note[1] < 160):
-                pianoroll[note[0],note[2]] = note[3]
+                pianoroll[note[0]-1, note[2]] = note[3]
             # note off range in ints (all midi channels 1-16)
             elif(note[1] >= 128 and note[1] < 144):
                 try:

@@ -50,8 +50,37 @@ Adafruit_BLEMIDI midi(ble);
 
 bool isConnected = false;
 int current_note = 60;
-const byte BUTTON1(13);
+
+const byte 
+  BUTTON1(13),
+  BUTTON2(12),
+  BUTTON3(11),
+  BUTTON_EOS(10);
+
+const int 
+    faderPin1 = A2,
+    faderPin2 = A1,
+    faderPin3 = A0,
+    potPin1 = A3,
+    potPin2 = A4,
+    potPin3 = A5,
+    bleLED = 9;
+
+int 
+    fader1,
+    fader2,
+    fader3,
+    poti1,
+    poti2,
+    poti3,
+    currentNote1,
+    currentNote2,
+    currentNote3;
+    
+Button eosBtn(BUTTON_EOS, 25, true, false);
 Button btn1(BUTTON1, 25, true, false);
+Button btn2(BUTTON2, 25, true, false);
+Button btn3(BUTTON3, 25, true, false);
 
 
 // A small helper
@@ -64,8 +93,9 @@ void error(const __FlashStringHelper*err) {
 void connected(void)
 {
   isConnected = true;
-
+  
   Serial.println(F(" CONNECTED!"));
+  digitalWrite(bleLED, HIGH);   // turn the LED on (HIGH is the voltage level)
   delay(1000);
 
 }
@@ -73,6 +103,7 @@ void connected(void)
 void disconnected(void)
 {
   Serial.println("disconnected");
+  digitalWrite(bleLED, LOW);
   isConnected = false;
 }
 
@@ -91,7 +122,12 @@ void BleMidiRX(uint16_t timestamp, uint8_t status, uint8_t byte1, uint8_t byte2)
 
 void setup(void)
 {
+  eosBtn.begin();
   btn1.begin();
+  btn2.begin();
+  btn3.begin();
+  pinMode(bleLED, OUTPUT);
+
   // while (!Serial);  // required for Flora & Micro
   delay(500);
   
@@ -150,26 +186,86 @@ void loop(void)
   if (! isConnected)
     return;
 
+  fader1 = analogRead(faderPin1);             
+  fader1 = map(fader1, 0, 1023, 95, 36);    
+  fader2 = analogRead(faderPin2);
+  fader2 = map(fader2, 0, 1023, 95, 36);
+  fader3 = analogRead(faderPin3);
+  fader3 = map(fader3, 0, 1023, 95, 36);
+  poti1 = analogRead(potPin1);
+  poti1 = map(poti1, 0, 1023, 0, 127);
+  poti2 = analogRead(potPin2);
+  poti2 = map(poti2, 0, 1023, 0, 127);
+  poti3 = analogRead(potPin3);
+  poti3 = map(poti3, 0, 1023, 0, 127);
+  
 
-
+   //eos button
+  eosBtn.read();
+  if (eosBtn.wasPressed()){
+    // send note on
+    Serial.print("Sending pitch ");
+    Serial.println(current_note);
+    midi.send(0x90, 127, 0x64);
+  }
+  if (eosBtn.wasReleased()){
+    // send note off
+    midi.send(0x80, 127, 0x64);
+  }
+  
   //button 1
   btn1.read();
   if (btn1.wasPressed()){
     // send note on
-    Serial.print("Sending pitch ");
-    Serial.println(current_note);
-    midi.send(0x90, current_note, 0x64);
+//    Serial.print("Sending pitch ");
+//    Serial.println(current_note);
+    midi.send(0x90, fader1, poti1);
+    currentNote1 = fader1;
   }
   if (btn1.wasReleased()){
     // send note off
-    midi.send(0x80, current_note, 0x64);
+    midi.send(0x80, currentNote1, 0);
+  }
+  
+    //button 2 == major chord
+  btn2.read();
+  if (btn2.wasPressed()){
+    // send note on
+//    Serial.print("Sending pitch ");
+//    Serial.println(current_note);
+    midi.send(0x90, fader2, poti2);
+    midi.send(0x90, fader2+4, poti2);
+    midi.send(0x90, fader2+7, poti2);
+    midi.send(0x90, fader2+12, poti2);
+    currentNote2 = fader2;
+  }
+  if (btn2.wasReleased()){
+    // send note off
+    midi.send(0x80, currentNote2, 0);
+    midi.send(0x80, currentNote2 + 4, 0);
+    midi.send(0x80, currentNote2 + 7, 0);
+    midi.send(0x80, currentNote2 + 12, 0);
   }
 
-  // increment note pitch
-  // current_note++;
+    //button 3
+  btn3.read();
+  if (btn3.wasPressed()){
+    // send note on
+//    Serial.print("Sending pitch ");
+//    Serial.println(current_note);
+    midi.send(0x90, fader3, poti3);
+    midi.send(0x90, fader3 + 3, poti3);
+    midi.send(0x90, fader3 + 7, poti3);
+    midi.send(0x90, fader3 + 12, poti3);
+    currentNote3 = fader3;
+  }
+  if (btn3.wasReleased()){
+    // send note off
+    midi.send(0x80, currentNote3, 0);
+    midi.send(0x80, currentNote3 + 3, 0);
+    midi.send(0x80, currentNote3 + 7, 0);
+    midi.send(0x80, currentNote3 + 12, 0);
+  }
 
-  // only do one octave
-//  if(current_note > 72)
-//    current_note = 60;
 
 }

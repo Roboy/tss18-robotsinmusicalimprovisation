@@ -75,32 +75,23 @@ else:
 # print(path_to_lstm_model)
 # print(seq_length)
 
-def main(live_instrument):
+def main(live_instrument, lstm_model, autoencoder_model):
     # check for gpu support
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-
-    lstmModel = LSTM_Many2Many(batch_size=1, seq_length=seq_length*2, 
-                     input_size=input_size, hidden_size=hidden_size)
-    autoencoderModel = VAE()
-
-    #load weights
-    lstmModel = loadModel(lstmModel, path_to_lstm_model)
-    autoencoderModel = loadModel(autoencoderModel, path_to_ae_model,
-                                dataParallelModel=args.AE_is_dataParallel)
     # to device
-    lstmModel = lstmModel.double().to(device)
-    autoencoderModel = autoencoderModel.to(device)
+    lstm_model = lstm_model.double().to(device)
+    autoencoder_model = autoencoder_model.to(device)
 
 
     # Generate sample by feeding 7
     playSeq = 0
-    lstmModel.batch_size = seq_length*2
+    lstm_model.batch_size = seq_length*2
 
-    if(lstmModel.train()):
-        lstmModel.eval()
-    if(autoencoderModel.train()):
-        autoencoderModel.eval()
+    if(lstm_model.train()):
+        lstm_model.eval()
+    if(autoencoder_model.train()):
+        autoencoder_model.eval()
 
     # reset live input clock
     live_instrument.reset_clock()
@@ -121,11 +112,11 @@ def main(live_instrument):
         sample = torch.unsqueeze(sample,1)
 
         # model
-        embed, _ = autoencoderModel.encoder(sample)
+        embed, _ = autoencoder_model.encoder(sample)
         embed = embed.unsqueeze(0).double()
-        embed, lstmOut = lstmModel(embed, future=0)
+        embed, lstmOut = lstm_model(embed, future=0)
         lstmOut = lstmOut.float()
-        pred = autoencoderModel.decoder(lstmOut.squeeze(0))
+        pred = autoencoder_model.decoder(lstmOut.squeeze(0))
 
         # reorder prediction
         pred = pred.squeeze(1)
@@ -156,5 +147,14 @@ if __name__ == '__main__':
     live_instrument.open_inport(live_instrument.parse_notes)
     live_instrument.open_outport()
 
+    lstm_model = LSTM_Many2Many(batch_size=1, seq_length=seq_length*2, 
+                     input_size=input_size, hidden_size=hidden_size)
+    autoencoder_model = VAE()
+
+    #load weights
+    lstm_model = loadModel(lstm_model, path_to_lstm_model)
+    autoencoder_model = loadModel(autoencoder_model, path_to_ae_model,
+                                dataParallelModel=args.AE_is_dataParallel)
+
     while(True):
-        main(live_instrument)
+        main(live_instrument, lstm_model, autoencoder_model)

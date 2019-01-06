@@ -4,7 +4,7 @@
 
 2. Use your favorite DAW or fluidsynth to synthesize the MIDI notes
 
-3. For running the Many-to-Many (4-to-4 sequences) LSTM with live input, try:
+3. For running the Many-to-Many (4-to-4 sequences) LSTM with live input, try:<br>
 Make sure you have your virtual environment running!
 ```bash
 python Predicter_Many2Many_LiveInput.py
