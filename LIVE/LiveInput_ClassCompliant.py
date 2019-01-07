@@ -101,7 +101,12 @@ class LiveParser():
     def parse_notes(self, message):
         # print(message)
         msg = message.bytes()
-        self.sequence.append([self.current_tick, msg[0], msg[1], msg[2]])
+
+        # only append midi on and midi off notes
+        if(msg[0] >= 128 and msg[0] < 160):
+            self.sequence.append([self.current_tick, msg[0], msg[1], msg[2]])
+
+        # could be extended to use midi control changes
 
     def parse_to_matrix(self):
         # print("Parsing...")

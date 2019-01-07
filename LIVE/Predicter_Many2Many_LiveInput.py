@@ -95,6 +95,7 @@ def main(live_instrument, lstm_model, autoencoder_model):
 
     # reset live input clock
     print("\nUser input\n")
+    live_instrument.reset_sequence()
     live_instrument.reset_clock()
     while True:
         status_played_notes = live_instrument.clock()
