@@ -136,8 +136,8 @@ def getSlicedPianorollMatrixList(pathToFile, binarize=True):
 
 
 def transposeNotesHigherLower(a):
-    #THIS FUNCTION TRANSPOSES ALL NOTES HIGHER THAN B6 AND LOWER THAN C2
-    #INTO 5 OCTAVE RANGE FROM C2 TO B6
+    # This function transposes all notes higher than B6 and lower than C2
+    # into 5 octave range from C2 to B6
     if(a.ndim>2):
         for i,track in enumerate(a):
             octCheck = np.argwhere(track>0)
@@ -212,7 +212,7 @@ def addCuttedOctaves(matrix):
 
 def pianorollMatrixToTempMidi(matrix, path='../tempMidiFiles/temp.mid', prediction=True,
     show=False, showPlayer=False, autoplay=False): 
-    #MATRIX MUST BE OF DIMENSION LENGTHxPITCH here: (96 or more,128)
+    # matrix must be of LENGTHxPITCH dimension here: (96 or more,128)
  
     ###THIS IS A WORKAROUND SO NO NEW NOTES ARE SET ON THE LAST 2 TICKS
     ###IF NOTE IS SET IT WILL RAISE AN ERROR THAT THERE CANNOT BE A BEGIN AND 
@@ -233,47 +233,15 @@ def pianorollMatrixToTempMidi(matrix, path='../tempMidiFiles/temp.mid', predicti
     if(autoplay):
         music21.midi.realtime.StreamPlayer(score).play()
 
-    ###TRY EXCEPT TAKES LONGER BUT WORKS BETTER
-    """
-    try:    
-        tempTrack = ppr.Track(matrix)
-        newTrack = ppr.Multitrack()
-        newTrack.append_track(tempTrack)
-        newTrack.write(path)
-        
-        score = music21.converter.parse(path)
-        if(show):
-            score.show()
-        if(showPlayer):
-            score.show('midi')
-        if(autoplay):
-            music21.midi.realtime.StreamPlayer(score).play()
-    except:
-        matrix[-2:,:] = 0
-        tempTrack = ppr.Track(matrix)
-        newTrack = ppr.Multitrack()
-        newTrack.append_track(tempTrack)
-        newTrack.write(path)
-        
-        score = music21.converter.parse(path)
-        if(show):
-            score.show()
-        if(showPlayer):
-            score.show('midi')
-        if(autoplay):
-            music21.midi.realtime.StreamPlayer(score).play()
-    """
-
 
 def debinarizeMidi(a, prediction=True,velocity=127):
     if(prediction):
-        ###MONOPHONIC###
+        # MONOPHONIC
         #rowMax = a.max(axis=1).reshape(-1, 1)
         #a[:] = np.where((a == rowMax) & (a > 0), velocity, 0)
-
-        ###POLYPHONIC###
-        #print("POLYPHONIC")
+        # POLYPHONIC
         a[:] = np.where((a > 0), velocity, 0)
+
     elif(prediction==False):
         a[:] = np.where(a == 1,velocity,0)
     return a
@@ -281,7 +249,6 @@ def debinarizeMidi(a, prediction=True,velocity=127):
 
 def noteThreshold(a, threshold=0.5, velocity=127):
     a[:] = np.where(a > threshold, velocity, 0)
-
     return a
   
 
@@ -322,11 +289,9 @@ def transposeTracks(midiFiles):
  
     
 def deleteZeroMatrices(tensor):
-    #DELETE ZERO MATRICES (SEQUENCES WITH NO NOTE AT ALL)
-    #print(tensor.shape)
+    # This function deletes zero matrices (sequences with no note at all)
     zeros = []
     for i,file in enumerate(tensor):
-        #print(file.size())
         if(np.any(file) == False):
             zeros.append(i)
 

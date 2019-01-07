@@ -96,6 +96,7 @@ while (True):
     status_played_notes = live_instrument.clock()
     if status_played_notes:
         sequence = live_instrument.parse_to_matrix()
+        live_instrument.reset_sequence()
         break
 
 print(sequence.shape)

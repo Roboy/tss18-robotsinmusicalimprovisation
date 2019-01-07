@@ -68,12 +68,26 @@ class LiveParser():
             # print("clock {}".format(self.current_tick))
             if self.current_tick % self.ppq == 0:
                 self.counter_metronome += 1
-        if self.current_tick == self.seq_length_ticks:
+        if self.current_tick == self.seq_length_ticks-1:
             if self.sequence:
                 return 1
             else:
                 print("No note was played - starting over!\n")
                 self.reset_clock()
+        if self.counter_metronome > self.metronome:
+            self.metronome = self.counter_metronome
+            print(self.metronome)
+
+    def computer_clock(self):
+        self.current_time = time.time() - self.start_time
+        self.temp_tick = int(self.current_time / self.seconds2tick)
+        if self.temp_tick > self.current_tick:
+            self.current_tick = self.temp_tick
+            # print("clock {}".format(self.current_tick))
+            if self.current_tick % self.ppq == 0:
+                self.counter_metronome += 1
+        if self.current_tick == self.seq_length_ticks-1:
+            return 1
         if self.counter_metronome > self.metronome:
             self.metronome = self.counter_metronome
             print(self.metronome)
@@ -90,7 +104,7 @@ class LiveParser():
         self.sequence.append([self.current_tick, msg[0], msg[1], msg[2]])
 
     def parse_to_matrix(self):
-        print("Parsing...")
+        # print("Parsing...")
         pianoroll = np.zeros((self.seq_length_ticks, 128))
 
         for note in self.sequence:

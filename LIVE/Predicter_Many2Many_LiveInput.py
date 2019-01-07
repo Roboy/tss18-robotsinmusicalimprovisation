@@ -15,7 +15,7 @@ from utils.LSTM import LSTM_Many2Many
 from utils.VAE import VAE
 from loadModel import loadModel
 from LIVE.LiveInput_ClassCompliant import LiveParser
-from mido import MidiFile
+from mido import MidiFile, Message
 
 # argparser
 parser = argparse.ArgumentParser(description='Hyperparameter and port selection')
@@ -94,8 +94,9 @@ def main(live_instrument, lstm_model, autoencoder_model):
         autoencoder_model.eval()
 
     # reset live input clock
+    print("\nUser input\n")
     live_instrument.reset_clock()
-    while (True):
+    while True:
         status_played_notes = live_instrument.clock()
         if status_played_notes:
             sequence = live_instrument.parse_to_matrix()
@@ -134,12 +135,38 @@ def main(live_instrument, lstm_model, autoencoder_model):
         prediction = debinarizeMidi(prediction, prediction=True)
         prediction = addCuttedOctaves(prediction)
 
-        print("Prediction")
-        # write temp midi file
-        pianorollMatrixToTempMidi(prediction, prediction=True)
-        # play temp midi file
-        for msg in MidiFile('../tempMidiFiles/temp.mid').play():
-            live_instrument.out_port.send(msg)
+        print("\nPrediction\n")
+        # play predicted sequence note by note
+        live_instrument.reset_clock()
+        play_tick = -1
+        old_midi_on = np.zeros(1)
+        played_notes = []
+        while True:
+            done = live_instrument.computer_clock()
+            if live_instrument.current_tick > play_tick:
+                play_tick = live_instrument.current_tick
+                midi_on = np.argwhere(prediction[play_tick] > 0)
+                if midi_on.any():
+                    for note in midi_on[0]:
+                        if note not in old_midi_on:
+                            live_instrument.out_port.send(Message('note_on', note=note, velocity=127))
+                            played_notes.append(note)
+                else:
+                    for note in played_notes:
+                        live_instrument.out_port.send(Message('note_off', note=note))#, velocity=100))
+                        played_notes.pop(0)
+
+                if old_midi_on.any():
+                    for note in old_midi_on[0]:
+                        if note not in midi_on:
+                            live_instrument.out_port.send(Message('note_off', note=note))
+                
+                old_midi_on = midi_on
+
+            if done:
+                break
+
+    live_instrument.reset_sequence()
 
 if __name__ == '__main__':
     # get live input
