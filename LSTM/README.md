@@ -1,10 +1,10 @@
 # LSTM
 
 ## Predicter VAE-LSTM Many-2-One
-Predicts an 8th sequence based on 7 input sequences
+Predicts an 8th sequence based on 7 input sequences of a MIDI file
 
 ## Predciter VAE-LSTM Many-2-Many
-Predicts the next 4 sequences based on 4 input sequences
+Predicts the next 4 sequences based on 4 input sequences of a MIDI file
 
 ## Preprocessing of MIDI files
 
@@ -25,4 +25,8 @@ python MIDI_file_equalizer.py --file_path path/to/dir
 Go to the LSTM folder and train and save your model with your MIDI files.
 ```bash
 python VAE_LSTM_Many2Many.py
+```
+or
+```bash
+python VAE_LSTM_Many2One.py
 ```
