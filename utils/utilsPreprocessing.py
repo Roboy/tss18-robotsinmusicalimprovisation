@@ -89,11 +89,11 @@ def getSlicedPianorollMatrixNp(pathToFile, binarize=True):
     return endTrack
 
 
-def getSlicedPianorollMatrixList(pathToFile, binarize=True):
+def getSlicedPianorollMatrixList(pathToFile, binarize=True, beat_resolution=24):
     
     seqLength = 96
     
-    track = ppr.Multitrack(pathToFile, beat_resolution=24)
+    track = ppr.Multitrack(pathToFile, beat_resolution=beat_resolution)
     #downbeats = track.get_downbeat_steps()
     #print(downbeats)
     track = track.get_stacked_pianoroll()
@@ -301,15 +301,14 @@ def deleteZeroMatrices(tensor):
 class createDatasetAE(data.Dataset):
     def __init__(self, file_path, beat_res=24, seq_length=96, binarize=True):
         self.all_files = glob.glob(file_path)
-        #self.beat_res = beat_res
+        self.beat_res = beat_res
         self.binarize = binarize
         self.seq_length = seq_length
 
     def __len__(self):
         return len(self.all_files)
 
-    def __getitem__(self, idx):
-        """
+    def __getitem__(self, idx):     
         #load song from midi files and parse to numpy
         track = ppr.Multitrack(self.all_files[idx], beat_resolution=self.beat_res)
         track = track.get_stacked_pianoroll()
@@ -321,9 +320,9 @@ class createDatasetAE(data.Dataset):
             track = track[:,:,0]
         #full track length in ticks
         length = track.shape[0]
-        """
-        #load track from npz
-        track = np.load(self.all_files[idx])
+        
+        # #load track from npz
+        # track = np.load(self.all_files[idx])
 
         #binarize
         if(self.binarize):
@@ -423,29 +422,7 @@ class createDatasetLSTM(data.Dataset):
                 pad_value=-100)
 
         return input_pianoroll, ground_truth_pianoroll, seq_length
-    
-def reorderBatch(data, split_size=1):
-    #https://github.com/warmspringwinds/pytorch-rnn-sequence-generation-classification
-    input_lstm, ground_truth, seq_length = data
 
-    input_lstm = input_lstm.split(split_size=split_size)
-    ground_truth = ground_truth.split(split_size=split_size)
-    seq_length = seq_length.split(split_size=split_size)
-
-    data = zip(input_lstm, ground_truth, seq_length)
-    data = sorted(data, key=lambda p: int(p[2]), reverse=True)
-    input_lstm, ground_truth, seq_length = zip(*data)
-
-    input_lstm = torch.cat(input_lstm)
-    ground_truth = torch.cat(ground_truth)
-    seq_length = torch.cat(seq_length)
-
-    #trim to longest batch sequence length
-    input_lstm = input_lstm[:,:seq_length[0],:]
-    ground_truth = ground_truth[:,:seq_length[0],:]
-    seq_length = seq_length.tolist()
-
-    return input_lstm, ground_truth, seq_length
 
 
 """
