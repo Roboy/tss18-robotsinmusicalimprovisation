@@ -22,7 +22,7 @@ from utils.utilsPreprocessing import *
 
 
 ############HYPERPARAMS#####################
-epochs = 30
+epochs = 10
 learning_rate = 1e-5
 batch_size = 200
 seq_length = 8
@@ -174,7 +174,7 @@ def train(epoch):
                 loss.item()/(half_seq_length)))
     
     # average train loss
-    train_loss /= (batch_idx+1)#*(half_seq_length)
+    train_loss /= (batch_idx+1)*(half_seq_length)
     print('====> Epoch: {} Average Loss: {:.4f}'.format(epoch, train_loss))
     return train_loss
     
@@ -200,7 +200,7 @@ def test(epoch):
             test_loss += criterion(output_lstm, g_truth).item()
 
     # average test loss
-    test_loss /= (i+1)#*(half_seq_length)
+    test_loss /= (i+1)*(half_seq_length)
 
     print('====> Test set Loss: {:.4f}'.format(test_loss))
     print('')
@@ -220,7 +220,7 @@ best_test_loss = np.inf
 plot_save_path = '../plots/LSTM_MAESTRO_'+str(hidden_size)+'hidden_' + str(epochs) +'epoch_Many2Many.png'
 # plot_save_path = '../plots/LSTM_YamahaPCNoTP_'+str(hidden_size)+'hidden' + str(epochs) +'epoch_Many2Many.png'
 # plot_save_path = '../plots/LSTM_YamahaPCTP60_'+str(hidden_size)+'hidden' + str(epochs) +'epoch_Many2Many.png'
-scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.1)
+scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
 for epoch in range(1, epochs + 1):
     train_losses.append(train(epoch))
     
@@ -230,7 +230,7 @@ for epoch in range(1, epochs + 1):
     #     best_test_loss = current_test_loss
     #     torch.save(model,'/media/EXTHD/niciData/models/LSTM_WikifoniaTP12_' + str(hidden_size) + 'hidden_'+ str(epochs) + 'epochs_Many2Many_.model')
     
-    if(False):#epoch % 50 == 0):
+    if (epoch % 20 == 0):
         # for plots during training
         plt.plot(train_losses, color='red', label='Train Loss')
         plt.plot(test_losses, color='orange', label='Test Loss')
