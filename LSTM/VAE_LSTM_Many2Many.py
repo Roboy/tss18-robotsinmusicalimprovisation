@@ -22,14 +22,14 @@ from utils.utilsPreprocessing import *
 
 
 ############HYPERPARAMS#####################
-epochs = 1
-learning_rate = 1e-3
-batch_size = 10
+epochs = 30
+learning_rate = 1e-5
+batch_size = 200
 seq_length = 8
-log_interval = 1 # Log/show loss per batch
+log_interval = 100 # Log/show loss per batch
 input_size = 100
 ############LSTM PARAMS#####################
-hidden_size = 128
+hidden_size = 256
 lstm_layers = 2
 ############################################
 ############################################
@@ -49,15 +49,15 @@ autoencoder_model = loadModel(autoencoder_model, path_to_model, dataParallelMode
 autoencoder_model = autoencoder_model.to(device)
 
 #load dataset from npy
-data = np.load('../../maestro-v1.0.0/maestro-v1.0.0_train.npy')
+data = np.load('/media/EXTHD/niciData/DATASETS/maestro-v1.0.0/maestro-v1.0.0_train.npy')
 train_dataset = data
 
 
-data = np.load('../../maestro-v1.0.0/maestro-v1.0.0_test.npy')
+data = np.load('/media/EXTHD/niciData/DATASETS/maestro-v1.0.0/maestro-v1.0.0_test.npy')
 test_dataset = data
 # data.close()
 
-data = np.load('../../maestro-v1.0.0/maestro-v1.0.0_valid.npy')
+data = np.load('/media/EXTHD/niciData/DATASETS/maestro-v1.0.0/maestro-v1.0.0_valid.npy')
 valid_dataset = data
 # data.close()
 
@@ -143,12 +143,11 @@ def train(epoch):
     criterion = nn.MSELoss()
     half_seq_length = int(model.seq_length/2)
     for batch_idx, data in enumerate(train_loader):
-        # print(data)
         optimizer.zero_grad()
         #float byte tensor
         data = data.float().to(device)
         data = data.view(-1,1,96,60)
-        print(data.size())
+
         #embed data with autoencoder
         with torch.no_grad():
             mu, logvar = autoencoder_model.encoder(data)
@@ -170,12 +169,12 @@ def train(epoch):
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, 
                 batch_idx * len(data), 
-                len(train_loader.dataset),
+                len(train_loader.dataset)*model.seq_length,
                 100. * batch_idx / len(train_loader),
                 loss.item()/(half_seq_length)))
     
     # average train loss
-    train_loss /= (batch_idx+1)*(half_seq_length)
+    train_loss /= (batch_idx+1)#*(half_seq_length)
     print('====> Epoch: {} Average Loss: {:.4f}'.format(epoch, train_loss))
     return train_loss
     
@@ -192,7 +191,7 @@ def test(epoch):
             
             #prepare for input lstm
             mu = mu.view(model.batch_size, model.seq_length, 100)
-            embedding = embedding.double()
+            embedding = mu.double()
 
             g_truth = embedding[:,half_seq_length:,:]
             input_lstm = embedding[:,:half_seq_length,:]
@@ -201,7 +200,7 @@ def test(epoch):
             test_loss += criterion(output_lstm, g_truth).item()
 
     # average test loss
-    test_loss /= (i+1)*(half_seq_length)
+    test_loss /= (i+1)#*(half_seq_length)
 
     print('====> Test set Loss: {:.4f}'.format(test_loss))
     print('')
@@ -221,7 +220,7 @@ best_test_loss = np.inf
 plot_save_path = '../plots/LSTM_MAESTRO_'+str(hidden_size)+'hidden_' + str(epochs) +'epoch_Many2Many.png'
 # plot_save_path = '../plots/LSTM_YamahaPCNoTP_'+str(hidden_size)+'hidden' + str(epochs) +'epoch_Many2Many.png'
 # plot_save_path = '../plots/LSTM_YamahaPCTP60_'+str(hidden_size)+'hidden' + str(epochs) +'epoch_Many2Many.png'
-scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
+scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.1)
 for epoch in range(1, epochs + 1):
     train_losses.append(train(epoch))
     
@@ -239,6 +238,7 @@ for epoch in range(1, epochs + 1):
         # plt.show()   
 
 plt.plot(train_losses, color='red', label='Train loss')
+plt.plot(test_losses, color='orange', label='Test Loss')
 plt.legend()
 plt.savefig(plot_save_path)       
 
