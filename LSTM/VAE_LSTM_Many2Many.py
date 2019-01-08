@@ -23,14 +23,14 @@ from tensorboardX import SummaryWriter
 
 
 ############HYPERPARAMS#####################
-epochs = 10
+epochs = 100
 learning_rate = 1e-5
 batch_size = 10
 seq_length = 8
 log_interval = 100 # Log/show loss per batch
 input_size = 100
 ############LSTM PARAMS#####################
-hidden_size = 256
+hidden_size = 64
 lstm_layers = 2
 ############################################
 ############################################
@@ -170,7 +170,7 @@ def train(epoch):
         train_loss += loss.item()
         
         #tensorboard
-        writer.add_scalar('loss/train', loss.item(), epoch)
+        writer.add_scalar('loss/train_loss_batch', loss.item(), epoch)
         
         optimizer.step()
         if(batch_idx % log_interval == 0):
@@ -207,7 +207,7 @@ def test(epoch):
 
             temp_loss = criterion(output_lstm, g_truth).item()
             test_loss += temp_loss
-            writer.add_scalar('loss/test', temp_loss, epoch)
+            writer.add_scalar('loss/test_loss_batch', temp_loss, epoch)
 
 
     # average test loss
@@ -233,29 +233,32 @@ plot_save_path = '../plots/LSTM_MAESTRO_'+str(hidden_size)+'hidden_' + str(epoch
 # plot_save_path = '../plots/LSTM_YamahaPCTP60_'+str(hidden_size)+'hidden' + str(epochs) +'epoch_Many2Many.png'
 scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
 for epoch in range(1, epochs + 1):
-    train_losses.append(train(epoch))
+    current_train_loss = train(epoch)
+    writer.add_scalar('loss/train_loss_epoch', loss.item(), epoch) 
+    train_losses.append(current_train_loss)
     
     current_test_loss = test(epoch)
-    # test_losses.append(current_test_loss)
+    writer.add_scalar('loss/test_loss_epoch', current_test_loss, epoch)
+    test_losses.append(current_test_loss)
     # if(current_test_loss < best_test_loss):
     #     best_test_loss = current_test_loss
     #     torch.save(model,'/media/EXTHD/niciData/models/LSTM_WikifoniaTP12_' + str(hidden_size) + 'hidden_'+ str(epochs) + 'epochs_Many2Many_.model')
     
-    if (epoch % 20 == 0):
-        # for plots during training
-        plt.plot(train_losses, color='red', label='Train Loss')
-        plt.plot(test_losses, color='orange', label='Test Loss')
-        plt.savefig(plot_save_path)
-        # plt.show()   
+#     if (epoch % 20 == 0):
+#         # for plots during training
+#         plt.plot(train_losses, color='red', label='Train Loss')
+#         plt.plot(test_losses, color='orange', label='Test Loss')
+#         plt.savefig(plot_save_path)
+#         # plt.show()   
 
 
 
 
 
-plt.plot(train_losses, color='red', label='Train loss')
-plt.plot(test_losses, color='orange', label='Test Loss')
-plt.legend()
-plt.savefig(plot_save_path)       
+# plt.plot(train_losses, color='red', label='Train loss')
+# plt.plot(test_losses, color='orange', label='Test Loss')
+# plt.legend()
+# plt.savefig(plot_save_path)       
 
 writer.export_scalars_to_json('./all_scalars.json')
 writer.close()
