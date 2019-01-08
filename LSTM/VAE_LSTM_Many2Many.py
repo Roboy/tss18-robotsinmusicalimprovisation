@@ -16,6 +16,7 @@ import torch.utils.data
 from torch import nn, optim
 from torch.nn import functional as F
 from utils.utilsPreprocessing import *
+from tensorboardX import SummaryWriter
 
 #np.set_printoptions(threshold=np.inf)
 #torch.set_printoptions(threshold=50000)
@@ -24,7 +25,7 @@ from utils.utilsPreprocessing import *
 ############HYPERPARAMS#####################
 epochs = 10
 learning_rate = 1e-5
-batch_size = 200
+batch_size = 10
 seq_length = 8
 log_interval = 100 # Log/show loss per batch
 input_size = 100
@@ -33,6 +34,8 @@ hidden_size = 256
 lstm_layers = 2
 ############################################
 ############################################
+
+writer = SummaryWriter()
 
 #load variational autoencoder
 from utils.VAE import VAE
@@ -49,16 +52,16 @@ autoencoder_model = loadModel(autoencoder_model, path_to_model, dataParallelMode
 autoencoder_model = autoencoder_model.to(device)
 
 #load dataset from npy
-data = np.load('/media/EXTHD/niciData/DATASETS/maestro-v1.0.0/maestro-v1.0.0_train.npy')
-train_dataset = data
+data = np.load('../../maestro-v1.0.0/maestro-v1.0.0_train.npy')
+train_dataset = data[0:1000]
 
 
-data = np.load('/media/EXTHD/niciData/DATASETS/maestro-v1.0.0/maestro-v1.0.0_test.npy')
-test_dataset = data
+data = np.load('../../maestro-v1.0.0/maestro-v1.0.0_test.npy')
+test_dataset = data[0:100]
 # data.close()
 
-data = np.load('/media/EXTHD/niciData/DATASETS/maestro-v1.0.0/maestro-v1.0.0_valid.npy')
-valid_dataset = data
+data = np.load('../../maestro-v1.0.0/maestro-v1.0.0_valid.npy')
+valid_dataset = data[0:100]
 # data.close()
 
 print("train set: {}".format(train_dataset.shape))
@@ -154,6 +157,8 @@ def train(epoch):
     
         #prepare for input lstm
         mu = mu.view(model.batch_size, model.seq_length, 100)
+        # writer.add_embedding(mu, metadata=) ?????????????????????
+        
         embedding = mu.double()
         
         g_truth = embedding[:,half_seq_length:,:]
@@ -163,6 +168,9 @@ def train(epoch):
         loss = criterion(output_lstm, g_truth)
         loss.backward()
         train_loss += loss.item()
+        
+        #tensorboard
+        writer.add_scalar('loss/train', loss.item(), epoch)
         
         optimizer.step()
         if(batch_idx % log_interval == 0):
@@ -197,7 +205,10 @@ def test(epoch):
             input_lstm = embedding[:,:half_seq_length,:]
             _ , output_lstm = model(input_lstm, future = 0)
 
-            test_loss += criterion(output_lstm, g_truth).item()
+            temp_loss = criterion(output_lstm, g_truth).item()
+            test_loss += temp_loss
+            writer.add_scalar('loss/test', temp_loss, epoch)
+
 
     # average test loss
     test_loss /= (i+1)*(half_seq_length)
@@ -237,8 +248,14 @@ for epoch in range(1, epochs + 1):
         plt.savefig(plot_save_path)
         # plt.show()   
 
+
+
+
+
 plt.plot(train_losses, color='red', label='Train loss')
 plt.plot(test_losses, color='orange', label='Test Loss')
 plt.legend()
 plt.savefig(plot_save_path)       
 
+writer.export_scalars_to_json('./all_scalars.json')
+writer.close()
