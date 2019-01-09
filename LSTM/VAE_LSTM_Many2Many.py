@@ -52,9 +52,8 @@ class LSTM_Many2Many(nn.Module):
         return torch.zeros(self.lstm_layers, self.batch_size, 
                            self.hidden_size, dtype=torch.double).to(device)
 
-    def forward(self, embed, future = 0):
-        h_t0 = self.hidden_init()
-        c_t0 = self.hidden_init()
+    def forward(self, embed, h_t0, c_t0):
+
         
         lstm_input = self.i2h(embed)
         output, (h_t1, c_t1) = self.lstm(lstm_input, (h_t0, c_t0))
@@ -68,6 +67,8 @@ def train(epoch):
     train_loss = 0
     criterion = nn.MSELoss()
     half_seq_length = int(model.seq_length/2)
+    h_t0 = model.hidden_init()
+    c_t0 = model.hidden_init()
     for batch_idx, data in enumerate(train_loader):
         optimizer.zero_grad()
         #float byte tensor
@@ -83,19 +84,29 @@ def train(epoch):
         # writer.add_embedding(mu, metadata=) ?????????????????????
         
         embedding = mu.double()
+
+        # Normalize to mean 0 and std 1
+        mean_batch = torch.mean(embedding)
+        std_batch = torch.std(embedding)
+        embedding_norm = (embedding - mean_batch) / std_batch
         
         g_truth = embedding[:,half_seq_length:,:]
         input_lstm = embedding[:,:half_seq_length,:]
-        _ , output_lstm = model(input_lstm, future = 0)
+        _ , output_lstm = model(input_lstm, h_t0, c_t0)
 
         loss = criterion(output_lstm, g_truth)
         loss.backward()
         train_loss += loss.item()
-        
+        # torch.nn.utils.clip_grad_value_(model.parameters(), 5)
         #tensorboard
         writer.add_scalar('loss/train_loss_batch', loss.item(), epoch)
         
         optimizer.step()
+        gradients = np.zeros(12)
+        for i, f in enumerate(model.parameters()):
+            gradients[i] += np.mean(f.grad.cpu().data.numpy())
+
+
         if(batch_idx % log_interval == 0):
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, 
@@ -107,7 +118,8 @@ def train(epoch):
     # average train loss
     train_loss /= (batch_idx+1)*(half_seq_length)
     print('====> Epoch: {} Average Loss: {:.4f}'.format(epoch, train_loss))
-    return train_loss
+    gradients = gradients / (batch_idx+1)
+    return train_loss, gradients
     
 def test(epoch):
     model.eval()
@@ -115,6 +127,8 @@ def test(epoch):
     criterion = nn.MSELoss()
     half_seq_length = int(model.seq_length/2)
     with torch.no_grad():
+        h_t0 = model.hidden_init()
+        c_t0 = model.hidden_init()
         for i, data in enumerate(test_loader):
             data = data.float().to(device)
             data = data.view(-1,1,96,60)
@@ -123,10 +137,14 @@ def test(epoch):
             #prepare for input lstm
             mu = mu.view(model.batch_size, model.seq_length, 100)
             embedding = mu.double()
+            # normalize
+            mean_batch = torch.mean(embedding)
+            std_batch = torch.std(embedding)
+            embedding_norm = (embedding - mean_batch) / std_batch
 
             g_truth = embedding[:,half_seq_length:,:]
             input_lstm = embedding[:,:half_seq_length,:]
-            _ , output_lstm = model(input_lstm, future = 0)
+            _ , output_lstm = model(input_lstm, h_t0, c_t0)
 
             temp_loss = criterion(output_lstm, g_truth).item()
             test_loss += temp_loss
@@ -144,18 +162,18 @@ def test(epoch):
 if __name__ == '__main__':
     ############HYPERPARAMS#####################
     epochs = 100
-    learning_rate = [1e-3, 1e-4, 1e-5]
+    learning_rate = [1e-4]#[1e-3, 1e-4, 1e-5]
     batch_size = 100
     seq_length = 8
     log_interval = 100 # Log/show loss per batch
     input_size = 100
     ############LSTM PARAMS#####################
-    hidden_size = [128, 256, 512]
-    lstm_layers = [2, 3]
-    lr_decay = [1, 0.9, 0.5]
-    datasets = ['/media/EXTHD/niciData/DATASETS/maestro-v1.0.0/maestro-v1.0.0.npz',
-                '/media/EXTHD/niciData/npzDatasets/WikifoniaTranspose12up12down.npz',
-                '/media/EXTHD/niciData/npzDatasets/YamahaPianoCompetition2002NoTranspose.npz']
+    hidden_size = [128]#[128, 256, 512]
+    lstm_layers = [2]#[2, 3]
+    lr_decay = [0.9]#[1, 0.9, 0.5]
+    datasets = ['/media/EXTHD/niciData/DATASETS/maestro-v1.0.0/maestro-v1.0.0.npz']#,
+                #'/media/EXTHD/niciData/npzDatasets/WikifoniaTranspose12up12down.npz',
+                #'/media/EXTHD/niciData/npzDatasets/YamahaPianoCompetition2002NoTranspose.npz']
     ############################################
     ############################################
     i=0
@@ -165,78 +183,80 @@ if __name__ == '__main__':
             for lr_d in lr_decay:
                 for ll in lstm_layers:
                     for hs in hidden_size:
-                        try:
-                            writer = SummaryWriter()
-                            writer.add_text("dataset", dataset, global_step=i)
-                            writer.add_text("learning_rate", str(lr), i)
-                            writer.add_text("learning_rate_decay", str(lr_d), i)
-                            writer.add_text("lstm_layers", str(ll), i)
-                            writer.add_text("hidden_size", str(hs), i)
+                        # try:
+                        writer = SummaryWriter(log_dir='gradients/exp1')
+                        writer.add_text("dataset", dataset, global_step=i)
+                        writer.add_text("learning_rate", str(lr), i)
+                        writer.add_text("learning_rate_decay", str(lr_d), i)
+                        writer.add_text("lstm_layers", str(ll), i)
+                        writer.add_text("hidden_size", str(hs), i)
 
-                            #load variational autoencoder
-                            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-                            autoencoder_model = VAE()
-                            path_to_model = '../pretrained/YamahaPC2002_VAE_Reconstruct_NoTW_20Epochs.model'
+                        #load variational autoencoder
+                        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+                        autoencoder_model = VAE()
+                        path_to_model = '../pretrained/YamahaPC2002_VAE_Reconstruct_NoTW_20Epochs.model'
 
 
-                            autoencoder_model = loadModel(autoencoder_model, path_to_model, dataParallelModel=False)
-                            #autoencoder_model = loadStateDict(autoencoder_model, path_to_model)
-                            autoencoder_model = autoencoder_model.to(device)
+                        autoencoder_model = loadModel(autoencoder_model, path_to_model, dataParallelModel=False)
+                        #autoencoder_model = loadStateDict(autoencoder_model, path_to_model)
+                        autoencoder_model = autoencoder_model.to(device)
 
-                            # load dataset from npz
-                            data = np.load(dataset)
-                            train_dataset = data['train']#[0:10]
-                            test_dataset = data['test']#[0:10]
-                            data.close()
-                            print("train set: {}".format(train_dataset.shape))
-                            print("test set: {}".format(test_dataset.shape))
-                            # print("valid set: {}".format(valid_dataset.shape))
+                        # load dataset from npz
+                        data = np.load(dataset)
+                        train_dataset = data['train']#[0:10]
+                        test_dataset = data['test']#[0:10]
+                        data.close()
+                        print("train set: {}".format(train_dataset.shape))
+                        print("test set: {}".format(test_dataset.shape))
+                        # print("valid set: {}".format(valid_dataset.shape))
 
-                            train_dataset = createDataset(train_dataset, seq_length=seq_length)
-                            test_dataset = createDataset(test_dataset, seq_length=seq_length)
-                            # valid_dataset = createDataset(valid_dataset, seq_length=seq_length)
+                        train_dataset = createDataset(train_dataset, seq_length=seq_length)
+                        test_dataset = createDataset(test_dataset, seq_length=seq_length)
+                        # valid_dataset = createDataset(valid_dataset, seq_length=seq_length)
 
-                            print('train_dataset {}'.format(train_dataset.shape))
-                            print('test_dataset {}'.format(test_dataset.shape))
+                        print('train_dataset {}'.format(train_dataset.shape))
+                        print('test_dataset {}'.format(test_dataset.shape))
 
-                            # train_dataset = train_dataset[0:1000]
-                            train_dataset = torch.from_numpy(train_dataset)
-                            train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
+                        # train_dataset = train_dataset[0:1000]
+                        train_dataset = torch.from_numpy(train_dataset)
+                        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
 
-                            # test_dataset = test_dataset[0:100]
-                            test_dataset = torch.from_numpy(test_dataset)
-                            test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
+                        # test_dataset = test_dataset[0:100]
+                        test_dataset = torch.from_numpy(test_dataset)
+                        test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
 
-                            # valid_dataset = torch.from_numpy(valid_dataset)
-                            # valid_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
+                        # valid_dataset = torch.from_numpy(valid_dataset)
+                        # valid_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
 
-                            model = LSTM_Many2Many(batch_size=batch_size, seq_length=seq_length, 
-                                         input_size=input_size, hidden_size=hs,
-                                         lstm_layers = ll).double().to(device)
+                        model = LSTM_Many2Many(batch_size=batch_size, seq_length=seq_length, 
+                                     input_size=input_size, hidden_size=hs,
+                                     lstm_layers = ll).double().to(device)
 
-                            optimizer = optim.Adam(model.parameters(), lr=lr)
-                            #optimizer = optim.RMSprop(model.parameters(),lr=learning_rate, momentum=0.9)
+                        optimizer = optim.Adam(model.parameters(), lr=lr)
+                        #optimizer = optim.RMSprop(model.parameters(),lr=learning_rate, momentum=0.9)
 
-                            train_losses = []
-                            test_losses = []
-                            best_test_loss = np.inf
+                        train_losses = []
+                        test_losses = []
+                        best_test_loss = np.inf
 
-                            scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=lr_d)
-                            for epoch in range(1, epochs + 1):
-                                current_train_loss = train(epoch)
-                                writer.add_scalar('loss/train_loss_epoch', current_train_loss, epoch) 
-                                train_losses.append(current_train_loss)
-                                
-                                current_test_loss = test(epoch)
-                                writer.add_scalar('loss/test_loss_epoch', current_test_loss, epoch)
-                                test_losses.append(current_test_loss)
-                                if(current_test_loss < best_test_loss):
-                                     best_test_loss = current_test_loss
-                                     torch.save(model,'/media/EXTHD/niciData/models/LSTM_GRIDSEARCH_' + str(hidden_size) + 'hidden_'+ str(epochs) + 'epochs_Many2Many_'+ str(i) +'.model')
-                                
-                            writer.close()
-                            i+=1
-                        except:
-                            i+=1
-                            continue
+                        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=lr_d)
+                        for epoch in range(1, epochs + 1):
+                            current_train_loss, gradients = train(epoch)
+                            writer.add_scalar('loss/train_loss_epoch', current_train_loss, epoch) 
+                            for j, grad in enumerate(gradients):
+                                writer.add_scalar('gradients/grad_sum[{}]'.format(j), grad, epoch)
+                            train_losses.append(current_train_loss)
+                            
+                            current_test_loss = test(epoch)
+                            writer.add_scalar('loss/test_loss_epoch', current_test_loss, epoch)
+                            test_losses.append(current_test_loss)
+                            if(current_test_loss < best_test_loss):
+                                 best_test_loss = current_test_loss
+                                 # torch.save(model,'/media/EXTHD/niciData/models/LSTM_GRIDSEARCH_' + str(hidden_size) + 'hidden_'+ str(epochs) + 'epochs_Many2Many_'+ str(i) +'.model')
+                            
+                        writer.close()
+                        i+=1
+                        # except:
+                        #     i+=1
+                        #     continue
 
