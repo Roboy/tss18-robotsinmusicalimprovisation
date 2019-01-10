@@ -20,82 +20,6 @@ from utils.utilsPreprocessing import *
 #torch.set_printoptions(threshold=50000)
 
 
-##################################
-#HYPERPARAMS
-##################################
-epochs = 10
-learning_rate = 1e-4
-batch_size = 200
-log_interval = 100 #Log/show loss per batch
-embedding_size = 100
-beat_resolution = 24
-seq_length = 96
-
-
-# In[ ]:
-
-
-#create dataset
-from torch.utils.data.sampler import SubsetRandomSampler
-
-path_to_files = "/media/EXTHD/niciData/DATASETS/AllSequences/"
-
-dataset = createDatasetAE((path_to_files + "*.npy"), 
-                           beat_res = beat_resolution, 
-                           seq_length = seq_length,
-                           binarize=True)
-print("Dataset contains {} sequences".format(len(dataset)))
-    
-train_size = int(np.floor(0.9 * len(dataset)))
-valid_size = len(dataset) - train_size
-
-train_dataset, valid_dataset = torch.utils.data.random_split(dataset, [train_size, valid_size])
-
-
-train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
-valid_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
-
-
-print("The training set contains {} sequences".format(len(train_dataset)))
-print("The validation set contains {} sequences".format(len(valid_dataset)))
-
-
-# In[ ]:
-
-
-#load dataset from npz
-"""
-data = np.load('../WikifoniaPartlyNoTranspose.npz')
-midiDatasetTrain = data['train']
-midiDatasetTest = data['test']
-data.close()
-
-print(midiDatasetTrain.shape)
-print(midiDatasetTest.shape)
-
-train_loader = torch.utils.data.DataLoader(midiDatasetTrain, batch_size=batch_size, shuffle=True, drop_last=True)
-test_loader = torch.utils.data.DataLoader(midiDatasetTest, batch_size=batch_size, shuffle=True, drop_last=True)
-"""
-print('')
-
-
-# In[ ]:
-
-
-fullPitch = 128; reducedPitch = 60
-
-
-# # VAE model
-
-# In[ ]:
-
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-
-# In[ ]:
-
-
 class VAE(nn.Module):
     def __init__(self, embedding_size=100):
         super(VAE, self).__init__()
@@ -196,9 +120,6 @@ class VAE(nn.Module):
         mu, logvar = self.encoder(x)
         z = self.reparameterize(mu, logvar)
         return self.decoder(z), mu, logvar
-    
-model = VAE(embedding_size=embedding_size).to(device)
-optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 
 def loss_function(recon_x, x, mu, logvar):
@@ -235,14 +156,6 @@ def train(epoch):
     klds = 0
     loss_divider = len(train_loader.dataset)-(len(train_loader.dataset)%batch_size)
     for batch_idx, data in enumerate(train_loader):
-        ###DENOISING AUTOENCODER
-        #data = data.float().to(device)
-        #noise = torch.bernoulli((torch.rand_like(data))).to(device)
-        #print(noise[0])
-        #noisyData = data+noise
-        #reconBatch, mu = model(noisyData)
-        
-        ###NORMAL AUTOENCODER
         data = data.float().to(device)
         optimizer.zero_grad()
         reconBatch, mu, logvar = model(data)
@@ -263,6 +176,7 @@ def train(epoch):
           epoch, trainLoss / loss_divider))
     
     return trainLoss / loss_divider, cos_sims / loss_divider, klds / loss_divider
+
 
 def validate(epoch):
     model.eval()
@@ -294,52 +208,115 @@ def validate(epoch):
     return valid_loss, cos_sim, kld
 
 
-# # Load Model
-
-# In[ ]:
 
 
-#from loadModel import loadModel
-#pathToModel = '../models/YamahaPC2002_VAE_Reconstruct_NoTW_20Epochs.model'
 
-#model = loadModel(model,pathToModel, dataParallelModel=False)
+if __name__ == '__main__':
+    # Parameters
+    epochs = 10
+    learning_rate = 1e-4
+    batch_size = 200
+    log_interval = 100 #Log/show loss per batch
+    embedding_size = 100
+    beat_resolution = 24
+    seq_length = 96
 
 
-# # Train
+    #create dataset
+    from torch.utils.data.sampler import SubsetRandomSampler
 
-# In[ ]:
+    path_to_files = "/media/EXTHD/niciData/DATASETS/AllSequences/"
 
+    dataset = createDatasetAE((path_to_files + "*.npy"),
+                              beat_res = beat_resolution,
+                              seq_length = seq_length,
+                              binarize=True)
+    print("Dataset contains {} sequences".format(len(dataset)))
 
-import matplotlib.pyplot as plt
-get_ipython().run_line_magic('matplotlib', 'inline')
-save_path = '/media/EXTHD/niciData/models/VAE_YamahaPC2002_{}LR_{}SeqLength'.format(str(learning_rate), seq_length)
+    train_size = int(np.floor(0.9 * len(dataset)))
+    valid_size = len(dataset) - train_size
 
-train_losses = []
-valid_losses = []
-cos_sims_train = []
-klds_train = []
-cos_sims_test = []
-klds_test = []
-best_valid_loss = 999.
-for epoch in range(1, epochs + 1):
-    #training with plots
-    train_loss, cos_sim_train, kld_train = train(epoch)
-    train_losses.append(train_loss)
-    cos_sims_train.append(cos_sim_train)
-    klds_train.append(kld_train)
+    train_dataset, valid_dataset = torch.utils.data.random_split(dataset, [train_size, valid_size])
+
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+    valid_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+
+    print("The training set contains {} sequences".format(len(train_dataset)))
+    print("The validation set contains {} sequences".format(len(valid_dataset)))
+
+    #load dataset from npz
+    """
+    data = np.load('../WikifoniaPartlyNoTranspose.npz')
+    midiDatasetTrain = data['train']
+    midiDatasetTest = data['test']
+    data.close()
     
-    #validate with plots
-    current_valid_loss, cos_sim_test, kld_test = validate(epoch)
-    valid_losses.append(current_valid_loss)
-    cos_sims_test.append(cos_sim_test)
-    klds_test.append(kld_test)
+    print(midiDatasetTrain.shape)
+    print(midiDatasetTest.shape)
     
-    #save if model better than before
-    if(current_valid_loss < best_valid_loss):
-        best_valid_loss = current_valid_loss
-        torch.save(model.state_dict(),(save_path + '.pth'))
-        
-    #plot current results
+    train_loader = torch.utils.data.DataLoader(midiDatasetTrain, batch_size=batch_size, shuffle=True, drop_last=True)
+    test_loader = torch.utils.data.DataLoader(midiDatasetTest, batch_size=batch_size, shuffle=True, drop_last=True)
+    """
+    print('')
+
+    fullPitch = 128; reducedPitch = 60
+
+    # # VAE model
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = VAE(embedding_size=embedding_size).to(device)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+    # # Load Model
+
+    # In[ ]:
+
+
+    #from loadModel import loadModel
+    #pathToModel = '../models/YamahaPC2002_VAE_Reconstruct_NoTW_20Epochs.model'
+
+    #model = loadModel(model,pathToModel, dataParallelModel=False)
+
+    import matplotlib.pyplot as plt
+    save_path = '/media/EXTHD/niciData/models/VAE_YamahaPC2002_{}LR_{}SeqLength'.format(str(learning_rate), seq_length)
+
+    train_losses = []
+    valid_losses = []
+    cos_sims_train = []
+    klds_train = []
+    cos_sims_test = []
+    klds_test = []
+    best_valid_loss = 999.
+    for epoch in range(1, epochs + 1):
+        #training with plots
+        train_loss, cos_sim_train, kld_train = train(epoch)
+        train_losses.append(train_loss)
+        cos_sims_train.append(cos_sim_train)
+        klds_train.append(kld_train)
+
+        #validate with plots
+        current_valid_loss, cos_sim_test, kld_test = validate(epoch)
+        valid_losses.append(current_valid_loss)
+        cos_sims_test.append(cos_sim_test)
+        klds_test.append(kld_test)
+
+        #save if model better than before
+        if(current_valid_loss < best_valid_loss):
+            best_valid_loss = current_valid_loss
+            torch.save(model.state_dict(),(save_path + '.pth'))
+
+        #plot current results
+        plt.plot(train_losses, color='red', label='Train Loss')
+        plt.plot(valid_losses, color='orange', label='Test Loss')
+        plt.plot(cos_sims_train, color='blue', label='Cosine Similarity Train')
+        plt.plot(klds_train, color='black', label='KL Divergence Train')
+        plt.plot(cos_sims_test, color='green', label='Cosine Similarity Test')
+        plt.plot(klds_test, color='cyan', label='KL Divergence Test')
+        plt.legend(loc='upper right')
+        plt.show()
+        print('')
+
+
     plt.plot(train_losses, color='red', label='Train Loss')
     plt.plot(valid_losses, color='orange', label='Test Loss')
     plt.plot(cos_sims_train, color='blue', label='Cosine Similarity Train')
@@ -347,150 +324,6 @@ for epoch in range(1, epochs + 1):
     plt.plot(cos_sims_test, color='green', label='Cosine Similarity Test')
     plt.plot(klds_test, color='cyan', label='KL Divergence Test')
     plt.legend(loc='upper right')
+    plt.savefig(save_path + '.png')
     plt.show()
     print('')
-        
-
-plt.plot(train_losses, color='red', label='Train Loss')
-plt.plot(valid_losses, color='orange', label='Test Loss')
-plt.plot(cos_sims_train, color='blue', label='Cosine Similarity Train')
-plt.plot(klds_train, color='black', label='KL Divergence Train')
-plt.plot(cos_sims_test, color='green', label='Cosine Similarity Test')
-plt.plot(klds_test, color='cyan', label='KL Divergence Test')
-plt.legend(loc='upper right')
-plt.savefig(save_path + '.png')
-plt.show()
-print('')
-
-
-# In[ ]:
-
-
-#torch.save(model,'/media/EXTHD/niciData/models/YamahaPC2002_DenoisingCVAE_Reconstruct_NoTW_5Epochs.model')
-
-
-# # Generate
-
-# In[ ]:
-
-
-#np.set_printoptions(precision=4, suppress=True, threshold=np.inf)
-
-
-# In[ ]:
-
-
-"""
-if(model.train()):
-    model.eval()
-    
-###PLAY WHOLE SONG IN BARS
-with torch.no_grad():
-    sampleNp1 = getSlicedPianorollMatrixNp("../WikifoniaDatabase/test/Hermann-Lohr,-D.-Eardley-Wilmot---Little-Grey-Home-In-The-West.mid")
-    sampleNp1 = deleteZeroMatrices(sampleNp1)
-    
-    for i,sampleNp in enumerate(sampleNp1[:8]):
-        sampleNp = sampleNp[:,36:-32]
-        sample = torch.from_numpy(sampleNp).float()
-        embed, logvar = model.encoder(sample.reshape(1,1,seq_length,reducedPitch).to(device))
-        ###RECONSTRUCTION#########
-        pred = model.decoder(embed)
-        ##########################
-        ###RANDOM RECONSTRUCTION##
-        std = torch.exp(0.2*logvar)
-        eps = torch.randn_like(std)
-        randomRecon = model.decoder(eps.mul(std).add_(embed))
-        ##########################
-
-        reconstruction = pred.squeeze(0).squeeze(0).cpu().numpy()
-        randomRecon = randomRecon.squeeze(0).squeeze(0).cpu().numpy()
-
-        #NORMALIZE PREDICTIONS
-        reconstruction /= np.abs(np.max(reconstruction))
-        randomRecon /= np.abs(np.max(randomRecon))
-
-        #CHECK MIDI ACTIVATIONS IN PREDICTION TO INCLUDE RESTS
-        reconstruction[reconstruction < 0.2] = 0
-        randomRecon[randomRecon < 0.3] = 0
-
-        samplePlay = debinarizeMidi(sampleNp, prediction=False)
-        samplePlay = addCuttedOctaves(samplePlay)
-        reconstruction = debinarizeMidi(reconstruction, prediction=True)
-        reconstruction = addCuttedOctaves(reconstruction)
-        randomRecon = debinarizeMidi(randomRecon, prediction=True)
-        randomRecon = addCuttedOctaves(randomRecon)
-        if(i==0):
-            sampleOut = samplePlay
-            reconOut = reconstruction
-            randomReconOut = randomRecon
-        else:
-            sampleOut = np.concatenate((sampleOut,samplePlay), axis=0)
-            reconOut = np.concatenate((reconOut,reconstruction), axis=0)
-            randomReconOut = np.concatenate((randomReconOut, randomRecon),axis=0)
-
-
-    print("INPUT")
-    pianorollMatrixToTempMidi(sampleOut, show=True,showPlayer=True,autoplay=False,
-                             path='../temp/inputTemp.mid')
-    print("RECONSTRUCTION")
-    pianorollMatrixToTempMidi(reconOut, show=True,showPlayer=True,autoplay=False,
-                             path='../temp/reconTemp.mid')
-    #print("Reconstruction with Noise")
-    #pianorollMatrixToTempMidi(randomReconOut, show=True,showPlayer=True,autoplay=False,
-    #                         path='../temp/noiseReconTemp.mid')  
-    print("\n\n")
-            
-"""
-print('')
-
-
-# # Morph from one sequence to another in latent space
-# 
-# Take 2 embedded sequences and slowly morph it to the other one based on this formula: $c_\alpha=(1-\alpha)*z_1 + \alpha*z_2$ , where $z_1$ corresponds to the embedding of sample 1 and $z_2$ to sample 2.
-# (Source of formula: https://arxiv.org/pdf/1803.05428.pdf)
-
-# In[ ]:
-
-
-"""
-with torch.no_grad():
-    #get 2 different unseeen sequences and choose random sequence
-    sample1 = getSlicedPianorollMatrixNp('../WikifoniaDatabase/train/1952,-Jerry-Lieber-&-Mike-Stoller---Kansas-City.mid')
-    sample1 = sample1[6,:,36:-32]
-    sample2 = getSlicedPianorollMatrixNp('../WikifoniaDatabase/test/Hoagy-Carmichael---Blue-Orchids.mid')
-    sample2 = sample2[7,:,36:-32]
-    print('sample1 shape:', sample1.shape)
-    print('sample2 shape: ',sample2.shape)
-
-    #prepare for input
-    sample1 = torch.from_numpy(sample1.reshape(1,1,96,60)).float().to(device)
-    sample2 = torch.from_numpy(sample2.reshape(1,1,96,60)).float().to(device)
-    
-    #run through encoder
-    embed1, _ = model.encoder(sample1)
-    embed2, _ = model.encoder(sample2)
-    
-    for a in range(0,11):
-        alpha = a/10
-        print("alpha is ",alpha)
-        c = (1-alpha) * embed1 + alpha * embed2
-        
-        #decode current
-        recon = model.decoder(c)
-        recon = recon.squeeze(0).squeeze(0).cpu().numpy()
-        recon /= np.max(np.abs(recon))
-        recon[recon < 0.2] = 0
-        recon = debinarizeMidi(recon, prediction=True)
-        recon = addCuttedOctaves(recon)
-        pianorollMatrixToTempMidi(recon, show=True,showPlayer=False,autoplay=True,
-                             path='../temp/temp.mid')
-        
-"""       
-print('')        
-
-
-# In[ ]:
-
-
-
-

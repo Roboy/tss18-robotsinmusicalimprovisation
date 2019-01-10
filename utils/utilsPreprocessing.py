@@ -305,34 +305,37 @@ class createDatasetAE(data.Dataset):
         self.binarize = binarize
         self.seq_length = seq_length
 
+
     def __len__(self):
         return len(self.all_files)
 
     def __getitem__(self, idx):     
-        #load song from midi files and parse to numpy
+        # load song from midi files and parse to numpy
         track = ppr.Multitrack(self.all_files[idx], beat_resolution=self.beat_res)
         track = track.get_stacked_pianoroll()
-        #if 1 track midifile
-        if(track.shape[2]==1):
+
+        # if 1 track midifile
+        if track.shape[2]==1:
             track = np.squeeze(track,2)
-        #quick fix for multitrack, melody in almost every song on midi[0]
+        # quick fix for multitrack, melody in almost every song on midi[0]
         else:
             track = track[:,:,0]
-        #full track length in ticks
+
+        # full track length in ticks
         length = track.shape[0]
         
         # #load track from npz
         # track = np.load(self.all_files[idx])
 
-        #binarize
-        if(self.binarize):
+        # binarize
+        if self.binarize:
             track[track > 0] = 1
 
-        #transpose notes out of range of the 5 chosen octaves       
+        # transpose notes out of range of the 5 chosen octaves
         sequence = transposeNotesHigherLower(track)
-        #cut octaves to get input shape [96,60]
+        # cut octaves to get input shape [96,60]
         sequence = cutOctaves(sequence)
-        #unsqueeze first dimension for input
+        # unsqueeze first dimension for input
         sequence = np.expand_dims(sequence, axis=0)
 
         return sequence
