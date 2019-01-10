@@ -53,11 +53,12 @@ class LSTM_Many2Many(nn.Module):
                            self.hidden_size, dtype=torch.double).to(device)
 
     def forward(self, embed, h_t0, c_t0):
-
+        h_t0 = self.hidden_init()
+        c_t0 = self.hidden_init()
         
-        lstm_input = self.i2h(embed)
+        lstm_input = torch.relu(self.i2h(embed))
         output, (h_t1, c_t1) = self.lstm(lstm_input, (h_t0, c_t0))
-        output = self.h2o(output[:,:,:])
+        output = torch.relu(self.h2o(output[:,:,:]))
         
         return embed, output
     
@@ -67,8 +68,6 @@ def train(epoch):
     train_loss = 0
     criterion = nn.MSELoss()
     half_seq_length = int(model.seq_length/2)
-    h_t0 = model.hidden_init()
-    c_t0 = model.hidden_init()
     for batch_idx, data in enumerate(train_loader):
         optimizer.zero_grad()
         #float byte tensor
@@ -258,5 +257,6 @@ if __name__ == '__main__':
                         i+=1
                         # except:
                         #     i+=1
+                        #     writer.close()
                         #     continue
 
