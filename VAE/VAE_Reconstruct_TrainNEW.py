@@ -16,8 +16,6 @@ from torch.nn import functional as F
 from utils.utilsPreprocessing import *
 from loadModel import loadModel, loadStateDict
 from tensorboardX import SummaryWriter
-
-
 #np.set_printoptions(threshold=np.inf)
 #torch.set_printoptions(threshold=50000)
 
@@ -25,9 +23,9 @@ from tensorboardX import SummaryWriter
 class VAE(nn.Module):
     def __init__(self, embedding_size=100):
         super(VAE, self).__init__()
-        
+
         self.embedding_size = embedding_size
-        
+
         # ENCODER
         self.encode1 = nn.Sequential(
             nn.Conv2d(1,100,(16,5),stride=(16,5),padding=0),
@@ -43,7 +41,7 @@ class VAE(nn.Module):
             nn.BatchNorm2d(800),
             nn.ELU()
         )
-            
+
         self.encode2 = nn.Sequential(
             nn.Linear(2400,800),
             nn.BatchNorm1d(800),
@@ -92,7 +90,7 @@ class VAE(nn.Module):
             nn.BatchNorm2d(1),
             nn.ELU()
         )
-    
+
     def encoder(self, hEnc):
         #print("ENOCDER")
         hEnc = self.encode1(hEnc)
@@ -117,7 +115,7 @@ class VAE(nn.Module):
         else:
             #print("no change")
             return mu
-        
+
     def forward(self, x):
         mu, logvar = self.encoder(x)
         z = self.reparameterize(mu, logvar)
@@ -125,10 +123,10 @@ class VAE(nn.Module):
 
 
 def loss_function(recon_x, x, mu, logvar):
-    
-    cos = nn.CosineSimilarity(dim=1, eps=1e-8) 
+
+    cos = nn.CosineSimilarity(dim=1, eps=1e-8)
     #beta for disentanglement
-    beta = 1e0 
+    beta = 1e0
 
     """
     BCE = F.binary_cross_entropy(recon_x, x.view(-1, 784), size_average=False)
@@ -149,7 +147,7 @@ def loss_function(recon_x, x, mu, logvar):
     KLD /= mu.size(0) * mu.size(1)
     #print("loss values: cossim=",cosSim,"KLD=",KLD)
     return cosSim + (beta * KLD), cosSim, KLD
-        
+
 
 def train(epoch):
     model.train()
@@ -180,8 +178,9 @@ def train(epoch):
 
     print('====> Epoch: {} Average Loss: {:.4f}'.format(
           epoch, trainLoss / loss_divider))
-    
-    return trainLoss / loss_divider, cos_sims.item() / loss_divider, klds.item() / loss_divider, weights, mu
+
+    return trainLoss / loss_divider, cos_sims.item() / loss_divider, \
+                            klds.item() / loss_divider, weights, mu
 
 
 def test(epoch):
@@ -194,7 +193,7 @@ def test(epoch):
         for i, data in enumerate(test_loader):
             data = data.float().to(device)
             reconBatch, mu, logvar = model(data)
-            
+
             temp_test_loss, cos_sim_temp, kld_temp = loss_function(reconBatch, data, mu, logvar)
             test_loss += temp_test_loss.item()
             cos_sim += cos_sim_temp.item()
@@ -213,7 +212,8 @@ if __name__ == '__main__':
     # argparser
     parser = argparse.ArgumentParser(description='VAE settings')
     parser.add_argument("--file_path", default=None, help='Path to your MIDI files.')
-    parser.add_argument("--checkpoint", default=None, help='Path to last checkpoint. If you trained the checkpointed model on multiple GPUs use the --is_dataParallel flag. Default: None', type=str)
+    parser.add_argument("--checkpoint", default=None, help='Path to last checkpoint. \
+    If you trained the checkpointed model on multiple GPUs use the --is_dataParallel flag. Default: None', type=str)
     parser.add_argument("--is_dataParallel", default=False, help='Option to allow loading models trained with multiple GPUs. Default: False', action="store_true")
     args = parser.parse_args()
 
@@ -245,20 +245,35 @@ if __name__ == '__main__':
     else:
         bars = 1
 
-    train_dataset = createDatasetAE(args.file_path + 'train/',
-                              beat_res = beat_resolution,
-                              bars=bars,
-                              seq_length = seq_length,
-                              binarize=True)
+    # check if train and test split already exists
+    if(os.path.isdir(args.file_path + 'train/') and os.path.isdir(args.file_path + 'test/')):
+        print("train/ and test/ folder exist!")
+        train_dataset = createDatasetAE(args.file_path + 'train/',
+                                  beat_res = beat_resolution,
+                                  bars=bars,
+                                  seq_length = seq_length,
+                                  binarize=True)
 
-    test_dataset = createDatasetAE(args.file_path + 'test/',
-                              beat_res = beat_resolution,
-                              bars=bars,
-                              seq_length = seq_length,
-                              binarize=True)
+        test_dataset = createDatasetAE(args.file_path + 'test/',
+                                  beat_res = beat_resolution,
+                                  bars=bars,
+                                  seq_length = seq_length,
+                                  binarize=True)
+        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
+        test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
 
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
+    else:
+        print("Only one folder with all files exist, using {}".format(args.file_path))
+        dataset = createDatasetAE(args.file_path,
+                                  beat_res = beat_resolution,
+                                  bars=bars,
+                                  seq_length = seq_length,
+                                  binarize=True)
+        train_size = int(np.floor(0.9 * len(dataset)))
+        test_size = len(dataset) - train_size
+        train_dataset, test_dataset = torch.utils.data.random_split(dataset, [train_size, test_size])
+        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+        test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
 
     print("The training set contains {} sequences".format(len(train_dataset)))
     print("The test set contains {} sequences".format(len(test_dataset)))
@@ -269,15 +284,15 @@ if __name__ == '__main__':
     midiDatasetTrain = data['train']
     midiDatasetTest = data['test']
     data.close()
-    
+
     print(midiDatasetTrain.shape)
     print(midiDatasetTest.shape)
-    
+
     train_loader = torch.utils.data.DataLoader(midiDatasetTrain, batch_size=batch_size, shuffle=True, drop_last=True)
     test_loader = torch.utils.data.DataLoader(midiDatasetTest, batch_size=batch_size, shuffle=True, drop_last=True)
     """
 
-    fullPitch = 128 
+    fullPitch = 128
     reducedPitch = 60
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = VAE(embedding_size=embedding_size).to(device)

@@ -6,3 +6,5 @@ pygame
 mido
 python-rtmidi
 music21
+tensorflow
+tensorboardX

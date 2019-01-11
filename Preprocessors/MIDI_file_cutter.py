@@ -28,7 +28,7 @@ def write_to_disk(sequences, path):
             newTrack.write(os.path.dirname(path)+'/sequences/'+os.path.splitext(os.path.basename(path))[0]+'_{}'.format(i))
         else:
             continue
-  
+
 
 def write_to_disk_npz(sequences, path):
     for i, seq in enumerate(sequences):
@@ -41,7 +41,7 @@ def write_to_disk_npz(sequences, path):
             newTrack.append_track(tempTrack)
             newTrack.save(os.path.dirname(path)+'/sequences/'+os.path.splitext(os.path.basename(path))[0]+'_{}'.format(i))
         else:
-            continue    
+            continue
 
 
 if __name__ == '__main__':
@@ -63,13 +63,13 @@ if __name__ == '__main__':
     for i, path in enumerate(path_to_files):
         track = ppr.Multitrack(path, beat_resolution=args.beat_res)
         track = track.get_stacked_pianoroll()
-        
+
         #single track midi file
         if(track.shape[2] == 1):
             track = np.squeeze(track,2)
             sequences = cut_single_track(track, file_length)
             write_to_disk(sequences, path)
-            
+
         #multitrack midi file
         else:
             track = np.rollaxis(track,2,0)
@@ -77,7 +77,5 @@ if __name__ == '__main__':
                 temp_path = os.path.splitext(path)[0]+'_'+str(track_number)+'_'+os.path.splitext(path)[1]
                 sequences = cut_single_track(instrument_track, file_length)
                 write_to_disk(sequences, temp_path)
-        
+
         print('{}/{} tracks have been cut'.format(i+1,len(path_to_files)))
-
-
