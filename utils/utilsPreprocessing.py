@@ -299,12 +299,12 @@ def deleteZeroMatrices(tensor):
 
 
 class createDatasetAE(data.Dataset):
-    def __init__(self, file_path, beat_res=24, seq_length=96, binarize=True):
-        self.all_files = glob.glob(file_path)
+    def __init__(self, file_path, beat_res=24, seq_length=96, binarize=True, bars=1):
+        self.all_files = glob.glob(file_path + '*.mid')
         self.beat_res = beat_res
+        self.bars = bars
         self.binarize = binarize
         self.seq_length = seq_length
-
 
     def __len__(self):
         return len(self.all_files)
@@ -314,18 +314,22 @@ class createDatasetAE(data.Dataset):
         track = ppr.Multitrack(self.all_files[idx], beat_resolution=self.beat_res)
         track = track.get_stacked_pianoroll()
 
-        # if 1 track midifile
+        # if: 1 track midifile
+        # else: quick fix for multitrack, melody in almost every song on midi[0]
         if track.shape[2]==1:
             track = np.squeeze(track,2)
-        # quick fix for multitrack, melody in almost every song on midi[0]
         else:
             track = track[:,:,0]
 
-        # full track length in ticks
-        length = track.shape[0]
-        
-        # #load track from npz
-        # track = np.load(self.all_files[idx])
+        # if length differs from seq_length, cut it to self.seq_length
+        if track.shape[0] > self.seq_length:
+            track = track[:4*self.beat_res*self.bars]
+        elif track.shape[0] < self.seq_length:
+            pad_with = self.seq_length - track.shape[0]  
+            # print("pad_with = {}".format(pad_with))
+            temp = np.zeros((pad_with, 128), dtype=np.uint8)
+            # print("temp.shape = {}".format(temp.shape))
+            track = np.concatenate((track, temp))
 
         # binarize
         if self.binarize:
@@ -337,7 +341,8 @@ class createDatasetAE(data.Dataset):
         sequence = cutOctaves(sequence)
         # unsqueeze first dimension for input
         sequence = np.expand_dims(sequence, axis=0)
-
+        # print("sequence.shape = {}".format(sequence.shape))
+        # print("sequence.dtype = {}".format(sequence.dtype))
         return sequence
 
 

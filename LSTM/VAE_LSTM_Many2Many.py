@@ -4,7 +4,6 @@
 import matplotlib
 # matplotlib.use('Agg')
 import sys
-# sys.path.append('/home/nici/workspace/tss18-robotsinmusicalimprovisation/')
 import numpy as np
 import glob
 import pypianoroll as ppr
@@ -102,9 +101,8 @@ def train(epoch):
         
         optimizer.step()
         gradients = np.zeros(12)
-        for i, f in enumerate(model.parameters()):
+        for i, f, name in enumerate(model.parameters()):
             gradients[i] += np.mean(f.grad.cpu().data.numpy())
-
 
         if(batch_idx % log_interval == 0):
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
@@ -240,6 +238,7 @@ if __name__ == '__main__':
 
                         scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=lr_d)
                         for epoch in range(1, epochs + 1):
+                            scheduler.step()
                             current_train_loss, gradients = train(epoch)
                             writer.add_scalar('loss/train_loss_epoch', current_train_loss, epoch) 
                             for j, grad in enumerate(gradients):

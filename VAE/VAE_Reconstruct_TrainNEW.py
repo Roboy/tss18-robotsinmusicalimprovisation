@@ -1,8 +1,5 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import matplotlib
-matplotlib.use('Agg')
+# matplotlib.use('Agg')
 import numpy as np
 import glob
 import pypianoroll as ppr
@@ -10,11 +7,16 @@ import pretty_midi
 import time
 import music21
 import os
+import sys
+import argparse
 import torch
 import torch.utils.data
 from torch import nn, optim
 from torch.nn import functional as F
 from utils.utilsPreprocessing import *
+from loadModel import loadModel, loadStateDict
+from tensorboardX import SummaryWriter
+
 
 #np.set_printoptions(threshold=np.inf)
 #torch.set_printoptions(threshold=50000)
@@ -159,13 +161,17 @@ def train(epoch):
         data = data.float().to(device)
         optimizer.zero_grad()
         reconBatch, mu, logvar = model(data)
-
         loss, cos_sim, kld = loss_function(reconBatch, data, mu, logvar)
         loss.backward()
         trainLoss += loss.item()
         cos_sims += cos_sim
         klds += kld
         optimizer.step()
+
+        weights = np.zeros(60)
+        for i, f in enumerate(model.parameters()):
+            weights[i] += np.mean(f.cpu().data.numpy())
+
         if(batch_idx % log_interval == 0):
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
@@ -175,76 +181,89 @@ def train(epoch):
     print('====> Epoch: {} Average Loss: {:.4f}'.format(
           epoch, trainLoss / loss_divider))
     
-    return trainLoss / loss_divider, cos_sims / loss_divider, klds / loss_divider
+    return trainLoss / loss_divider, cos_sims.item() / loss_divider, klds.item() / loss_divider, weights, mu
 
 
-def validate(epoch):
+def test(epoch):
     model.eval()
-    valid_loss = 0
+    test_loss = 0
     cos_sim = 0
     kld = 0
-    loss_divider = len(valid_loader.dataset)-(len(valid_loader.dataset)%batch_size)
+    loss_divider = len(test_loader.dataset)-(len(test_loader.dataset)%batch_size)
     with torch.no_grad():
-        for i, data in enumerate(valid_loader):
-            ###DENOISING AUTOENCODER
-            #data = data.float().to(device)
-            #noise = torch.bernoulli((torch.rand_like(data))).to(device)
-            #noisyData = data+noise
-            #reconBatch, mu = model(noisyData)
-            
-            ###NORMAL AUTOENCODER
+        for i, data in enumerate(test_loader):
             data = data.float().to(device)
             reconBatch, mu, logvar = model(data)
             
-            temp_valid_loss, cos_sim_temp, kld_temp = loss_function(reconBatch, data, mu, logvar)
-            valid_loss += temp_valid_loss.item()
+            temp_test_loss, cos_sim_temp, kld_temp = loss_function(reconBatch, data, mu, logvar)
+            test_loss += temp_test_loss.item()
             cos_sim += cos_sim_temp.item()
             kld += kld_temp.item()
-            #if(i==10):
-            #    break
-    valid_loss /= loss_divider
 
-    print('====> Test set loss: {:.4f}'.format(valid_loss))
-    return valid_loss, cos_sim, kld
+    test_loss /= loss_divider
+
+    print('====> Test set loss: {:.4f}'.format(test_loss))
+    return test_loss, cos_sim / loss_divider, kld / loss_divider
 
 
 
 
 
 if __name__ == '__main__':
-    # Parameters
-    epochs = 10
-    learning_rate = 1e-4
-    batch_size = 200
-    log_interval = 100 #Log/show loss per batch
+    # argparser
+    parser = argparse.ArgumentParser(description='VAE settings')
+    parser.add_argument("--file_path", default=None, help='Path to your MIDI files.')
+    parser.add_argument("--checkpoint", default=None, help='Path to last checkpoint. If you trained the checkpointed model on multiple GPUs use the --is_dataParallel flag. Default: None', type=str)
+    parser.add_argument("--is_dataParallel", default=False, help='Option to allow loading models trained with multiple GPUs. Default: False', action="store_true")
+    args = parser.parse_args()
+
+    if not args.file_path:
+        print("You have to set the path to your files from terminal with --file_path flag.")
+        sys.exit()
+
+
+    # Hyperparmeters
+    epochs = 100
+    learning_rate = 1e-3
+    batch_size = 100
+    log_interval = 1 #Log/show loss per batch
     embedding_size = 100
-    beat_resolution = 24
+    beat_resolution = 12
     seq_length = 96
 
 
+    writer = SummaryWriter(log_dir='vae_plots/exp1')
+    # writer.add_text("dataset", dataset, global_step=i)
+    # writer.add_text("learning_rate", str(lr), i)
+    # writer.add_text("learning_rate_decay", str(lr_d), i)
+    # writer.add_text("lstm_layers", str(ll), i)
+    # writer.add_text("hidden_size", str(hs), i)
+
     #create dataset
-    from torch.utils.data.sampler import SubsetRandomSampler
+    if beat_resolution == 12:
+        bars = 2
+    else:
+        bars = 1
 
-    path_to_files = "/media/EXTHD/niciData/DATASETS/AllSequences/"
-
-    dataset = createDatasetAE((path_to_files + "*.npy"),
+    train_dataset = createDatasetAE(args.file_path + 'train/',
                               beat_res = beat_resolution,
+                              bars=bars,
                               seq_length = seq_length,
                               binarize=True)
-    print("Dataset contains {} sequences".format(len(dataset)))
 
-    train_size = int(np.floor(0.9 * len(dataset)))
-    valid_size = len(dataset) - train_size
+    test_dataset = createDatasetAE(args.file_path + 'test/',
+                              beat_res = beat_resolution,
+                              bars=bars,
+                              seq_length = seq_length,
+                              binarize=True)
 
-    train_dataset, valid_dataset = torch.utils.data.random_split(dataset, [train_size, valid_size])
-
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
-    valid_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
 
     print("The training set contains {} sequences".format(len(train_dataset)))
-    print("The validation set contains {} sequences".format(len(valid_dataset)))
+    print("The test set contains {} sequences".format(len(test_dataset)))
 
-    #load dataset from npz
+    # IF YOU HAVE A BIG RAM YOU CAN SAVE THE WHOLE DATASET AS NPZ AND RUN IT FROM THERE
     """
     data = np.load('../WikifoniaPartlyNoTranspose.npz')
     midiDatasetTrain = data['train']
@@ -257,73 +276,46 @@ if __name__ == '__main__':
     train_loader = torch.utils.data.DataLoader(midiDatasetTrain, batch_size=batch_size, shuffle=True, drop_last=True)
     test_loader = torch.utils.data.DataLoader(midiDatasetTest, batch_size=batch_size, shuffle=True, drop_last=True)
     """
-    print('')
 
-    fullPitch = 128; reducedPitch = 60
-
-    # # VAE model
-
+    fullPitch = 128 
+    reducedPitch = 60
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = VAE(embedding_size=embedding_size).to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    # # Load Model
+    # Load Checkpoint
+    if args.checkpoint:
+        print("Trying to load checkpoint...")
+        if args.is_dataParallel:
+            model = loadStateDict(model, args.checkpoint)
+        else:
+            model = loadModel(model, args.checkpoint, dataParallelModel=False)
 
-    # In[ ]:
 
-
-    #from loadModel import loadModel
-    #pathToModel = '../models/YamahaPC2002_VAE_Reconstruct_NoTW_20Epochs.model'
-
-    #model = loadModel(model,pathToModel, dataParallelModel=False)
-
-    import matplotlib.pyplot as plt
-    save_path = '/media/EXTHD/niciData/models/VAE_YamahaPC2002_{}LR_{}SeqLength'.format(str(learning_rate), seq_length)
-
-    train_losses = []
-    valid_losses = []
-    cos_sims_train = []
-    klds_train = []
-    cos_sims_test = []
-    klds_test = []
-    best_valid_loss = 999.
+    best_test_loss = np.inf
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
     for epoch in range(1, epochs + 1):
+        scheduler.step()
         #training with plots
-        train_loss, cos_sim_train, kld_train = train(epoch)
-        train_losses.append(train_loss)
-        cos_sims_train.append(cos_sim_train)
-        klds_train.append(kld_train)
+        train_loss, cos_sim_train, kld_train, weights, embedding = train(epoch)
+        writer.add_scalar('loss/train_loss_epoch', train_loss, epoch)
+        writer.add_scalar('loss/train_reconstruction_loss_epoch', cos_sim_train, epoch)
+        writer.add_scalar('loss/train_kld_epoch', kld_train, epoch)
+        for i, weight in enumerate(weights):
+            writer.add_histogram(('weights/{}'.format(i)), weight, global_step=epoch)
 
-        #validate with plots
-        current_valid_loss, cos_sim_test, kld_test = validate(epoch)
-        valid_losses.append(current_valid_loss)
-        cos_sims_test.append(cos_sim_test)
-        klds_test.append(kld_test)
+        writer.add_histogram('embedding', embedding[0], bins='auto', global_step=epoch)
+
+
+        #test
+        test_loss, cos_sim_test, kld_test = test(epoch)
+        writer.add_scalar('loss/test_loss_epoch', test_loss, epoch)
+        writer.add_scalar('loss/test_reconstruction_loss_epoch', cos_sim_test, epoch)
+        writer.add_scalar('loss/test_kld_epoch', kld_test, epoch)
 
         #save if model better than before
-        if(current_valid_loss < best_valid_loss):
-            best_valid_loss = current_valid_loss
-            torch.save(model.state_dict(),(save_path + '.pth'))
+        if(test_loss < best_test_loss):
+            best_test_loss = test_loss
+            # torch.save(model.state_dict(),(save_path + '.pth'))
 
-        #plot current results
-        plt.plot(train_losses, color='red', label='Train Loss')
-        plt.plot(valid_losses, color='orange', label='Test Loss')
-        plt.plot(cos_sims_train, color='blue', label='Cosine Similarity Train')
-        plt.plot(klds_train, color='black', label='KL Divergence Train')
-        plt.plot(cos_sims_test, color='green', label='Cosine Similarity Test')
-        plt.plot(klds_test, color='cyan', label='KL Divergence Test')
-        plt.legend(loc='upper right')
-        plt.show()
-        print('')
-
-
-    plt.plot(train_losses, color='red', label='Train Loss')
-    plt.plot(valid_losses, color='orange', label='Test Loss')
-    plt.plot(cos_sims_train, color='blue', label='Cosine Similarity Train')
-    plt.plot(klds_train, color='black', label='KL Divergence Train')
-    plt.plot(cos_sims_test, color='green', label='Cosine Similarity Test')
-    plt.plot(klds_test, color='cyan', label='KL Divergence Test')
-    plt.legend(loc='upper right')
-    plt.savefig(save_path + '.png')
-    plt.show()
-    print('')
+    writer.close()
