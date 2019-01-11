@@ -223,16 +223,18 @@ if __name__ == '__main__':
 
 
     # Hyperparmeters
-    epochs = 100
+    epochs = 50
     learning_rate = 1e-3
-    batch_size = 100
-    log_interval = 1 #Log/show loss per batch
+    batch_size = 500
+    log_interval = 10 #Log/show loss per batch
     embedding_size = 100
     beat_resolution = 12
     seq_length = 96
+    # where to save checkpoints?
+    save_path = 'checkpoints/maestro'
 
 
-    writer = SummaryWriter(log_dir='vae_plots/exp1')
+    writer = SummaryWriter(log_dir='vae_plots/maestro')
     # writer.add_text("dataset", dataset, global_step=i)
     # writer.add_text("learning_rate", str(lr), i)
     # writer.add_text("learning_rate_decay", str(lr_d), i)
@@ -246,7 +248,7 @@ if __name__ == '__main__':
         bars = 1
 
     # check if train and test split already exists
-    if(os.path.isdir(args.file_path + 'train/') and os.path.isdir(args.file_path + 'test/')):
+    if os.path.isdir(args.file_path + 'train/') and os.path.isdir(args.file_path + 'test/'):
         print("train/ and test/ folder exist!")
         train_dataset = createDatasetAE(args.file_path + 'train/',
                                   beat_res = beat_resolution,
@@ -255,7 +257,7 @@ if __name__ == '__main__':
                                   binarize=True)
 
         test_dataset = createDatasetAE(args.file_path + 'test/',
-                                  beat_res = beat_resolution,
+                                  beat_res=beat_resolution,
                                   bars=bars,
                                   seq_length = seq_length,
                                   binarize=True)
@@ -265,7 +267,7 @@ if __name__ == '__main__':
     else:
         print("Only one folder with all files exist, using {}".format(args.file_path))
         dataset = createDatasetAE(args.file_path,
-                                  beat_res = beat_resolution,
+                                  beat_res=beat_resolution,
                                   bars=bars,
                                   seq_length = seq_length,
                                   binarize=True)
@@ -331,6 +333,6 @@ if __name__ == '__main__':
         #save if model better than before
         if(test_loss < best_test_loss):
             best_test_loss = test_loss
-            # torch.save(model.state_dict(),(save_path + '.pth'))
+            torch.save(model.state_dict(),(save_path + '.pth'))
 
     writer.close()
