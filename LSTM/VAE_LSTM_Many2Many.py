@@ -178,16 +178,17 @@ if __name__ == '__main__':
     log_interval = 200 # Log/show loss per batch
     input_size = 100
     ############LSTM PARAMS#####################
-    hidden_size = [64]#[128, 256, 512]
-    lstm_layers = [2]#[2, 3]
+    hidden_size = [1024]#[128, 256, 512]
+    lstm_layers = [3]#[2, 3]
     lr_decay = [0.5]#[1, 0.9, 0.5]
     lr_decay_step = 5
-    datasets = ['../../nici_datasets/MAESTRO.npz']#,
-                #'../../nici_datasets/YamahaPianoCompetition2002NoTranspose.npz']
+    datasets = [#'../../nici_datasets/MAESTRO.npz']#,
+                '../../nici_datasets/YamahaPianoCompetition2002NoTranspose.npz']
                 #'../../nici_datasets/MAESTRO.npz'],
                 #'/media/EXTHD/niciDatanpzDatasets/WikifoniaTranspose12up12down.npz',
                 #'/media/EXTHD/niciData/npzDatasets/YamahaPianoCompetition2002NoTranspose.npz']
-    save_path = 'yamahapc2002_notp_TEST'
+    save_path = 'yamahapc2002_notp_4.1'
+    autoencoder_path = '../VAE/checkpoints/yamahapc2002tpby60.pth'
     ############################################
     ############################################
     i=1
@@ -207,15 +208,14 @@ if __name__ == '__main__':
                             writer.add_text("lstm_layers", str(ll), i)
                             writer.add_text("hidden_size", str(hs), i)
                             writer.add_text("batch_size", str(bs), i)
+                            writer.add_text("autoencoder_model", autoencoder_path, i)
 
                             #load variational autoencoder
                             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
                             autoencoder_model = VAE()
-                            path_to_model = '../VAE/checkpoints/yamahapc2002tpby60.pth'
-
 
                             # autoencoder_model = loadModel(autoencoder_model, path_to_model, dataParallelModel=False)
-                            autoencoder_model = loadStateDict(autoencoder_model, path_to_model)
+                            autoencoder_model = loadStateDict(autoencoder_model, autoencoder_path)
                             autoencoder_model = autoencoder_model.to(device)
 
                             # load dataset from npz
