@@ -221,20 +221,25 @@ if __name__ == '__main__':
         print("You have to set the path to your files from terminal with --file_path flag.")
         sys.exit()
 
+    ################################################################################################
+    ################################################################################################
+    ################################################################################################
+    # Hyperparameters
+    epochs = 50                     # number of epochs you want to train for
+    learning_rate = 1e-3            # starting learning rate
+    learning_rate_decay = 0.5       # learning rate_decay per epoch
+    batch_size = 2000               # batch size of autoencoder
+    log_interval = 50               # Log/show loss per batch
+    embedding_size = 100            # size of latent vector
+    beat_resolution = 12            # how many ticks per quarter note: 24 to process 1 bar at a time 12 for 2 bars
+    seq_length = 96                 # how long is one sequence
+    model_name = 'maestro_tpby60'   # name for checkpoints / tensorboard
+    ################################################################################################
+    ################################################################################################
+    ################################################################################################
 
-    # Hyperparmeters
-    epochs = 50
-    learning_rate = 1e-3
-    batch_size = 500
-    log_interval = 10 #Log/show loss per batch
-    embedding_size = 100
-    beat_resolution = 12
-    seq_length = 96
-    # where to save checkpoints?
-    save_path = 'checkpoints/maestro'
-
-
-    writer = SummaryWriter(log_dir='vae_plots/maestro')
+    save_path = 'checkpoints/' + model_name
+    writer = SummaryWriter(log_dir=('vae_plots/' + model_name))
     # writer.add_text("dataset", dataset, global_step=i)
     # writer.add_text("learning_rate", str(lr), i)
     # writer.add_text("learning_rate_decay", str(lr_d), i)
@@ -271,7 +276,7 @@ if __name__ == '__main__':
                                   bars=bars,
                                   seq_length = seq_length,
                                   binarize=True)
-        train_size = int(np.floor(0.9 * len(dataset)))
+        train_size = int(np.floor(0.95 * len(dataset)))
         test_size = len(dataset) - train_size
         train_dataset, test_dataset = torch.utils.data.random_split(dataset, [train_size, test_size])
         train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
@@ -310,7 +315,7 @@ if __name__ == '__main__':
 
 
     best_test_loss = np.inf
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=learning_rate_decay)
     for epoch in range(1, epochs + 1):
         scheduler.step()
         #training with plots
