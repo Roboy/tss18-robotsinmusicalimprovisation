@@ -166,9 +166,9 @@ def train(epoch):
         klds += kld
         optimizer.step()
 
-        weights = np.zeros(60)
+        weights = []
         for i, f in enumerate(model.parameters()):
-            weights[i] += np.mean(f.cpu().data.numpy())
+            weights.append(f.cpu().data.numpy())
 
         if(batch_idx % log_interval == 0):
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
@@ -227,13 +227,14 @@ if __name__ == '__main__':
     # Hyperparameters
     epochs = 50                     # number of epochs you want to train for
     learning_rate = 1e-3            # starting learning rate
-    learning_rate_decay = 0.5       # learning rate_decay per epoch
+    learning_rate_decay = 0.9       # learning rate_decay per epoch
     batch_size = 2000               # batch size of autoencoder
     log_interval = 50               # Log/show loss per batch
     embedding_size = 100            # size of latent vector
-    beat_resolution = 12            # how many ticks per quarter note: 24 to process 1 bar at a time 12 for 2 bars
+    beat_resolution = 24            # how many ticks per quarter note: 24 to process 1 bar at a time 12 for 2 bars
     seq_length = 96                 # how long is one sequence
-    model_name = 'maestro_tpby60'   # name for checkpoints / tensorboard
+    model_name = 'yamahapctpby60_dataparrallel_1bar'
+                                    # name for checkpoints / tensorboard
     ################################################################################################
     ################################################################################################
     ################################################################################################
@@ -266,8 +267,8 @@ if __name__ == '__main__':
                                   bars=bars,
                                   seq_length = seq_length,
                                   binarize=True)
-        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
-        test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
+        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+        test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
 
     else:
         print("Only one folder with all files exist, using {}".format(args.file_path))
@@ -302,7 +303,12 @@ if __name__ == '__main__':
     fullPitch = 128
     reducedPitch = 60
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = VAE(embedding_size=embedding_size).to(device)
+    model = VAE(embedding_size=embedding_size)
+    if torch.cuda.device_count() > 1:
+        print('Using {} GPUs!'.format(torch.cuda.device_count()))
+        model = nn.DataParallel(model)
+    model = model.to(device)
+    writer.add_text("pytorch model", str(model))
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Load Checkpoint
@@ -324,7 +330,7 @@ if __name__ == '__main__':
         writer.add_scalar('loss/train_reconstruction_loss_epoch', cos_sim_train, epoch)
         writer.add_scalar('loss/train_kld_epoch', kld_train, epoch)
         for i, weight in enumerate(weights):
-            writer.add_histogram(('weights/{}'.format(i)), weight, global_step=epoch)
+            writer.add_histogram(('weights/weight{}'.format(i)), weight, global_step=epoch)
 
         writer.add_histogram('embedding', embedding[0], bins='auto', global_step=epoch)
 

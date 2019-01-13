@@ -215,9 +215,6 @@ def test(epoch):
     return test_loss, cos_sim / loss_divider, kld / loss_divider
 
 
-
-
-
 if __name__ == '__main__':
     # argparser
     parser = argparse.ArgumentParser(description='VAE settings')
@@ -242,9 +239,10 @@ if __name__ == '__main__':
     batch_size = 2000               # batch size of autoencoder
     log_interval = 25               # Log/show loss per batch
     embedding_size = 100            # size of latent vector
-    beat_resolution = 12            # how many ticks per quarter note: 24 to process 1 bar at a time 12 for 2 bars
+    beat_resolution = 24            # how many ticks per quarter note: 24 to process 1 bar at a time 12 for 2 bars
     seq_length = 96                 # how long is one sequence
-    model_name = 'yamahapctpby60_new_architecture2'   # name for checkpoints / tensorboard
+    model_name = 'yamahapctpby60_new_arch_dataparrallel_1bar'
+                                    # name for checkpoints / tensorboard
     ################################################################################################
     ################################################################################################
     ################################################################################################
@@ -317,7 +315,11 @@ if __name__ == '__main__':
     fullPitch = 128
     reducedPitch = 60
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = VAE(embedding_size=embedding_size).to(device)
+    model = VAE(embedding_size=embedding_size)
+    if torch.cuda.device_count() > 1:
+        print('Using {} GPUs!'.format(torch.cuda.device_count()))
+        model = nn.DataParallel(model)
+    model = model.to(device)
     writer.add_text("pytorch model", str(model))
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
