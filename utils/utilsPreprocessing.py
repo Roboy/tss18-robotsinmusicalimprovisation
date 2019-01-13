@@ -346,7 +346,7 @@ class createDatasetAE(data.Dataset):
             # print("sequence.shape = {}".format(sequence.shape))
             # print("sequence.dtype = {}".format(sequence.dtype))
         except:
-            print("MIDI file warning. Skipped a MIDI file because was not working properly.")
+            # print("MIDI file warning. Skipped a MIDI file because was not working properly.")
             sequence = np.zeros((1, self.seq_length, 60), dtype=np.uint8)
         return torch.from_numpy(sequence)
 

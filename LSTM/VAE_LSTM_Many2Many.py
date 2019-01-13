@@ -57,6 +57,7 @@ class LSTM_Many2Many(nn.Module):
 
         lstm_input = torch.relu(self.i2h(embed))
         output, (h_t1, c_t1) = self.lstm(lstm_input, (h_t0, c_t0))
+        output = torch.relu(output)
         output = torch.relu(self.h2o(output[:,:,:]))
 
         return embed, output
