@@ -15,6 +15,9 @@ class LiveParser():
         self.start_time = time.time()
         self.end_seq_note = end_seq_note
         self.bar_length = ppq * 4
+        # TEMP HACK FOR 2 BAR TRAINED AUTOENCODER
+        if ppq == 12:
+            self.bar_length = self.bar_length*2
         self.seq_length_ticks = self.bar_length * number_seq
         self.counter_metronome = 0
         self.metronome = 0
@@ -22,6 +25,7 @@ class LiveParser():
         self.current_time = 0.
         self.temp_tick = 0
         self.out_port = None
+
 
     def open_inport(self, callback_function):
         avail_ports = mido.get_input_names()
