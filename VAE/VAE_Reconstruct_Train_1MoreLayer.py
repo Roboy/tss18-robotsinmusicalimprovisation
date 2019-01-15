@@ -237,6 +237,7 @@ if __name__ == '__main__':
     epochs = 50                     # number of epochs you want to train for
     learning_rate = 1e-3            # starting learning rate
     learning_rate_decay = 0.9       # learning rate_decay per epoch
+    lr_decay_step = 1               # step size of learning rate decay
     batch_size = 2000               # batch size of autoencoder
     log_interval = 50               # Log/show loss per batch
     embedding_size = 100            # size of latent vector

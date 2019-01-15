@@ -183,38 +183,44 @@ def train(epoch):
                             klds.item() / loss_divider, weights, mu
 
 
-def test(epoch):
+def test(epoch, data_loader, test_set=False, valid_set=False):
     model.eval()
-    test_loss = 0
+    loss = 0
     cos_sim = 0
     kld = 0
-    loss_divider = len(test_loader.dataset)-(len(test_loader.dataset)%batch_size)
+    loss_divider = len(data_loader.dataset)-(len(data_loader.dataset)%batch_size)
     with torch.no_grad():
-        for i, data in enumerate(test_loader):
+        for i, data in enumerate(data_loader):
             data = data.float().to(device)
             reconBatch, mu, logvar = model(data)
 
-            temp_test_loss, cos_sim_temp, kld_temp = loss_function(reconBatch, data, mu, logvar)
-            test_loss += temp_test_loss.item()
+            temp_loss, cos_sim_temp, kld_temp = loss_function(reconBatch, data, mu, logvar)
+            loss += temp_loss.item()
             cos_sim += cos_sim_temp.item()
             kld += kld_temp.item()
 
-    test_loss /= loss_divider
+    loss /= loss_divider
+    if test_set:
+        print('====> Test set loss: {:.4f}'.format(loss))
+    elif valid_set:
+        print('====> Validation set loss: {:.4f}'.format(loss))
 
-    print('====> Test set loss: {:.4f}'.format(test_loss))
-    return test_loss, cos_sim / loss_divider, kld / loss_divider
-
-
-
+    return loss, cos_sim / loss_divider, kld / loss_divider
 
 
 if __name__ == '__main__':
     # argparser
     parser = argparse.ArgumentParser(description='VAE settings')
-    parser.add_argument("--file_path", default=None, help='Path to your MIDI files.')
+    parser.add_argument("--file_path", default=None,
+        help='Path to your MIDI files.')
+    parser.add_argument("--validation_path", default=None,
+        help='Path to your validation set. You should take this from a different dataset.')
     parser.add_argument("--checkpoint", default=None, help='Path to last checkpoint. \
-    If you trained the checkpointed model on multiple GPUs use the --is_dataParallel flag. Default: None', type=str)
-    parser.add_argument("--is_dataParallel", default=False, help='Option to allow loading models trained with multiple GPUs. Default: False', action="store_true")
+        If you trained the checkpointed model on multiple GPUs use the --is_dataParallel flag. \
+        Default: None', type=str)
+    parser.add_argument("--is_dataParallel", default=False,
+        help='Option to allow loading models trained with multiple GPUs. \
+        Default: False', action="store_true")
     args = parser.parse_args()
 
     if not args.file_path:
@@ -227,13 +233,14 @@ if __name__ == '__main__':
     # Hyperparameters
     epochs = 50                     # number of epochs you want to train for
     learning_rate = 1e-3            # starting learning rate
-    learning_rate_decay = 0.9       # learning rate_decay per epoch
-    batch_size = 2000               # batch size of autoencoder
-    log_interval = 50               # Log/show loss per batch
+    learning_rate_decay = None       # learning rate_decay per epoch
+    lr_decay_step = None               # step size of learning rate decay
+    batch_size = 100               # batch size of autoencoder
+    log_interval = 500               # Log/show loss per batch
     embedding_size = 100            # size of latent vector
     beat_resolution = 24            # how many ticks per quarter note: 24 to process 1 bar at a time 12 for 2 bars
     seq_length = 96                 # how long is one sequence
-    model_name = 'yamahapctpby60_dataparrallel_1bar'
+    model_name = 'yamahapctpby60_1bar_smallBatch_wValidation'
                                     # name for checkpoints / tensorboard
     ################################################################################################
     ################################################################################################
@@ -285,8 +292,23 @@ if __name__ == '__main__':
         train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
         test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
 
+    # validation set
+    if args.validation_path:
+        print("Path to validation set was set!")
+        valid_dataset = createDatasetAE(args.validation_path,
+                                  beat_res = beat_resolution,
+                                  bars=bars,
+                                  seq_length = seq_length,
+                                  binarize=True)
+        valid_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+    else:
+        print("Please use --valiation_path to set path to validation set.")
+        sys.exit()
+
     print("The training set contains {} sequences".format(len(train_dataset)))
     print("The test set contains {} sequences".format(len(test_dataset)))
+    print("The valdiation set contains {} sequences".format(len(valid_dataset)))
+    del train_dataset, test_dataset, valid_dataset
 
     # IF YOU HAVE A BIG RAM YOU CAN SAVE THE WHOLE DATASET AS NPZ AND RUN IT FROM THERE
     """
@@ -321,11 +343,11 @@ if __name__ == '__main__':
         else:
             model = loadModel(model, args.checkpoint, dataParallelModel=False)
 
-
-    best_test_loss = np.inf
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=learning_rate_decay)
+    best_valid_loss = np.inf
+    # scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=lr_decay_step, gamma=learning_rate_decay)
     for epoch in range(1, epochs + 1):
-        scheduler.step()
+        # scheduler.step()
+
         #training with plots
         train_loss, cos_sim_train, kld_train, weights, embedding = train(epoch)
         writer.add_scalar('loss/train_loss_epoch', train_loss, epoch)
@@ -336,16 +358,21 @@ if __name__ == '__main__':
 
         writer.add_histogram('embedding', embedding[0], bins='auto', global_step=epoch)
 
-
         #test
-        test_loss, cos_sim_test, kld_test = test(epoch)
+        test_loss, cos_sim_test, kld_test = test(epoch, test_loader, test_set=True)
         writer.add_scalar('loss/test_loss_epoch', test_loss, epoch)
         writer.add_scalar('loss/test_reconstruction_loss_epoch', cos_sim_test, epoch)
         writer.add_scalar('loss/test_kld_epoch', kld_test, epoch)
 
+        #validate
+        valid_loss, cos_sim_valid, kld_valid = test(epoch, valid_loader, valid_set=True)
+        writer.add_scalar('loss/valid_loss_epoch', valid_loss, epoch)
+        writer.add_scalar('loss/valid_reconstruction_loss_epoch', cos_sim_valid, epoch)
+        writer.add_scalar('loss/valid_kld_epoch', kld_valid, epoch)
+
         #save if model better than before
-        if(test_loss < best_test_loss):
-            best_test_loss = test_loss
+        if (valid_loss < best_valid_loss):
+            best_valid_loss = valid_loss
             torch.save(model.state_dict(),(save_path + '.pth'))
 
     writer.close()
