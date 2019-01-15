@@ -242,7 +242,7 @@ if __name__ == '__main__':
     embedding_size = 100            # size of latent vector
     beat_resolution = 24            # how many ticks per quarter note: 24 to process 1 bar at a time 12 for 2 bars
     seq_length = 96                 # how long is one sequence
-    model_name = 'yamahapctpby60_dataparrallel_1MoreLayer'
+    model_name = 'yamahapctpby60_1bar_1MoreLayer'
                                     # name for checkpoints / tensorboard
     ################################################################################################
     ################################################################################################
@@ -250,11 +250,13 @@ if __name__ == '__main__':
 
     save_path = 'checkpoints/' + model_name
     writer = SummaryWriter(log_dir=('vae_plots/' + model_name))
-    # writer.add_text("dataset", dataset, global_step=i)
-    # writer.add_text("learning_rate", str(lr), i)
-    # writer.add_text("learning_rate_decay", str(lr_d), i)
-    # writer.add_text("lstm_layers", str(ll), i)
-    # writer.add_text("hidden_size", str(hs), i)
+    writer.add_text("learning_rate", str(learning_rate))
+    writer.add_text("learning_rate_decay", str(learning_rate_decay))
+    writer.add_text("learning_rate_decay_step", str(lr_decay_step))
+    writer.add_text("batch_size", str(batch_size))
+    writer.add_text("embedding_size", str(embedding_size))
+    writer.add_text("beat_resolution", str(beat_resolution))
+    writer.add_text("model_name", model_name)
 
     #create dataset
     if beat_resolution == 12:

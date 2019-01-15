@@ -241,11 +241,13 @@ if __name__ == '__main__':
 
     save_path = 'checkpoints/' + model_name
     writer = SummaryWriter(log_dir=('vae_plots/' + model_name))
-    # writer.add_text("dataset", dataset, global_step=i)
-    # writer.add_text("learning_rate", str(lr), i)
-    # writer.add_text("learning_rate_decay", str(lr_d), i)
-    # writer.add_text("lstm_layers", str(ll), i)
-    # writer.add_text("hidden_size", str(hs), i)
+    writer.add_text("learning_rate", str(learning_rate))
+    writer.add_text("learning_rate_decay", str(learning_rate_decay))
+    writer.add_text("learning_rate_decay_step", str(lr_decay_step))
+    writer.add_text("batch_size", str(batch_size))
+    writer.add_text("embedding_size", str(embedding_size))
+    writer.add_text("beat_resolution", str(beat_resolution))
+    writer.add_text("model_name", model_name)
 
     #create dataset
     if beat_resolution == 12:
