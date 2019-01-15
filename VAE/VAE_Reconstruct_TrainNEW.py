@@ -1,11 +1,5 @@
-import matplotlib
-# matplotlib.use('Agg')
 import numpy as np
-import glob
 import pypianoroll as ppr
-import pretty_midi
-import time
-import music21
 import os
 import sys
 import argparse
@@ -16,8 +10,6 @@ from torch.nn import functional as F
 from utils.utilsPreprocessing import *
 from loadModel import loadModel, loadStateDict
 from tensorboardX import SummaryWriter
-#np.set_printoptions(threshold=np.inf)
-#torch.set_printoptions(threshold=50000)
 
 
 class VAE(nn.Module):
