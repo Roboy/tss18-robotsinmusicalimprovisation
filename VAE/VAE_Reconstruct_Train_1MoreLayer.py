@@ -242,7 +242,7 @@ if __name__ == '__main__':
     embedding_size = 100            # size of latent vector
     beat_resolution = 24            # how many ticks per quarter note: 24 to process 1 bar at a time 12 for 2 bars
     seq_length = 96                 # how long is one sequence
-    model_name = 'yamahapctpby60_dataparrallel_1bar'
+    model_name = 'yamahapctpby60_dataparrallel_1MoreLayer'
                                     # name for checkpoints / tensorboard
     ################################################################################################
     ################################################################################################
