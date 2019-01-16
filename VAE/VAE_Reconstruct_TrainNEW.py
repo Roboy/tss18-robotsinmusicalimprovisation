@@ -300,7 +300,6 @@ if __name__ == '__main__':
     print("The training set contains {} sequences".format(len(train_dataset)))
     print("The test set contains {} sequences".format(len(test_dataset)))
     print("The valdiation set contains {} sequences".format(len(valid_dataset)))
-    del train_dataset, test_dataset, valid_dataset
 
     # IF YOU HAVE A BIG RAM YOU CAN SAVE THE WHOLE DATASET AS NPZ AND RUN IT FROM THERE
     """
@@ -336,10 +335,12 @@ if __name__ == '__main__':
             model = loadModel(model, args.checkpoint, dataParallelModel=False)
 
     best_valid_loss = np.inf
-    # scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=lr_decay_step, gamma=learning_rate_decay)
+    if learning_rate_decay:
+        print("Learning rate decay activated!")
+        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=lr_decay_step, gamma=learning_rate_decay)
     for epoch in range(1, epochs + 1):
-        # scheduler.step()
-
+        if learning_rate_decay:
+            scheduler.step()
         #training with plots
         train_loss, cos_sim_train, kld_train, weights, embedding = train(epoch)
         writer.add_scalar('loss/train_loss_epoch', train_loss, epoch)

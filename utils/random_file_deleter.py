@@ -18,7 +18,7 @@ if __name__ == '__main__':
         files = glob.glob(args.file_path + '*.mid')
         length = len(files)
         print("There are {} MIDI files".format(length))
-    reduce_by = float(input("How much would you like to reduce your files by? "))
+    reduce_by = float(input("How many files would you like to keep? In percent 10% = 0.1: "))
     random.shuffle(files)
     for f in files:
         os.remove(f)
