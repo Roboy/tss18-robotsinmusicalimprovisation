@@ -301,12 +301,14 @@ def deleteZeroMatrices(tensor):
 
 
 class createDatasetAE(data.Dataset):
-    def __init__(self, file_path, beat_res=24, seq_length=96, binarize=True, bars=1):
+    def __init__(self, file_path, beat_res=24, seq_length=96, binarize=True,
+                                            bars=1, verbose=False):
         self.all_files = glob.glob(file_path + '*.mid')
         self.beat_res = beat_res
         self.bars = bars
         self.binarize = binarize
         self.seq_length = seq_length
+        self.verbose = verbose
 
     def __len__(self):
         return len(self.all_files)
@@ -315,9 +317,8 @@ class createDatasetAE(data.Dataset):
         try:
             # load song from midi files and parse to numpy
             track = ppr.Multitrack(self.all_files[idx], beat_resolution=self.beat_res)
-            # print(track)
             track = track.get_stacked_pianoroll()
-            # print(track.shape)
+
             # if: 1 track midifile
             # else: quick fix for multitrack, melody in almost every song on midi[0]
             if track.shape[2]==1:
@@ -325,14 +326,12 @@ class createDatasetAE(data.Dataset):
             else:
                 track = track[:,:,0]
 
-            # if length differs from seq_length, cut it to self.seq_length
+            # if length differs from seq_length, cut it to seq_length
             if track.shape[0] > self.seq_length:
                 track = track[:4*self.beat_res*self.bars]
             elif track.shape[0] < self.seq_length:
                 pad_with = self.seq_length - track.shape[0]
-                # print("pad_with = {}".format(pad_with))
                 temp = np.zeros((pad_with, 128), dtype=np.uint8)
-                # print("temp.shape = {}".format(temp.shape))
                 track = np.concatenate((track, temp))
 
             # binarize
@@ -345,10 +344,9 @@ class createDatasetAE(data.Dataset):
             sequence = cutOctaves(sequence)
             # unsqueeze first dimension for input
             sequence = np.expand_dims(sequence, axis=0)
-            # print("sequence.shape = {}".format(sequence.shape))
-            # print("sequence.dtype = {}".format(sequence.dtype))
         except:
-            # print("MIDI file warning. Skipped a MIDI file because was not working properly.")
+            if self.verbose:
+                print("MIDI file warning. Skipped a MIDI file because was not working properly.")
             sequence = np.zeros((1, self.seq_length, 60), dtype=np.uint8)
         return torch.from_numpy(sequence)
 
@@ -437,62 +435,3 @@ class createDatasetLSTM(data.Dataset):
                 pad_value=-100)
 
         return input_pianoroll, ground_truth_pianoroll, seq_length
-
-
-
-"""
-class createSeqDatasetLSTM(data.Dataset):
-    def __init__(self, pathToFiles, seq_length=16, beat_res=4, binarize=True):
-        self.all_files = glob.glob(pathToFiles)
-        self.beat_res = beat_res
-        self.binarize = binarize
-        self.seq_length = seq_length
-        self.max_length = 0
-
-    def __len__(self):
-        return len(self.all_files)
-
-    def __getitem__(self, idx):
-        track = ppr.Multitrack(self.all_files[idx], beat_resolution=self.beat_res)
-        track = track.get_stacked_pianoroll()
-
-        cut_length = self.seq_length+1
-
-        #binarize
-        if(self.binarize):
-            track[track > 0] = 1
-
-        length_temp = track.shape[0]
-        print(length_temp)
-
-        if(length_temp % cut_length != 0):
-            track = track[:-(length_temp % cut_length), :]
-        length = track.shape[0]
-        print(length)
-        #IF 1 TRACK MIDIFILE
-        if(track.shape[2]==1):
-            track = np.squeeze(track,2)
-            track = np.array(np.split(track, int(length/cut_length),axis=0))
-        #quick fix for multitrack
-        else:
-            track = track[:,:,0]
-            track = np.array(np.split(track, int(length/cut_length),axis=0))
-
-        track = transposeNotesHigherLower(track)
-        track = cutOctaves(track)
-
-        print(track.shape)
-
-        seq_length = track.shape[1]-1
-
-        input_pianoroll = track[:,:-1,:]
-        ground_truth_pianoroll = track[:,1:,:]
-
-        #input_pianoroll = padPianoroll(input_pianoroll, self.max_length, pad_value=0)
-        #ground_truth_pianoroll = padPianoroll(ground_truth_pianoroll, self.max_length,
-        #    pad_value=-100)
-
-        return input_pianoroll, ground_truth_pianoroll, seq_length
-
-
-"""

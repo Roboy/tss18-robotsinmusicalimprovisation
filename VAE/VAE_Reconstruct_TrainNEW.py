@@ -290,7 +290,7 @@ if __name__ == '__main__':
         valid_dataset = createDatasetAE(args.validation_path,
                                   beat_res = beat_resolution,
                                   bars=bars,
-                                  seq_length = seq_length,
+                                  seq_length=seq_length,
                                   binarize=True)
         valid_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
     else:
@@ -299,7 +299,8 @@ if __name__ == '__main__':
 
     print("The training set contains {} sequences".format(len(train_dataset)))
     print("The test set contains {} sequences".format(len(test_dataset)))
-    print("The valdiation set contains {} sequences".format(len(valid_dataset)))
+    if args.validation_path:
+        print("The valdiation set contains {} sequences".format(len(valid_dataset)))
 
     # IF YOU HAVE A BIG RAM YOU CAN SAVE THE WHOLE DATASET AS NPZ AND RUN IT FROM THERE
     """
