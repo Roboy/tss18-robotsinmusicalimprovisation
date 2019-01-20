@@ -13,10 +13,11 @@ from tensorboardX import SummaryWriter
 
 
 class VAE(nn.Module):
-    def __init__(self, embedding_size=100):
+    def __init__(self, embedding_size=100, covariance_param=0.2):
         super(VAE, self).__init__()
 
         self.embedding_size = embedding_size
+        self.covariance_param = covariance_param
 
         # ENCODER
         self.encode1 = nn.Sequential(
@@ -101,7 +102,7 @@ class VAE(nn.Module):
 
     def reparameterize(self, mu, logvar):
         if self.training:
-            std = torch.exp(0.2*logvar)
+            std = torch.exp(self.covariance_param * logvar)
             eps = torch.randn_like(std)
             return eps.mul(std).add_(mu)
         else:
@@ -220,6 +221,8 @@ if __name__ == '__main__':
     beat_resolution = 24            # how many ticks per quarter note:
                                         # 24 to process 1 bar at a time 12 for 2 bars
     seq_length = 96                 # how long is one sequence
+    covariance_param = 0.5          # value that the logvar is multiplied by
+                                        # in reparameterization
     model_name = 'MEMORY_LEAK_TEST'
                                     # name for checkpoints / tensorboard
     ################################################################################################
@@ -307,7 +310,7 @@ if __name__ == '__main__':
     fullPitch = 128
     reducedPitch = 60
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = VAE(embedding_size=embedding_size)
+    model = VAE(embedding_size=embedding_size, covariance_param=covariance_param)
     if torch.cuda.device_count() > 1:
         print('Using {} GPUs!'.format(torch.cuda.device_count()))
         model = nn.DataParallel(model)
