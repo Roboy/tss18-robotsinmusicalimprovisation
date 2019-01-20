@@ -243,7 +243,7 @@ def debinarizeMidi(a, prediction=True,velocity=127):
         min_vel = 40
         a[a > 0] = min_vel + (velocity-min_vel)*a[a > 0]
 
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
     elif(prediction==False):
         a[:] = np.where(a == 1,velocity,0)
     return a

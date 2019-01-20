@@ -49,7 +49,7 @@ if __name__ == '__main__':
     parser.add_argument("--file_path", help='Path to your MIDI files', type=str)
     parser.add_argument("--seq_length", default=96, help='Sequence length. Defaults to 96.', type=int)
     parser.add_argument("--bars", default=4, help='Number of bars you want to cut the MIDI file to.', type=int)
-    parser.add_argument("--beat_res", default=24, help='Beat resolution of MIDI read', type=int)
+    parser.add_argument("--beat_res", default=48, help='Beat resolution of MIDI read', type=int)
     args = parser.parse_args()
 
     if not args.file_path:

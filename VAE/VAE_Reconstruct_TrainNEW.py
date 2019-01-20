@@ -105,7 +105,6 @@ class VAE(nn.Module):
             eps = torch.randn_like(std)
             return eps.mul(std).add_(mu)
         else:
-            #print("no change")
             return mu
 
     def forward(self, x):
@@ -120,24 +119,12 @@ def loss_function(recon_x, x, mu, logvar):
     #beta for disentanglement
     beta = 1e0
 
-    """
-    BCE = F.binary_cross_entropy(recon_x, x.view(-1, 784), size_average=False)
-
-    # see Appendix B from VAE paper:
-    # Kingma and Welling. Auto-Encoding Variational Bayes. ICLR, 2014
-    # https://arxiv.org/abs/1312.6114
-    # 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
-    KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-
-    return BCE + KLD
-    """
     batch = x.size(0)
     cosSim = torch.sum(cos(x.view(batch,-1),recon_x.view(batch,-1)))
     cosSim = batch-cosSim
 
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
     KLD /= mu.size(0) * mu.size(1)
-    #print("loss values: cossim=",cosSim,"KLD=",KLD)
     return cosSim + (beta * KLD), cosSim, KLD
 
 
@@ -154,8 +141,8 @@ def train(epoch):
         loss, cos_sim, kld = loss_function(reconBatch, data, mu, logvar)
         loss.backward()
         trainLoss += loss.item()
-        cos_sims += cos_sim
-        klds += kld
+        cos_sims += cos_sim.item()
+        klds += kld.item()
         optimizer.step()
 
         weights = []
@@ -171,8 +158,8 @@ def train(epoch):
     print('====> Epoch: {} Average Loss: {:.4f}'.format(
           epoch, trainLoss / loss_divider))
 
-    return trainLoss / loss_divider, cos_sims.item() / loss_divider, \
-                            klds.item() / loss_divider, weights, mu
+    return trainLoss / loss_divider, cos_sims / loss_divider, \
+                            klds / loss_divider, weights, mu
 
 
 def test(epoch, data_loader, test_set=False, valid_set=False):
@@ -225,14 +212,15 @@ if __name__ == '__main__':
     # Hyperparameters
     epochs = 50                     # number of epochs you want to train for
     learning_rate = 1e-3            # starting learning rate
-    learning_rate_decay = None       # learning rate_decay per epoch
-    lr_decay_step = None               # step size of learning rate decay
-    batch_size = 100               # batch size of autoencoder
-    log_interval = 500               # Log/show loss per batch
+    learning_rate_decay = 0.1       # learning rate_decay per epoch
+    lr_decay_step = 5               # step size of learning rate decay
+    batch_size = 100                # batch size of autoencoder
+    log_interval = 500              # Log/show loss per batch
     embedding_size = 100            # size of latent vector
-    beat_resolution = 24            # how many ticks per quarter note: 24 to process 1 bar at a time 12 for 2 bars
+    beat_resolution = 24            # how many ticks per quarter note:
+                                        # 24 to process 1 bar at a time 12 for 2 bars
     seq_length = 96                 # how long is one sequence
-    model_name = 'yamahapctpby60_1bar_smallBatch_wValidation'
+    model_name = 'MEMORY_LEAK_TEST'
                                     # name for checkpoints / tensorboard
     ################################################################################################
     ################################################################################################

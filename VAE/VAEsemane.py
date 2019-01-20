@@ -74,7 +74,7 @@ def main(live_instrument, model, args):
                     for note in midi_on[0]:
                         if note not in old_midi_on:
                             current_vel = int(prediction[live_instrument.current_tick,note])
-                            print(current_vel)
+                            # print(current_vel)
                             live_instrument.out_port.send(Message('note_on',
                                 note=note, velocity=current_vel))
                             played_notes.append(note)
