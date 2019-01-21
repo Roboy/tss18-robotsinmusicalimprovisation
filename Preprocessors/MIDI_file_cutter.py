@@ -6,7 +6,7 @@ import glob
 import time
 import os
 import pypianoroll as ppr
-from utils.utilsPreprocessing import *
+from utils.utils import *
 import argparse
 import sys
 

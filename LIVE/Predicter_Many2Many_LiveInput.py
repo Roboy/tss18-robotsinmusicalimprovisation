@@ -10,7 +10,7 @@ import torch.utils.data
 import argparse
 from torch import nn, optim
 from torch.nn import functional as F
-from utils.utilsPreprocessing import *
+from utils.utils import *
 from utils.LSTM import LSTM_Many2Many
 from utils.VAE import VAE
 from loadModel import loadModel
@@ -64,7 +64,7 @@ if args.hidden_size:
 else:
     hidden_size = 128
 
-# input_size 
+# input_size
 if args.input_size:
     input_size = args.input_size
 else:
@@ -107,7 +107,7 @@ def main(live_instrument, lstm_model, autoencoder_model):
     # send live recorded sequence through model and get improvisation
     with torch.no_grad():
         sample = np.array(np.split(sequence, seq_length))
-        
+
         # prepare sample for input
         sample = cutOctaves(sample)
         sample = torch.from_numpy(sample).float().to(device)
@@ -161,7 +161,7 @@ def main(live_instrument, lstm_model, autoencoder_model):
                     for note in old_midi_on[0]:
                         if note not in midi_on:
                             live_instrument.out_port.send(Message('note_off', note=note))
-                
+
                 old_midi_on = midi_on
 
             if done:
@@ -175,7 +175,7 @@ if __name__ == '__main__':
     live_instrument.open_inport(live_instrument.parse_notes)
     live_instrument.open_outport()
 
-    lstm_model = LSTM_Many2Many(batch_size=1, seq_length=seq_length*2, 
+    lstm_model = LSTM_Many2Many(batch_size=1, seq_length=seq_length*2,
                      input_size=input_size, hidden_size=hidden_size)
     autoencoder_model = VAE()
 

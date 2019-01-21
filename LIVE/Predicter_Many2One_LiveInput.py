@@ -10,7 +10,7 @@ import torch.utils.data
 import argparse
 from torch import nn, optim
 from torch.nn import functional as F
-from utils.utilsPreprocessing import *
+from utils.utils import *
 from utils.LSTM import LSTM
 from utils.VAE import VAE
 from loadModel import loadModel
@@ -51,7 +51,7 @@ if args.hidden_size:
 else:
     hidden_size = 128
 
-#input_size 
+#input_size
 if args.input_size:
     input_size = args.input_size
 else:
@@ -66,7 +66,7 @@ print(seq_length)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-lstmModel = LSTM(batch_size=1, seq_length=seq_length, 
+lstmModel = LSTM(batch_size=1, seq_length=seq_length,
                  input_size=input_size, hidden_size=hidden_size)
 autoencoderModel = VAE()
 
@@ -104,7 +104,7 @@ print(sequence.shape)
 with torch.no_grad():
     sample = np.array(np.split(sequence, seq_length - 1))
     print(sample.shape)
-    
+
     #####PREPARE SAMPLE for input
     sample = torch.from_numpy(sample).float().to(device)
     sample = torch.unsqueeze(sample,1)
@@ -145,5 +145,5 @@ with torch.no_grad():
     #pianorollMatrixToTempMidi(reconstruction, show=True,
     #                            showPlayer=True,autoplay=True, prediction=True)
     print("PREDICTION")
-    pianorollMatrixToTempMidi(prediction, prediction=True, 
-                              show=False,showPlayer=False,autoplay=True)        
+    pianorollMatrixToTempMidi(prediction, prediction=True,
+                              show=False,showPlayer=False,autoplay=True)

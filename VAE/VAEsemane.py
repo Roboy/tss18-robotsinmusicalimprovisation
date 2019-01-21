@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import torch
 import torch.utils.data
-from utils.utilsPreprocessing import (cutOctaves, debinarizeMidi, addCuttedOctaves)
+from utils.utils import (cutOctaves, debinarizeMidi, addCuttedOctaves)
 from VAE.VAE_Reconstruct_TrainNEW import VAE
 from loadModel import loadModel, loadStateDict
 from LIVE.LiveInput_ClassCompliant import LiveParser

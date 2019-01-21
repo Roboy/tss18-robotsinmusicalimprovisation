@@ -7,7 +7,7 @@ import torch
 import torch.utils.data
 from torch import nn, optim
 from torch.nn import functional as F
-from utils.utilsPreprocessing import *
+from utils.utils import *
 from loadModel import loadModel, loadStateDict
 from tensorboardX import SummaryWriter
 
@@ -42,9 +42,6 @@ class VAE(nn.Module):
             nn.Linear(800,400),
             nn.BatchNorm1d(400),
             nn.ELU()
-            #nn.Linear(400,100),
-            #nn.BatchNorm1d(100),
-            #nn.ELU()
         )
         self.encode31 = nn.Sequential(
             nn.Linear(400,self.embedding_size),
@@ -223,7 +220,7 @@ if __name__ == '__main__':
     seq_length = 96                 # how long is one sequence
     covariance_param = 0.5          # value that the logvar is multiplied by
                                         # in reparameterization
-    model_name = 'MEMORY_LEAK_TEST'
+    model_name = 'dataset_name'
                                     # name for checkpoints / tensorboard
     ################################################################################################
     ################################################################################################
@@ -238,6 +235,7 @@ if __name__ == '__main__':
     writer.add_text("embedding_size", str(embedding_size))
     writer.add_text("beat_resolution", str(beat_resolution))
     writer.add_text("model_name", model_name)
+    writer.add_text("covariance_param", str(covariance_param))
 
     #create dataset
     if beat_resolution == 12:
@@ -293,22 +291,6 @@ if __name__ == '__main__':
     if args.validation_path:
         print("The valdiation set contains {} sequences".format(len(valid_dataset)))
 
-    # IF YOU HAVE A BIG RAM YOU CAN SAVE THE WHOLE DATASET AS NPZ AND RUN IT FROM THERE
-    """
-    data = np.load('../WikifoniaPartlyNoTranspose.npz')
-    midiDatasetTrain = data['train']
-    midiDatasetTest = data['test']
-    data.close()
-
-    print(midiDatasetTrain.shape)
-    print(midiDatasetTest.shape)
-
-    train_loader = torch.utils.data.DataLoader(midiDatasetTrain, batch_size=batch_size, shuffle=True, drop_last=True)
-    test_loader = torch.utils.data.DataLoader(midiDatasetTest, batch_size=batch_size, shuffle=True, drop_last=True)
-    """
-
-    fullPitch = 128
-    reducedPitch = 60
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = VAE(embedding_size=embedding_size, covariance_param=covariance_param)
     if torch.cuda.device_count() > 1:
