@@ -21,7 +21,7 @@ class LiveParser():
         self.seq_length_ticks = self.bar_length * number_seq
         self.counter_metronome = 0
         self.metronome = 0
-        self.port = port
+        self.in_port = port
         self.current_time = 0.
         self.temp_tick = 0
         self.out_port = None
@@ -31,11 +31,11 @@ class LiveParser():
         avail_ports = mido.get_input_names()
         ports_dict = {i: avail_ports[i] for i in range(len(avail_ports))}
         print("These input ports are available: ", ports_dict)
-        if self.port == None:
+        if self.in_port == None:
             port_num = int(input("Which port would you like to use? "))
             self.in_port = mido.open_input(ports_dict[port_num], callback=callback_function)
         else:
-            self.in_port = mido.open_input(port, callback=callback_function)
+            self.in_port = mido.open_input(self.in_port, callback=callback_function)
         print("Using input port: ", self.in_port)
 
     def open_outport(self):
@@ -95,6 +95,39 @@ class LiveParser():
         if self.counter_metronome > self.metronome:
             self.metronome = self.counter_metronome
             print(self.metronome)
+
+    def computer_play(self, prediction):
+        self.reset_clock()
+        play_tick = -1
+        old_midi_on = np.zeros(1)
+        played_notes = []
+        while True:
+            done = self.computer_clock()
+            if self.current_tick > play_tick:
+                play_tick = self.current_tick
+                midi_on = np.argwhere(prediction[play_tick] > 0)
+                if midi_on.any():
+                    for note in midi_on[0]:
+                        if note not in old_midi_on:
+                            current_vel = int(prediction[self.current_tick,note])
+                            # print(current_vel)
+                            self.out_port.send(mido.Message('note_on',
+                                note=note, velocity=current_vel))
+                            played_notes.append(note)
+                else:
+                    for note in played_notes:
+                        self.out_port.send(mido.Message('note_off',
+                                                    note=note))#, velocity=100))
+                        played_notes.pop(0)
+
+                if old_midi_on.any():
+                    for note in old_midi_on[0]:
+                        if note not in midi_on:
+                            self.out_port.send(mido.Message('note_off', note=note))
+                old_midi_on = midi_on
+
+            if done:
+                break
 
     def print_message(self, msg):
         print(msg)

@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QSizePolicy, QSlider, QSpacerItem, \
+from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QSizePolicy, QSpacerItem, \
     QVBoxLayout, QWidget, QDial, QPushButton, QGroupBox, QGridLayout
 
 
@@ -21,28 +21,28 @@ class Poti(QWidget):
         self.dial.valueChanged.connect(self.setLabelValue)
         self.mean = mean
         self.variance = variance
-        self.dial.setMinimum(0)
-        self.dial.setMaximum(200)
+        self.dial.setMinimum(-100)
+        self.dial.setMaximum(100)
         self.minimum = mean - variance
         self.maximum = mean + variance
         self.setLabelValue(self.dial.value())
-        self.dial.setSliderPosition(100)
-        # print("max", self.dial.maximum())
+        self.dial.setSliderPosition(0)
 
     def setLabelValue(self, value):
-        self.current_value = self.minimum + (float(value) /
-            (self.dial.maximum() - self.dial.minimum())) * (self.maximum - self.minimum)
-        self.label.setText("%.2f" % self.current_value)
+        # TODO label with real values from mean and variance?
+        # self.current_value = self.minimum + (float(value) /
+        #     (self.dial.maximum() - self.dial.minimum())) * (self.maximum - self.minimum)
+        self.label.setText("{}%".format(self.dial.value()))
 
     def updatePoti(self, mean, variance):
         self.mean = mean
         self.variance = variance
 
     def reset(self):
-        self.dial.setSliderPosition(100)
+        self.dial.setSliderPosition(0)
 
     def randomPos(self):
-        rand = np.random.randint(0,200)
+        rand = np.random.randint(self.dial.minimum(),self.dial.maximum())
         self.dial.setSliderPosition(rand)
 
 
@@ -53,14 +53,14 @@ class Window(QWidget):
         self.title = 'VAEsemane'
         self.left = 20
         self.top = 20
-        self.width = 320
-        self.height = 100
+        self.width = 800
+        self.height = 600
         self.init_ui()
 
     def init_ui(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-
+        self.metronome = QLabel()
         self.b_reset = QPushButton('Reset')
         self.b_random = QPushButton('Randomize')
         self.potis = []
@@ -92,6 +92,8 @@ class Window(QWidget):
         for poti in self.potis:
             poti.randomPos()
 
+    def update_tick(self):
+        pass
 
     def update(self):
         pass
@@ -101,4 +103,5 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     w = Window()
     w.show()
+
     sys.exit(app.exec_())
