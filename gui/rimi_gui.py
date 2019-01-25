@@ -3,6 +3,7 @@ import os
 import numpy as np
 import torch
 import mido
+import threading
 import torch.utils.data
 from utils.utils import (cutOctaves, debinarizeMidi, addCuttedOctaves)
 from VAE.VAE_Reconstruct_TrainNEW import VAE
@@ -15,89 +16,66 @@ from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QSizePolicy, QSpa
 from LIVE.LiveInput_ClassCompliant import LiveParser
 
 
-def vae_main(live_instrument, model):
-    # reset live input clock
-    print("\nUser input\n")
-    live_instrument.reset_sequence()
-    live_instrument.reset_clock()
-    while True:
-        status_played_notes = live_instrument.clock()
-        if status_played_notes:
-            sequence = live_instrument.parse_to_matrix()
-            live_instrument.reset_sequence()
-            break
-
-    # send live recorded sequence through model and get improvisation
-    with torch.no_grad():
-        sample = np.array(np.split(sequence, 1))
-
-        # prepare sample for input
-        sample = cutOctaves(sample)
-        sample = torch.from_numpy(sample).float().to(device)
-        sample = torch.unsqueeze(sample,1)
-
-        # model
-        mu, logvar = model.encoder(sample)
-
-        # TODO reparameterize to get new sequences here with GUI??
-
-        #reconstruction, soon ~prediction
-        pred = model.decoder(mu)
-
-        # reorder prediction
-        pred = pred.squeeze(1)
-        prediction = pred[0]
-
-        # TODO TEMP for more sequences
-        if pred.size(0) > 1:
-            for p in pred[1:]:
-                prediction = torch.cat((prediction, p), dim=0)
-
-        prediction = prediction.cpu().numpy()
-        # normalize predictions
-        prediction /= np.abs(np.max(prediction))
-
-        # check midi activations to include rests
-        prediction[prediction < (1 - 0.7)] = 0
-        prediction = debinarizeMidi(prediction, prediction=True)
-        prediction = addCuttedOctaves(prediction)
-
-        print("\nPrediction\n")
-        # print(prediction)
-        # play predicted sequence note by note
+def vae_main(live_instrument, model, device):
+    while True:# reset live input clock
+        print("\nUser input\n")
+        live_instrument.reset_sequence()
         live_instrument.reset_clock()
-        play_tick = -1
-        old_midi_on = np.zeros(1)
-        played_notes = []
         while True:
-            done = live_instrument.computer_clock()
-            if live_instrument.current_tick > play_tick:
-                play_tick = live_instrument.current_tick
-                midi_on = np.argwhere(prediction[play_tick] > 0)
-                if midi_on.any():
-                    for note in midi_on[0]:
-                        if note not in old_midi_on:
-                            current_vel = int(prediction[live_instrument.current_tick,note])
-                            # print(current_vel)
-                            live_instrument.out_port.send(Message('note_on',
-                                note=note, velocity=current_vel))
-                            played_notes.append(note)
-                else:
-                    for note in played_notes:
-                        live_instrument.out_port.send(Message('note_off',
-                                                    note=note))#, velocity=100))
-                        played_notes.pop(0)
-
-                if old_midi_on.any():
-                    for note in old_midi_on[0]:
-                        if note not in midi_on:
-                            live_instrument.out_port.send(Message('note_off', note=note))
-                old_midi_on = midi_on
-
-            if done:
+            status_played_notes = live_instrument.clock()
+            if status_played_notes:
+                sequence = live_instrument.parse_to_matrix()
+                live_instrument.reset_sequence()
                 break
 
-    live_instrument.reset_sequence()
+        # send live recorded sequence through model and get improvisation
+        with torch.no_grad():
+            sample = np.array(np.split(sequence, 1))
+
+            # prepare sample for input
+            sample = cutOctaves(sample)
+            sample = torch.from_numpy(sample).float().to(device)
+            sample = torch.unsqueeze(sample,1)
+
+            # model
+            mu, logvar = model.encoder(sample)
+
+
+            # reparameterize with variance
+            dial_vals = []
+            for poti in w.form_widget.potis:
+                dial_vals.append(poti.dial.value())
+            dial_tensor = torch.FloatTensor(dial_vals)/100.
+            print(dial_tensor)
+
+            new = mu + (dial_tensor * logvar.exp())
+
+            #reconstruction, soon ~prediction
+            pred = model.decoder(new)
+
+            # reorder prediction
+            pred = pred.squeeze(1)
+            prediction = pred[0]
+
+            # TODO TEMP for more sequences
+            if pred.size(0) > 1:
+                for p in pred[1:]:
+                    prediction = torch.cat((prediction, p), dim=0)
+
+            prediction = prediction.cpu().numpy()
+            # normalize predictions
+            prediction /= np.abs(np.max(prediction))
+
+            # check midi activations to include rests
+            prediction[prediction < (1 - 0.7)] = 0
+            prediction = debinarizeMidi(prediction, prediction=True)
+            prediction = addCuttedOctaves(prediction)
+
+            # play predicted sequence note by note
+            print("\nPrediction\n")
+            live_instrument.computer_play(prediction=prediction)
+
+        live_instrument.reset_sequence()
 
 
 class Poti(QWidget):
@@ -143,19 +121,20 @@ class Poti(QWidget):
 class VAE_Window(QWidget):
     def __init__(self, parent=None):
         super(VAE_Window, self).__init__(parent=parent)
-        self.title = 'VAEsemane'
+        # self.title = 'VAEsemane'
         self.left = 20
         self.top = 20
         self.width = 800
         self.height = 600
-        self.init_ui()
+        self.init_window()
 
-    def init_ui(self):
-        self.setWindowTitle(self.title)
+    def init_window(self):
+        # self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
         # widgets
-        self.metronome = QLabel(self)
+        self.human_metronome = QLabel(str(0), self)
+        self.computer_metronome = QLabel(str(0), self)
         self.b_run = QPushButton('Run VAE')
         self.b_reset = QPushButton('Reset Potis')
         self.b_random = QPushButton('Randomize Potis')
@@ -167,21 +146,30 @@ class VAE_Window(QWidget):
 
         # layout
         self.createGridLayout()
+        self.createMetronomeLayout()
         windowLayout = QVBoxLayout()
-        # windowLayout.addWidget(self.metronome)
-        windowLayout.addWidget(self.horizontalGroupBox)
+        windowLayout.addWidget(self.h_metro_box)
+        windowLayout.addWidget(self.h_poti_box)
+        self.adjustSize()
         windowLayout.addWidget(self.b_run)
         windowLayout.addWidget(self.b_reset)
         windowLayout.addWidget(self.b_random)
         self.setLayout(windowLayout)
 
     def createGridLayout(self):
-        self.horizontalGroupBox = QGroupBox()
+        self.h_poti_box = QGroupBox()
         layout = QGridLayout()
         for i in range(10):
             for j in range(10):
                 layout.addWidget(self.potis[i*10+j],i,j)
-        self.horizontalGroupBox.setLayout(layout)
+        self.h_poti_box.setLayout(layout)
+
+    def createMetronomeLayout(self):
+        self.h_metro_box = QGroupBox()
+        layout = QGridLayout()
+        layout.addWidget(self.human_metronome,0,0)
+        layout.addWidget(self.computer_metronome,0,1)
+        self.h_metro_box.setLayout(layout)
 
     def reset_click(self):
         for poti in self.potis:
@@ -192,19 +180,24 @@ class VAE_Window(QWidget):
             poti.randomPos()
 
     def run_vae(self):
-        # TODO THREAD THIS
-        model = VAE()
-        model = loadStateDict(model, self.model_path)
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model = model.to(device)
-        print("This should run VAE")
-        # while True:
-        #     vae_main(self.live_instrument, model)
+        vae_thread = threading.Thread(target=vae_main,
+                        args=(self.live_instrument, self.model, self.device))
+        vae_thread.start()
+        # vae_thread.join()
+
+    def update_metronome(self):
+        while(True):
+            if self.live_instrument.human:
+                self.computer_metronome.setText("0")
+                self.human_metronome.setText("{}".format(self.live_instrument.metronome))
+            else:
+                self.human_metronome.setText("0")
+                self.computer_metronome.setText("{}".format(self.live_instrument.metronome))
 
 
-
-    def set_metronome(self):
-        pass
+    def start_metronome(self):
+        metronome_thread = threading.Thread(target=self.update_metronome)
+        metronome_thread.start()
 
     def update_tick(self):
         pass
@@ -213,23 +206,28 @@ class VAE_Window(QWidget):
         pass
 
     def set_instrument(self, q):
-        self.live_instrument = LiveParser(port=q.text())
+        self.live_instrument = LiveParser(port=q.text(), ppq=12,
+                                            number_seq=1, bpm=120)
         self.live_instrument.open_inport(self.live_instrument.parse_notes)
         self.live_instrument.open_outport()
+        self.start_metronome()
 
     def set_model_path(self, file_path):
-        self.model_path = file_path
-        # print(self.model_path)
+        self.model = VAE()
+        self.moodel = loadStateDict(self.model, file_path)
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if self.model.train():
+            self.model.eval()
 
 class GUI(QMainWindow):
     def __init__(self):
         super(GUI, self).__init__()
 
-
         self.init_ui()
 
     def init_ui(self):
         # cerate menu bar
+        self.setWindowTitle('RIMI')
         bar = self.menuBar()
         bar.setNativeMenuBar(False)
         # first tab file
@@ -261,9 +259,6 @@ class GUI(QMainWindow):
         model_tab.addAction(model_find_act)
         model_find_act.triggered.connect(self.model_find_func)
 
-
-
-
         self.show()
 
     def quit_trigger(self):
@@ -282,7 +277,7 @@ class GUI(QMainWindow):
 
     def model_find_func(self):
         filename = QFileDialog.getOpenFileName(self, 'Open File', os.getenv('..'))
-        VAE_Window.set_model_path(self.form_widget, filename[0])
+        self.form_widget.set_model_path(filename[0])
 
 
 
@@ -290,5 +285,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     w = GUI()
     w.show()
-
     sys.exit(app.exec_())

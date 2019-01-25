@@ -25,6 +25,7 @@ class LiveParser():
         self.current_time = 0.
         self.temp_tick = 0
         self.out_port = None
+        self.human = True
 
 
     def open_inport(self, callback_function):
@@ -97,6 +98,7 @@ class LiveParser():
             print(self.metronome)
 
     def computer_play(self, prediction):
+        self.human = False
         self.reset_clock()
         play_tick = -1
         old_midi_on = np.zeros(1)
@@ -127,7 +129,10 @@ class LiveParser():
                 old_midi_on = midi_on
 
             if done:
+                self.human = True
+                self.reset_clock()
                 break
+
 
     def print_message(self, msg):
         print(msg)
@@ -143,7 +148,7 @@ class LiveParser():
         if(msg[0] >= 128 and msg[0] < 160):
             self.sequence.append([self.current_tick, msg[0], msg[1], msg[2]])
 
-        # could be extended to use midi control changes
+        # could be extended to use midi control changes like pitch bend etc.
 
     def parse_to_matrix(self):
         # print("Parsing...")
