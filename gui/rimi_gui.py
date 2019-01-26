@@ -76,6 +76,8 @@ def vae_main(live_instrument, model, device):
             live_instrument.computer_play(prediction=prediction)
 
         live_instrument.reset_sequence()
+        if not w.form_widget.vae_running:
+            break
 
 
 class Poti(QWidget):
@@ -136,25 +138,28 @@ class VAE_Window(QWidget):
         self.human_metronome = QLabel(str(0), self)
         self.computer_metronome = QLabel(str(0), self)
         self.b_run = QPushButton('Run VAE')
+        self.b_stop = QPushButton('Stop VAE')
         self.b_reset = QPushButton('Reset Potis')
         self.b_random = QPushButton('Randomize Potis')
         self.potis = [Poti(0.,10.) for i in range(100)]
         # connect widgets
         self.b_run.clicked.connect(self.run_vae)
+        self.b_stop.clicked.connect(self.stop)
         self.b_reset.clicked.connect(self.reset_click)
         self.b_random.clicked.connect(self.random_click)
 
         # layout
         self.createGridLayout()
         self.createMetronomeLayout()
+        self.createButtonLayout()
         windowLayout = QVBoxLayout()
         windowLayout.addWidget(self.h_metro_box)
         windowLayout.addWidget(self.h_poti_box)
-        self.adjustSize()
-        windowLayout.addWidget(self.b_run)
-        windowLayout.addWidget(self.b_reset)
-        windowLayout.addWidget(self.b_random)
+        windowLayout.addWidget(self.h_button_box)
+        # self.adjustSize()
+
         self.setLayout(windowLayout)
+        self.vae_running = False
 
     def createGridLayout(self):
         self.h_poti_box = QGroupBox()
@@ -171,6 +176,16 @@ class VAE_Window(QWidget):
         layout.addWidget(self.computer_metronome,0,1)
         self.h_metro_box.setLayout(layout)
 
+    def createButtonLayout(self):
+        self.h_button_box = QGroupBox()
+        layout = QGridLayout()
+        layout.addWidget(self.b_run,0,0)
+        layout.addWidget(self.b_stop,0,1)
+        layout.addWidget(self.b_reset,0,2)
+        layout.addWidget(self.b_random,0,3)
+        self.h_button_box.setLayout(layout)
+
+
     def reset_click(self):
         for poti in self.potis:
             poti.reset()
@@ -180,10 +195,16 @@ class VAE_Window(QWidget):
             poti.randomPos()
 
     def run_vae(self):
+        self.vae_running = True
         vae_thread = threading.Thread(target=vae_main,
                         args=(self.live_instrument, self.model, self.device))
+        vae_thread.setDaemon(True)
         vae_thread.start()
+
         # vae_thread.join()
+
+    def stop(self):
+        self.vae_running = False
 
     def update_metronome(self):
         while(True):
@@ -197,7 +218,9 @@ class VAE_Window(QWidget):
 
     def start_metronome(self):
         metronome_thread = threading.Thread(target=self.update_metronome)
+        metronome_thread.setDaemon(True)
         metronome_thread.start()
+
 
     def update_tick(self):
         pass
@@ -262,6 +285,7 @@ class GUI(QMainWindow):
         self.show()
 
     def quit_trigger(self):
+        self.form_widget.stop()
         qApp.quit()
 
     def start_vae(self):
