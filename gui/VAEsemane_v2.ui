@@ -1,0 +1,1758 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1028</width>
+    <height>856</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>600</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>16777215</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="0" column="0">
+     <layout class="QGridLayout" name="metronome_grid">
+      <item row="1" column="1">
+       <widget class="QLCDNumber" name="lcd_human_metronome">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="digitCount">
+         <number>1</number>
+        </property>
+        <property name="segmentStyle">
+         <enum>QLCDNumber::Flat</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Computer metronome</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="4">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="2">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="2" column="3">
+       <widget class="QProgressBar" name="pbar_comp_metronome">
+        <property name="maximum">
+         <number>4</number>
+        </property>
+        <property name="value">
+         <number>0</number>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLCDNumber" name="lcd_comp_metronome">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <property name="lineWidth">
+         <number>1</number>
+        </property>
+        <property name="midLineWidth">
+         <number>0</number>
+        </property>
+        <property name="smallDecimalPoint">
+         <bool>false</bool>
+        </property>
+        <property name="digitCount">
+         <number>1</number>
+        </property>
+        <property name="segmentStyle">
+         <enum>QLCDNumber::Flat</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QProgressBar" name="pbar_human_metronome">
+        <property name="maximum">
+         <number>4</number>
+        </property>
+        <property name="value">
+         <number>0</number>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Human metronome</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="0">
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <layout class="QGridLayout" name="dial_grid" rowstretch="0,0,0,0,0,0,0,0,0,0">
+      <property name="horizontalSpacing">
+       <number>-1</number>
+      </property>
+      <item row="4" column="9">
+       <widget class="QDial" name="dial_49">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QDial" name="dial_00">
+        <property name="sizeIncrement">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="mouseTracking">
+         <bool>false</bool>
+        </property>
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="tracking">
+         <bool>true</bool>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="6">
+       <widget class="QDial" name="dial_46">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="9">
+       <widget class="QDial" name="dial_69">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="4">
+       <widget class="QDial" name="dial_64">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="5">
+       <widget class="QDial" name="dial_95">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="8">
+       <widget class="QDial" name="dial_08">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QDial" name="dial_21">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="6">
+       <widget class="QDial" name="dial_16">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QDial" name="dial_11">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="6">
+       <widget class="QDial" name="dial_76">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QDial" name="dial_12">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="4">
+       <widget class="QDial" name="dial_74">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QDial" name="dial_04">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="8">
+       <widget class="QDial" name="dial_28">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QDial" name="dial_52">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="7">
+       <widget class="QDial" name="dial_17">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="5">
+       <widget class="QDial" name="dial_65">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="4">
+       <widget class="QDial" name="dial_34">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="9">
+       <widget class="QDial" name="dial_89">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="9">
+       <widget class="QDial" name="dial_59">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="3">
+       <widget class="QDial" name="dial_93">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="3">
+       <widget class="QDial" name="dial_73">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="5">
+       <widget class="QDial" name="dial_75">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="7">
+       <widget class="QDial" name="dial_97">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QDial" name="dial_71">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="6">
+       <widget class="QDial" name="dial_56">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QDial" name="dial_50">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="9">
+       <widget class="QDial" name="dial_39">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="8">
+       <widget class="QDial" name="dial_68">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="5">
+       <widget class="QDial" name="dial_25">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QDial" name="dial_60">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="3">
+       <widget class="QDial" name="dial_63">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
+       <widget class="QDial" name="dial_80">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QDial" name="dial_31">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="5">
+       <widget class="QDial" name="dial_45">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="5">
+       <widget class="QDial" name="dial_35">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="2">
+       <widget class="QDial" name="dial_72">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QDial" name="dial_01">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QDial" name="dial_23">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0">
+       <widget class="QDial" name="dial_90">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="8">
+       <widget class="QDial" name="dial_88">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="3">
+       <widget class="QDial" name="dial_83">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="7">
+       <widget class="QDial" name="dial_57">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="1">
+       <widget class="QDial" name="dial_91">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="5">
+       <widget class="QDial" name="dial_85">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QDial" name="dial_30">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="2">
+       <widget class="QDial" name="dial_82">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="5">
+       <widget class="QDial" name="dial_55">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="QDial" name="dial_43">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="5">
+       <widget class="QDial" name="dial_15">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="4">
+       <widget class="QDial" name="dial_54">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="6">
+       <widget class="QDial" name="dial_86">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="7">
+       <widget class="QDial" name="dial_07">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QDial" name="dial_02">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="6">
+       <widget class="QDial" name="dial_26">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QDial" name="dial_10">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <widget class="QDial" name="dial_33">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QDial" name="dial_42">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QDial" name="dial_32">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="5">
+       <widget class="QDial" name="dial_05">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="8">
+       <widget class="QDial" name="dial_48">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="9">
+       <widget class="QDial" name="dial_19">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QDial" name="dial_13">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QDial" name="dial_14">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QDial" name="dial_61">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QDial" name="dial_41">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="8">
+       <widget class="QDial" name="dial_58">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="7">
+       <widget class="QDial" name="dial_37">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="4">
+       <widget class="QDial" name="dial_24">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="6">
+       <widget class="QDial" name="dial_66">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="7">
+       <widget class="QDial" name="dial_47">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QDial" name="dial_51">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QDial" name="dial_20">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="7">
+       <widget class="QDial" name="dial_87">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="4">
+       <widget class="QDial" name="dial_94">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QDial" name="dial_81">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="2">
+       <widget class="QDial" name="dial_92">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="9">
+       <widget class="QDial" name="dial_99">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3">
+       <widget class="QDial" name="dial_53">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="7">
+       <widget class="QDial" name="dial_67">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="8">
+       <widget class="QDial" name="dial_78">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="8">
+       <widget class="QDial" name="dial_98">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="7">
+       <widget class="QDial" name="dial_77">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="9">
+       <widget class="QDial" name="dial_29">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QDial" name="dial_03">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="4">
+       <widget class="QDial" name="dial_84">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="6">
+       <widget class="QDial" name="dial_36">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QDial" name="dial_40">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="2">
+       <widget class="QDial" name="dial_62">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QDial" name="dial_22">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="9">
+       <widget class="QDial" name="dial_79">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="6">
+       <widget class="QDial" name="dial_96">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="8">
+       <widget class="QDial" name="dial_18">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="8">
+       <widget class="QDial" name="dial_38">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="4">
+       <widget class="QDial" name="dial_44">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="7">
+       <widget class="QDial" name="dial_27">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QDial" name="dial_70">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="9">
+       <widget class="QDial" name="dial_09">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="6">
+       <widget class="QDial" name="dial_06">
+        <property name="minimum">
+         <number>-100</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="invertedAppearance">
+         <bool>false</bool>
+        </property>
+        <property name="invertedControls">
+         <bool>false</bool>
+        </property>
+        <property name="notchesVisible">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="4" column="0">
+     <layout class="QGridLayout" name="btn_grid">
+      <item row="0" column="3">
+       <widget class="QPushButton" name="btn_randomize">
+        <property name="text">
+         <string>Randomize</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QPushButton" name="btn_run">
+        <property name="text">
+         <string>Run</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="btn_stop">
+        <property name="text">
+         <string>Stop</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QPushButton" name="btn_reset">
+        <property name="text">
+         <string>Reset</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="Line" name="line_3">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="5" column="0">
+     <layout class="QGridLayout" name="options_grid">
+      <item row="0" column="5">
+       <widget class="QLabel" name="lbl_temperature">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Temperature</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="Line" name="line_4">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="6">
+       <spacer name="horizontalSpacer_6">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSlider" name="slider_bpm">
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="contextMenuPolicy">
+         <enum>Qt::DefaultContextMenu</enum>
+        </property>
+        <property name="acceptDrops">
+         <bool>false</bool>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>300</number>
+        </property>
+        <property name="sliderPosition">
+         <number>120</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="invertedAppearance">
+         <bool>false</bool>
+        </property>
+        <property name="invertedControls">
+         <bool>false</bool>
+        </property>
+        <property name="tickPosition">
+         <enum>QSlider::NoTicks</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <spacer name="horizontalSpacer_7">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="2">
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="0">
+       <spacer name="horizontalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="3">
+       <widget class="Line" name="line_5">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="lbl_bpm">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>BPM</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="5">
+       <widget class="QSlider" name="slider_temperature">
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="singleStep">
+         <number>10</number>
+        </property>
+        <property name="sliderPosition">
+         <number>70</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="3" column="0">
+     <widget class="Line" name="line_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menu_bar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1028</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <widget class="QMenu" name="menu_file">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="action_quit"/>
+   </widget>
+   <widget class="QMenu" name="menu_midi_port">
+    <property name="title">
+     <string>MIDI Port</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu_model">
+    <property name="title">
+     <string>Model</string>
+    </property>
+    <addaction name="action_find"/>
+   </widget>
+   <addaction name="menu_file"/>
+   <addaction name="menu_midi_port"/>
+   <addaction name="menu_model"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_quit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="action_find">
+   <property name="text">
+    <string>Find...</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 class LiveParser():
     def __init__(self, port=None, bpm=120, ppq=24, number_seq=0, end_seq_note=127):
-        self.bpm = bpm  # beat per minute
+        self.bpm = bpm  # beats per minute
         self.ppq = ppq  # pulses per quarter note
         self.seconds2tick = 60. / (bpm * ppq)  #seconds to tick conversion
         self.current_tick = -1
@@ -15,9 +15,6 @@ class LiveParser():
         self.start_time = time.time()
         self.end_seq_note = end_seq_note
         self.bar_length = ppq * 4
-        # TEMP HACK FOR 2 BAR TRAINED AUTOENCODER
-        if ppq == 12:
-            self.bar_length = self.bar_length*2
         self.seq_length_ticks = self.bar_length * number_seq
         self.counter_metronome = 0
         self.metronome = 0
@@ -53,8 +50,10 @@ class LiveParser():
         else:
             self.out_port = mido.open_output("Robot port", virtual=True)
             print("Could not find FLUID Synth, created virtual midi port called 'Robot port'")
-        # import pdb
-        # pdb.set_trace()
+
+    def update_bpm(self, new_bpm):
+        self.bpm = new_bpm
+        self.seconds2tick = 60. / (self.bpm * self.ppq)
 
     def reset_clock(self):
         self.start_time = time.time()
