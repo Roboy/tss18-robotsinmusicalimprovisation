@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, qApp, QAction, QFileDialo
 from PyQt5.uic import loadUi
 from VAE.VAE_Reconstruct_TrainNEW import VAE
 from LIVE.LiveInput_ClassCompliant import LiveParser
-from vae_main import vae_main
+from gui_utils.vae_gui import vae_interact
 from loadModel import loadModel, loadStateDict
 import mido
 import numpy as np
@@ -134,7 +134,7 @@ class VAEsemane_GUI(QMainWindow):
         self.is_running = True
         # vae_thread = threading.Thread(target=vae_main, args=(self.live_instrument,
         #         self.model, self.device, self.dials, self.is_running))
-        vae_thread = threading.Thread(target=vae_main, args=(self,))
+        vae_thread = threading.Thread(target=vae_interact, args=(self,))
         vae_thread.setDaemon(True)
         vae_thread.start()
 
