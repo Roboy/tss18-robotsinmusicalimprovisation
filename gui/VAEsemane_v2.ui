@@ -41,7 +41,7 @@
          <enum>QFrame::StyledPanel</enum>
         </property>
         <property name="digitCount">
-         <number>1</number>
+         <number>2</number>
         </property>
         <property name="segmentStyle">
          <enum>QLCDNumber::Flat</enum>
@@ -134,7 +134,7 @@
          <bool>false</bool>
         </property>
         <property name="digitCount">
-         <number>1</number>
+         <number>2</number>
         </property>
         <property name="segmentStyle">
          <enum>QLCDNumber::Flat</enum>
@@ -161,6 +161,12 @@
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
+        </property>
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <property name="indent">
+         <number>-1</number>
         </property>
        </widget>
       </item>
@@ -1539,25 +1545,66 @@
     </item>
     <item row="5" column="0">
      <layout class="QGridLayout" name="options_grid">
-      <item row="0" column="5">
-       <widget class="QLabel" name="lbl_temperature">
+      <item row="1" column="0">
+       <spacer name="horizontalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="2">
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="lbl_bpm">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>Temperature</string>
+         <string>BPM</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
-      <item row="1" column="3">
-       <widget class="Line" name="line_4">
+      <item row="1" column="5">
+       <widget class="QSlider" name="slider_temperature">
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="singleStep">
+         <number>10</number>
+        </property>
+        <property name="sliderPosition">
+         <number>70</number>
+        </property>
         <property name="orientation">
-         <enum>Qt::Vertical</enum>
+         <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
@@ -1624,73 +1671,49 @@
         </property>
        </spacer>
       </item>
-      <item row="1" column="2">
-       <spacer name="horizontalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="1" column="0">
-       <spacer name="horizontalSpacer_5">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="0" column="3">
-       <widget class="Line" name="line_5">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="lbl_bpm">
+      <item row="0" column="5">
+       <widget class="QLabel" name="lbl_temperature">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>BPM</string>
+         <string>Temperature</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
-      <item row="1" column="5">
-       <widget class="QSlider" name="slider_temperature">
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>16777215</height>
-         </size>
+      <item row="1" column="3">
+       <widget class="QSlider" name="slider_bars">
+        <property name="minimum">
+         <number>1</number>
         </property>
         <property name="maximum">
-         <number>100</number>
+         <number>8</number>
         </property>
-        <property name="singleStep">
-         <number>10</number>
-        </property>
-        <property name="sliderPosition">
-         <number>70</number>
+        <property name="pageStep">
+         <number>1</number>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QLabel" name="lbl_bars">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>bar(s)</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>

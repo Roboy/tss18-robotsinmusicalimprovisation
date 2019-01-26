@@ -65,13 +65,15 @@ class VAEsemane_GUI(QMainWindow):
         self.slider_bpm.valueChanged.connect(self.update_bpm)
         self.lbl_temperature.setText("Temperature {0:.2f}".format(self.temperature))
         self.slider_temperature.valueChanged.connect(self.update_temperature)
+        self.lbl_bars.setText("{} bar".format(self.slider_bars.value()))
+        self.slider_bars.valueChanged.connect(self.update_bars)
 
     def quit_clicked(self):
         qApp.quit()
 
     def set_instrument(self, q):
-        self.live_instrument = LiveParser(port=q.text(), ppq=12,
-                                            number_seq=2, bpm=self.slider_bpm.value())
+        self.live_instrument = LiveParser(port=q.text(), ppq=24,
+            bars=self.slider_bars.value(), bpm=self.slider_bpm.value())
         self.live_instrument.open_inport(self.live_instrument.parse_notes)
         self.live_instrument.open_outport()
         self.start_metronome()
@@ -101,6 +103,15 @@ class VAEsemane_GUI(QMainWindow):
         self.temperature = self.slider_temperature.value()/100.
         self.lbl_temperature.setText("Temperature {0:.2f}".format(self.temperature))
 
+    def update_bars(self):
+        current_val = self.slider_bars.value()
+        if current_val > 1:
+            self.lbl_bars.setText("{} bars".format(current_val))
+        else:
+            self.lbl_bars.setText("{} bar".format(current_val))
+        if self.live_instrument:
+            self.live_instrument.update_bars(current_val)
+
     def start_progress_bar(self):
         progress_bar_thread = threading.Thread(target=self.update_progress_bar)
         progress_bar_thread.setDaemon(True)
@@ -125,7 +136,10 @@ class VAEsemane_GUI(QMainWindow):
     def set_model_path(self):
         file_path = QFileDialog.getOpenFileName(self, 'Open File', os.getenv('..'))[0]
         self.model = VAE()
-        self.moodel = loadStateDict(self.model, file_path)
+        try:
+            self.model = loadModel(self.model, file_path, dataParallelModel=True)
+        except:
+            self.model = loadStateDict(self.model, file_path)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         if self.model.train():
             self.model.eval()

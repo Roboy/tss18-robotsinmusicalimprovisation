@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 class LiveParser():
-    def __init__(self, port=None, bpm=120, ppq=24, number_seq=0, end_seq_note=127):
+    def __init__(self, port=None, bpm=120, ppq=24, bars=0, end_seq_note=127):
         self.bpm = bpm  # beats per minute
         self.ppq = ppq  # pulses per quarter note
         self.seconds2tick = 60. / (bpm * ppq)  #seconds to tick conversion
@@ -15,7 +15,8 @@ class LiveParser():
         self.start_time = time.time()
         self.end_seq_note = end_seq_note
         self.bar_length = ppq * 4
-        self.seq_length_ticks = self.bar_length * number_seq
+        self.bars = bars
+        self.seq_length_ticks = self.bar_length * self.bars
         self.counter_metronome = 0
         self.metronome = 0
         self.in_port = port
@@ -23,6 +24,7 @@ class LiveParser():
         self.temp_tick = 0
         self.out_port = None
         self.human = True
+
 
 
     def open_inport(self, callback_function):
@@ -54,6 +56,10 @@ class LiveParser():
     def update_bpm(self, new_bpm):
         self.bpm = new_bpm
         self.seconds2tick = 60. / (self.bpm * self.ppq)
+
+    def update_bars(self, bars):
+        self.bars = bars
+        self.seq_length_ticks = self.bar_length * self.bars
 
     def reset_clock(self):
         self.start_time = time.time()

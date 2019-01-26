@@ -8,8 +8,9 @@ def vae_interact(gui):
     model = gui.model
     device = gui.device
     dials = gui.dials
-    while True:# reset live input clock]
+    while True:
         print("\nUser input\n")
+        # reset live input clock and prerecorded sequences
         live_instrument.reset_sequence()
         live_instrument.reset_clock()
         while True:
@@ -22,41 +23,34 @@ def vae_interact(gui):
                 break
         if not gui.is_running:
             break
-        # send live recorded sequence through model and get improvisation
-        with torch.no_grad():
-            sample = np.array(np.split(sequence, 1))
 
+        # send live recorded sequence through model and get response
+        with torch.no_grad():
             # prepare sample for input
+            sample = np.array(np.split(sequence, live_instrument.bars))
             sample = cutOctaves(sample)
             sample = torch.from_numpy(sample).float().to(device)
             sample = torch.unsqueeze(sample,1)
 
-            # model
+            # encode
             mu, logvar = model.encoder(sample)
-
 
             # reparameterize with variance
             dial_vals = []
             for dial in dials:
                 dial_vals.append(dial.value())
             dial_tensor = torch.FloatTensor(dial_vals)/100.
-            print(dial_tensor)
             new = mu + (dial_tensor * logvar.exp())
+            pred = model.decoder(new).squeeze(1)
 
-            #reconstruction, soon ~prediction
-            pred = model.decoder(new)
-
-            # reorder prediction
-            pred = pred.squeeze(1)
+            # for more than 1 sequence
             prediction = pred[0]
-
-            # TODO TEMP for more sequences
             if pred.size(0) > 1:
                 for p in pred[1:]:
                     prediction = torch.cat((prediction, p), dim=0)
 
+            # back to cpu and normalize
             prediction = prediction.cpu().numpy()
-            # normalize predictions
             prediction /= np.abs(np.max(prediction))
 
             # check midi activations to include rests
