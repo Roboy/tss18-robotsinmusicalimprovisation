@@ -22,11 +22,9 @@ class VAEsemane_GUI(QMainWindow):
         self.live_instrument = None
         self.is_running = False
         self.temperature = self.slider_temperature.value()/100.
+        self.initUIConnects()
 
-        # TEMP ##########
-        self.bars = 2
-        #################
-
+    def initUIConnects(self):
         # menu bar
         # first tab "File"
         self.menu_bar.setNativeMenuBar(False)
@@ -55,10 +53,9 @@ class VAEsemane_GUI(QMainWindow):
             self.dials.append(item.widget())
         self.dials.sort(key=lambda x: x.objectName())
 
-        #progress bars
-        if self.bars == 2:
-            self.pbar_human_metronome.setMaximum(8)
-            self.pbar_comp_metronome.setMaximum(8)
+        # progress bars
+        self.pbar_human_metronome.setMinimum(0)
+        self.pbar_comp_metronome.setMinimum(0)
 
         # sliders
         self.lbl_bpm.setText("{} BPM".format(self.slider_bpm.value()))
@@ -113,20 +110,29 @@ class VAEsemane_GUI(QMainWindow):
             self.live_instrument.update_bars(current_val)
 
     def start_progress_bar(self):
+        #progress bars
+        self.pbar_human_metronome.setMaximum(4*self.live_instrument.bars)
+        self.pbar_comp_metronome.setMaximum(4*self.live_instrument.bars)
         progress_bar_thread = threading.Thread(target=self.update_progress_bar)
         progress_bar_thread.setDaemon(True)
         progress_bar_thread.start()
 
     def update_progress_bar(self):
         while True:
+            print(self.live_instrument.human)
             if self.live_instrument.human:
-                # self.pbar_comp_metronome.setValue(0)
-                self.pbar_human_metronome.setValue(self.live_instrument.metronome)
+                if not pbar_comp_metronome.value() == 0:
+                    self.pbar_comp_metronome.setValue(0)
+                current_val = self.live_instrument.metronome
+                print(current_val)
+                if current_val > self.pbar_human_metronome.value():
+                    self.pbar_human_metronome.setValue(current_val)
             else:
-                # self.pbar_human_metronome.setValue(0)
-                # self.pbar_comp_metronome.setValue(self.live_instrument.metronome)
-                pass
-            time.sleep(.1)
+                if not self.pbar_human_metronome.value() == 0:
+                    self.pbar_human_metronome.setValue(0)
+                current_val = self.live_instrument.metronome
+                if current_val > self.pbar_comp_metronome.value():
+                    self.pbar_comp_metronome.setValue(current_val)
 
     def search_instruments(self):
         # this function could search for new midi instruments if they were
