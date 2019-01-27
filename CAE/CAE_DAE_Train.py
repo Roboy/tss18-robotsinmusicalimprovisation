@@ -127,8 +127,9 @@ def train(epoch, denoise=False):
                 100. * batch_idx / len(train_loader),
                 loss.item() / len(data)))
 
+    train_loss / len(train_loader.dataset)
     print('====> Epoch: {} Average loss: {:.4f}'.format(
-          epoch, train_loss / len(train_loader.dataset)))
+          epoch, train_loss))
     return train_loss
 
 
@@ -178,12 +179,13 @@ if __name__ == '__main__':
     ############################################################################
     ############################################################################
     # Hyperparameters
-    epochs = 10                     # number of epochs you want to train for
+    epochs = 25                     # number of epochs you want to train for
     learning_rate = 1e-3            # starting learning rate
     learning_rate_decay = 0.1       # learning rate_decay per epoch
-    lr_decay_step = 5               # step size of learning rate decay
+                                        # set None to turn off
+    lr_decay_step = 1               # step size of learning rate decay
     batch_size = 100                # batch size of autoencoder
-    log_interval = 1             # Log/show loss per batch
+    log_interval = 50               # Log/show loss per batch
     beat_resolution = 24            # how many ticks per quarter note:
                                         # 24 to process 1 bar at a time 12 for 2
     seq_length = 96                 # how long is one sequence in MIDI ticks
@@ -228,8 +230,27 @@ if __name__ == '__main__':
 
     """
 
+    best_valid_loss = np.inf
+    if learning_rate_decay:
+        print("Learning rate decay activated!")
+        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=lr_decay_step, gamma=learning_rate_decay)
     for epoch in range(1, epochs + 1):
+        if learning_rate_decay:
+            scheduler.step()
+        #training with plots
         train_loss = train(epoch, denoise=denoising_ae)
+        writer.add_scalar('loss/train_loss_epoch', train_loss, epoch)
+        #test
         test_loss = test(epoch, data_loader=test_loader, denoise=denoising_ae)
+        writer.add_scalar('loss/test_loss_epoch', test_loss, epoch)
+        #validate
         valid_loss = test(epoch, data_loader=valid_loader,
                             denoise=denoising_ae, validate=True)
+        writer.add_scalar('loss/valid_loss_epoch', valid_loss, epoch)
+
+        #save if model better than before
+        if (valid_loss < best_valid_loss):
+            best_valid_loss = valid_loss
+            torch.save(model.state_dict(),(save_path + '.pth'))
+
+    writer.close()
