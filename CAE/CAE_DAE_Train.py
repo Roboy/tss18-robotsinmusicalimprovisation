@@ -110,6 +110,7 @@ def train(epoch, denoise=False):
 
     for batch_idx, data in enumerate(train_loader):
         data = data.float().to(device)
+        import pdb; pdb.set_trace()
         optimizer.zero_grad()
         if denoise:
             noise = torch.bernoulli((torch.rand_like(data))).to(device)
@@ -127,7 +128,7 @@ def train(epoch, denoise=False):
                 100. * batch_idx / len(train_loader),
                 loss.item() / len(data)))
 
-    train_loss / len(train_loader.dataset)
+    train_loss /= len(train_loader.dataset)
     print('====> Epoch: {} Average loss: {:.4f}'.format(
           epoch, train_loss))
     return train_loss

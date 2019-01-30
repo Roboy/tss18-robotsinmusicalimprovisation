@@ -40,7 +40,7 @@ def vae_interact(gui):
             for dial in dials:
                 dial_vals.append(dial.value())
             dial_tensor = torch.FloatTensor(dial_vals)/100.
-            new = mu + (dial_tensor * logvar.exp())
+            new = mu + (dial_tensor * 0.5 * logvar.exp())
             pred = model.decoder(new).squeeze(1)
 
             # for more than 1 sequence

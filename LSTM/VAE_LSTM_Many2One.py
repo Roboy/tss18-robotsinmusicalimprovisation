@@ -27,9 +27,9 @@ def createDataset(dataset, seq_length=8):
     return np.array(X)
 
 
-class LSTM_Many2Many(nn.Module):
+class LSTM_Many2One(nn.Module):
     def __init__(self, batch_size=7, lstm_layers=2, hidden_size=32, seq_length=7, input_size=100):
-        super(LSTM_Many2Many, self).__init__()
+        super(LSTM_Many2One, self).__init__()
 
         self.batch_size = batch_size
         self.hidden_size = hidden_size
@@ -59,7 +59,7 @@ class LSTM_Many2Many(nn.Module):
         lstm_input = torch.relu(self.i2h(embed))
         output, (h_t1, c_t1) = self.lstm(lstm_input, (h_t0, c_t0))
         # output = torch.relu(output)
-        output = torch.relu(self.h2o(output[:,:,:]))
+        output = torch.relu(self.h2o(output[:,-1,:]))
 
         return embed, output
 
@@ -70,7 +70,6 @@ def train(epoch):
     train_distance = 0
     criterion = nn.MSELoss()
     accuracy_criterion = nn.CosineSimilarity()
-    half_seq_length = int(model.seq_length/2)
     for batch_idx, data in enumerate(train_loader):
         optimizer.zero_grad()
         #float byte tensor
@@ -89,8 +88,8 @@ def train(epoch):
         # std_batch = torch.std(embedding)
         # embedding_norm = (embedding - mean_batch) / std_batch
 
-        g_truth = embedding[:,half_seq_length:,:]
-        input_lstm = embedding[:,:half_seq_length,:]
+        g_truth = embedding[:,-1,:]
+        input_lstm = embedding[:,:-1,:]
         _ , output_lstm = model(input_lstm)
 
         loss = criterion(output_lstm, g_truth)
@@ -100,11 +99,11 @@ def train(epoch):
         # torch.nn.utils.clip_grad_value_(model.parameters(), 5)
         optimizer.step()
 
-        with torch.no_grad():
-            prediction = autoencoder_model.decoder(output_lstm.float().view(-1, model.input_size))
-            prediction = prediction.view(-1, half_seq_length, 1, 96, 60)
-            train_distance += np.linalg.norm(data.view(-1, model.seq_length, 1,
-                96, 60)[:,half_seq_length:].cpu().numpy() - prediction.cpu().numpy())
+        # with torch.no_grad():
+        #     prediction = autoencoder_model.decoder(output_lstm.float().view(-1, model.input_size))
+        #     prediction = prediction.view(-1, half_seq_length, 1, 96, 60)
+        #     train_distance += np.linalg.norm(data.view(-1, model.seq_length, 1,
+        #         96, 60)[:,half_seq_length:].cpu().numpy() - prediction.cpu().numpy())
 
         gradients = []
         weights = []
@@ -118,10 +117,10 @@ def train(epoch):
                 batch_idx * len(data),
                 len(train_loader.dataset)*model.seq_length,
                 100. * batch_idx / len(train_loader),
-                loss.item()/(half_seq_length)))
+                loss.item()))
 
     # average train loss
-    train_loss /= (batch_idx+1)*(half_seq_length)
+    train_loss /= (batch_idx+1)
     train_distance /= (batch_idx+1)
     print('====> Epoch: {} Average Loss: {:.4f}'.format(epoch, train_loss))
 
@@ -132,7 +131,6 @@ def test(epoch):
     test_loss = 0
     test_distance = 0
     criterion = nn.MSELoss()
-    half_seq_length = int(model.seq_length/2)
     with torch.no_grad():
         for i, data in enumerate(test_loader):
             data = data.float().to(device)
@@ -147,21 +145,21 @@ def test(epoch):
             # std_batch = torch.std(embedding)
             # embedding_norm = (embedding - mean_batch) / std_batch
 
-            g_truth = embedding[:,half_seq_length:,:]
-            input_lstm = embedding[:,:half_seq_length,:]
+            g_truth = embedding[:,-1,:]
+            input_lstm = embedding[:,:-1,:]
             _ , output_lstm = model(input_lstm)
 
             temp_loss = criterion(output_lstm, g_truth).item()
             test_loss += temp_loss
 
-            prediction = autoencoder_model.decoder(output_lstm.float().view(-1, model.input_size))
-            prediction = prediction.view(-1, half_seq_length, 1, 96, 60)
-            test_distance += np.linalg.norm(data.view(-1, model.seq_length, 1,
-                96, 60)[:,half_seq_length:].cpu().numpy() - prediction.cpu().numpy())
+            # prediction = autoencoder_model.decoder(output_lstm.float().view(-1, model.input_size))
+            # prediction = prediction.view(-1, 1, 1, 96, 60)
+            # test_distance += np.linalg.norm(data.view(-1, 1, 1,
+            #     96, 60)[:,half_seq_length:].cpu().numpy() - prediction.cpu().numpy())
 
 
     # average test loss
-    test_loss /= (i+1)*(half_seq_length)
+    test_loss /= (i+1)
     test_distance /= (i+1)
 
     print('====> Test set Loss: {:.4f}'.format(test_loss))
@@ -213,7 +211,7 @@ if __name__ == '__main__':
     ############################################
     ############################################
 
-    writer = SummaryWriter(log_dir=('lstm_many2many_plots/' + args.model_name))
+    writer = SummaryWriter(log_dir=('lstm_many2one_plots/' + args.model_name))
     writer.add_text("dataset", dataset)
     writer.add_text("learning_rate", str(learning_rate))
     writer.add_text("learning_rate_decay", str(lr_decay))
@@ -262,7 +260,7 @@ if __name__ == '__main__':
     # valid_loader = torch.utils.data.DataLoader(valid_dataset,
     #                        batch_size=batch_size, shuffle=False, drop_last=True)
 
-    model = LSTM_Many2Many(batch_size=batch_size, seq_length=seq_length,
+    model = LSTM_Many2One(batch_size=batch_size, seq_length=seq_length,
                  input_size=input_size, hidden_size=hidden_size,
                  lstm_layers=lstm_layers).double().to(device)
 
