@@ -192,13 +192,13 @@ if __name__ == '__main__':
 
     ############HYPERPARAMS#####################
     epochs = 100
-    learning_rate = 1e-1#[1e-3, 1e-4, 1e-5]
+    learning_rate = 1e-3#[1e-3, 1e-4, 1e-5]
     batch_size = 10
     seq_length = 8
-    log_interval = 1 # Log/show loss per batch
+    log_interval = 10 # Log/show loss per batch
     input_size = 100
     ############LSTM PARAMS#####################
-    hidden_size = 16#[128, 256, 512]
+    hidden_size = 256#[128, 256, 512]
     lstm_layers = 2#[2, 3]
     lr_decay = 0.5#[1, 0.9, 0.5]
     lr_decay_step = 5
@@ -267,10 +267,10 @@ if __name__ == '__main__':
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     #optimizer = optim.RMSprop(model.parameters(),lr=learning_rate, momentum=0.9)
 
+    checkpoint_path = 'checkpoints_many2one'
     train_losses = []
     test_losses = []
     best_test_loss = np.inf
-
 
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=lr_decay_step,
                                                             gamma=lr_decay)
@@ -291,5 +291,7 @@ if __name__ == '__main__':
         test_losses.append(current_test_loss)
         if(current_test_loss < best_test_loss):
              best_test_loss = current_test_loss
-             torch.save(model.state_dict(),('checkpoints/'+ args.model_name + '.pth'))
+             if not os.path.isdir(checkpoint_path):
+                 os.mkdir(checkpoint_path)
+             torch.save(model.state_dict(),(checkpoint_path + args.model_name + '.pth'))
     writer.close()
