@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-import matplotlib
-# matplotlib.use('Agg')
 import sys
 import numpy as np
 import glob
@@ -20,6 +15,7 @@ from tensorboardX import SummaryWriter
 from VAE.VAE_Reconstruct_TrainNEW import VAE
 from loadModel import loadModel, loadStateDict
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def createDataset(dataset, seq_length=8):
     #cut to a multiple of seq_length

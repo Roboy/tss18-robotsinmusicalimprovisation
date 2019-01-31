@@ -20,6 +20,7 @@ from tensorboardX import SummaryWriter
 from VAE.VAE_Reconstruct_TrainNEW import VAE
 from loadModel import loadModel, loadStateDict
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def createDataset(dataset, seq_length=8):
     #cut to a multiple of seq_length
@@ -257,7 +258,7 @@ if __name__ == '__main__':
     test_dataset = torch.from_numpy(test_dataset)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size,
                                                     shuffle=True, drop_last=True)
-                                                    
+
     # valid_dataset = torch.from_numpy(valid_dataset)
     # valid_loader = torch.utils.data.DataLoader(valid_dataset,
     #                        batch_size=batch_size, shuffle=False, drop_last=True)

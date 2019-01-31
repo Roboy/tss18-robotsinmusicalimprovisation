@@ -236,7 +236,7 @@ void loop(void)
     midi.send(0x90, fader2, poti2);
     midi.send(0x90, fader2+4, poti2);
     midi.send(0x90, fader2+7, poti2);
-    midi.send(0x90, fader2+12, poti2);
+    //midi.send(0x90, fader2+12, poti2);
     currentNote2 = fader2;
   }
   if (btn2.wasReleased()){
@@ -244,7 +244,7 @@ void loop(void)
     midi.send(0x80, currentNote2, 0);
     midi.send(0x80, currentNote2 + 4, 0);
     midi.send(0x80, currentNote2 + 7, 0);
-    midi.send(0x80, currentNote2 + 12, 0);
+    // midi.send(0x80, currentNote2 + 12, 0);
   }
 
     //button 3
@@ -256,7 +256,7 @@ void loop(void)
     midi.send(0x90, fader3, poti3);
     midi.send(0x90, fader3 + 3, poti3);
     midi.send(0x90, fader3 + 7, poti3);
-    midi.send(0x90, fader3 + 12, poti3);
+    //midi.send(0x90, fader3 + 12, poti3);
     currentNote3 = fader3;
   }
   if (btn3.wasReleased()){
@@ -264,7 +264,7 @@ void loop(void)
     midi.send(0x80, currentNote3, 0);
     midi.send(0x80, currentNote3 + 3, 0);
     midi.send(0x80, currentNote3 + 7, 0);
-    midi.send(0x80, currentNote3 + 12, 0);
+    //midi.send(0x80, currentNote3 + 12, 0);
   }
 
 

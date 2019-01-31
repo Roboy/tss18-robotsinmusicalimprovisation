@@ -27,8 +27,8 @@ def loadModel(model, pathToModel, dataParallelModel=False):
                 else:
                     new_state_dict[k] = v
             model.load_state_dict(new_state_dict)
-            print("\n--------GPU data parallel model restored--------\n") 
-            return model       
+            print("\n--------GPU data parallel model restored--------\n")
+            return model
         else:
             storage = {"cuda":"cpu"}
             model = torch.load(pathToModel, map_location=lambda storage, loc: storage)
@@ -53,4 +53,14 @@ def loadStateDict(model, pathToStateDict):
             print("\n--------GPU state dict restored, loaded into CPU--------\n")
             return model
     except:
-        print("\n--------no saved model found--------\n")
+        state_dict = torch.load(pathToStateDict, map_location=lambda storage, loc: storage)
+        new_state_dict = OrderedDict()
+        for k, v in state_dict.items():
+            name = k[7:] # remove `module.`
+            if k[0] == 'm':
+                new_state_dict[name] = v
+            else:
+                new_state_dict[k] = v
+        model.load_state_dict(new_state_dict)
+        print("\n--------GPU data parallel model restored--------\n")
+        return model
