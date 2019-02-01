@@ -240,7 +240,7 @@ def debinarizeMidi(a, prediction=True,velocity=127):
         #rowMax = a.max(axis=1).reshape(-1, 1)
         #a[:] = np.where((a == rowMax) & (a > 0), velocity, 0)
         # POLYPHONIC
-        min_vel = 40
+        min_vel = 80
         a[a > 0] = min_vel + (velocity-min_vel)*a[a > 0]
 
         # import pdb; pdb.set_trace()

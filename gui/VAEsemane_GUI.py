@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, qApp, QAction, QFileDialo
 from PyQt5.uic import loadUi
 from VAE.VAE_Reconstruct_TrainNEW import VAE
 from LIVE.LiveInput_ClassCompliant import LiveParser
-from gui_utils.vae_gui import vae_interact
+from gui_utils.vae_gui import vae_interact, vae_endless
 from loadModel import loadModel, loadStateDict
 import mido
 import numpy as np
@@ -45,6 +45,7 @@ class VAEsemane_GUI(QMainWindow):
         self.btn_stop.clicked.connect(self.btn_stop_clicked)
         self.btn_randomize.clicked.connect(self.btn_randomize_clicked)
         self.btn_reset.clicked.connect(self.btn_reset_clicked)
+        self.btn_run_endless.clicked.connect(self.btn_run_endless_clicked)
 
         # dials --> get list of dials and sort them by object name
         self.dials = []
@@ -52,6 +53,10 @@ class VAEsemane_GUI(QMainWindow):
             item = self.dial_grid.itemAt(i)
             self.dials.append(item.widget())
         self.dials.sort(key=lambda x: x.objectName())
+        # change range of the dials, default is [-100,100] (in %)
+        for dial in self.dials:
+            dial.setMinimum(-500)
+            dial.setMaximum(500)
 
         # progress bars
         self.pbar_human_metronome.setMinimum(0)
@@ -152,18 +157,23 @@ class VAEsemane_GUI(QMainWindow):
 
     def btn_run_clicked(self):
         self.is_running = True
-        # vae_thread = threading.Thread(target=vae_main, args=(self.live_instrument,
-        #         self.model, self.device, self.dials, self.is_running))
         vae_thread = threading.Thread(target=vae_interact, args=(self,))
         vae_thread.setDaemon(True)
         vae_thread.start()
+
+    def btn_run_endless_clicked(self):
+        self.is_running = True
+        vae_thread = threading.Thread(target=vae_endless, args=(self,))
+        vae_thread.setDaemon(True)
+        vae_thread.start()
+
 
     def btn_stop_clicked(self):
         self.is_running = False
 
     def btn_randomize_clicked(self):
         for dial in self.dials:
-            rand = np.random.randint(-100,100)
+            rand = np.random.randint(-500,500)
             dial.setSliderPosition(rand)
 
     def btn_reset_clicked(self):
