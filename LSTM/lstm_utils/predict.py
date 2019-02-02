@@ -73,11 +73,11 @@ def predict(file_path, lstm_model, vae_model, temperature,
         prediction = debinarizeMidi(prediction, prediction=True)
         prediction = addCuttedOctaves(prediction)
         print("INPUT")
-        pianorollMatrixToTempMidi(samplePlay, show=True, showPlayer=True, autoplay=False)
+        pianorollMatrixToTempMidi(samplePlay, show=True, showPlayer=True, autoplay=True)
         #print("RECONSTRUCTION")
         #pianorollMatrixToTempMidi(reconstruction, show=True,
         #                            showPlayer=True,autoplay=True, prediction=True)
         print("PREDICTION")
         pianorollMatrixToTempMidi(prediction, prediction=True,
-                                  show=True,showPlayer=True,autoplay=False)
+                                  show=True,showPlayer=True,autoplay=True)
         print("\n\n")

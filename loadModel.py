@@ -62,5 +62,5 @@ def loadStateDict(model, pathToStateDict):
             else:
                 new_state_dict[k] = v
         model.load_state_dict(new_state_dict)
-        print("\n--------GPU data parallel model restored--------\n")
+        print("\n--------GPU data parallel state dict restored--------\n")
         return model

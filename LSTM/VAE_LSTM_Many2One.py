@@ -263,7 +263,7 @@ if __name__ == '__main__':
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     #optimizer = optim.RMSprop(model.parameters(),lr=learning_rate, momentum=0.9)
 
-    checkpoint_path = 'checkpoints_many2one'
+    checkpoint_path = 'checkpoints_many2one/'
     train_losses = []
     test_losses = []
     best_test_loss = np.inf

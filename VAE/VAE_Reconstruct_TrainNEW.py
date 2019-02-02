@@ -192,6 +192,8 @@ if __name__ == '__main__':
         help='Path to your MIDI files.')
     parser.add_argument("--validation_path", default=None,
         help='Path to your validation set. You should take this from a different dataset.')
+    parser.add_argument("--model_name", default=None,
+        help='Path to your validation set. You should take this from a different dataset.')
     parser.add_argument("--checkpoint", default=None, help='Path to last checkpoint. \
         If you trained the checkpointed model on multiple GPUs use the --is_dataParallel flag. \
         Default: None', type=str)
@@ -202,6 +204,10 @@ if __name__ == '__main__':
 
     if not args.file_path:
         print("You have to set the path to your files from terminal with --file_path flag.")
+        sys.exit()
+    if not args.model_name:
+        print("Please set a model name for checkpoints a plots using --model_name\
+                    flag.")
         sys.exit()
 
     ################################################################################################
@@ -220,13 +226,13 @@ if __name__ == '__main__':
     seq_length = 96                 # how long is one sequence
     covariance_param = 0.5          # value that the logvar is multiplied by
                                         # in reparameterization
-    model_name = 'dataset_name'
+                                        # leave as is (==0.5) for unit variance
+    model_name = args.model_name
                                     # name for checkpoints / tensorboard
     ################################################################################################
     ################################################################################################
     ################################################################################################
 
-    save_path = 'checkpoints/' + model_name
     writer = SummaryWriter(log_dir=('vae_plots/' + model_name))
     writer.add_text("learning_rate", str(learning_rate))
     writer.add_text("learning_rate_decay", str(learning_rate_decay))
@@ -308,6 +314,7 @@ if __name__ == '__main__':
         else:
             model = loadModel(model, args.checkpoint, dataParallelModel=False)
 
+    checkpoint_path = 'checkpoints_vae/'
     best_valid_loss = np.inf
     if learning_rate_decay:
         print("Learning rate decay activated!")
@@ -340,6 +347,8 @@ if __name__ == '__main__':
         #save if model better than before
         if (valid_loss < best_valid_loss):
             best_valid_loss = valid_loss
-            torch.save(model.state_dict(),(save_path + '.pth'))
+             if not os.path.isdir(checkpoint_path):
+                 os.mkdir(checkpoint_path)
+             torch.save(model.state_dict(),(checkpoint_path + args.model_name + '.pth'))
 
     writer.close()
