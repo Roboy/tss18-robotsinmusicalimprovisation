@@ -8,6 +8,7 @@ import torch.utils.data
 from torch import nn, optim
 from torch.nn import functional as F
 from utils.utils import *
+from utils.createDatasetAE import createDatasetAE
 from loadModel import loadModel, loadStateDict
 from tensorboardX import SummaryWriter
 
@@ -347,8 +348,8 @@ if __name__ == '__main__':
         #save if model better than before
         if (valid_loss < best_valid_loss):
             best_valid_loss = valid_loss
-             if not os.path.isdir(checkpoint_path):
-                 os.mkdir(checkpoint_path)
-             torch.save(model.state_dict(),(checkpoint_path + args.model_name + '.pth'))
+            if not os.path.isdir(checkpoint_path):
+                os.mkdir(checkpoint_path)
+            torch.save(model.state_dict(),(checkpoint_path + args.model_name + '.pth'))
 
     writer.close()

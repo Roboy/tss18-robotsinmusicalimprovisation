@@ -4,3 +4,4 @@ tempMidiFiles/temp.mid
 .ipynb_checkpoints
 LSTM/.DS_Store
 midi_controller/.DS_Store
+.DS_Store
