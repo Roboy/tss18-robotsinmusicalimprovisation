@@ -133,7 +133,8 @@ def test(epoch):
     model.eval()
     test_loss = 0
     test_distance = 0
-    criterion = nn.MSELoss()
+    # criterion = nn.MSELoss()
+    criterion = nn.CosineSimilarity(dim=1, eps=1e-8)
     half_seq_length = int(model.seq_length/2)
     with torch.no_grad():
         for i, data in enumerate(test_loader):
@@ -153,7 +154,7 @@ def test(epoch):
             input_lstm = embedding[:,:half_seq_length,:]
             _ , output_lstm = model(input_lstm)
 
-            temp_loss = criterion(output_lstm, g_truth).item()
+            temp_loss = criterion(output_lstm.view(1,-1), g_truth.view(1,-1)).item()
             test_loss += temp_loss
 
             prediction = autoencoder_model.decoder(output_lstm.float().view(-1, model.input_size))
