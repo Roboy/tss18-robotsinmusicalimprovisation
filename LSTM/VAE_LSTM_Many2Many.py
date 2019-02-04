@@ -95,7 +95,8 @@ def train(epoch):
         input_lstm = embedding[:,:half_seq_length,:]
         _ , output_lstm = model(input_lstm)
 
-        loss = criterion(output_lstm.view(1,-1), g_truth(1,-1))
+        loss = criterion(output_lstm.contiguous().view(1,-1),
+                                g_truth.contiguous().view(1,-1))
         loss.backward()
 
         train_loss += loss.item()
@@ -154,7 +155,8 @@ def test(epoch):
             input_lstm = embedding[:,:half_seq_length,:]
             _ , output_lstm = model(input_lstm)
 
-            temp_loss = criterion(output_lstm.view(1,-1), g_truth.view(1,-1)).item()
+            temp_loss = criterion(output_lstm.contiguous().view(1,-1),
+                                    g_truth.contiguous().view(1,-1)).item()
             test_loss += temp_loss
 
             prediction = autoencoder_model.decoder(output_lstm.float().view(-1, model.input_size))
@@ -229,10 +231,7 @@ if __name__ == '__main__':
     #load variational autoencoder
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     autoencoder_model = VAE()
-
-    autoencoder_model = loadModel(autoencoder_model, args.vae_path, dataParallelModel=True)
-    # autoencoder_model = loadStateDict(autoencoder_model, args.vae_path)
-
+    autoencoder_model = loadStateDict(autoencoder_model, args.vae_path)
     autoencoder_model = autoencoder_model.to(device)
 
     # load dataset from npz
