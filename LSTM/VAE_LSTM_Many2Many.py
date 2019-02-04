@@ -95,8 +95,7 @@ def train(epoch):
         input_lstm = embedding[:,:half_seq_length,:]
         _ , output_lstm = model(input_lstm)
 
-        loss = criterion(output_lstm.contiguous().view(1,-1),
-                                g_truth.contiguous().view(1,-1))
+        loss = criterion(output_lstm, g_truth)
         loss.backward()
 
         train_loss += loss.item()
@@ -155,9 +154,7 @@ def test(epoch):
             input_lstm = embedding[:,:half_seq_length,:]
             _ , output_lstm = model(input_lstm)
 
-            temp_loss = criterion(output_lstm.contiguous().view(1,-1),
-                                    g_truth.contiguous().view(1,-1)).item()
-            test_loss += temp_loss
+            test_loss += criterion(output_lstm, g_truth).item()
 
             prediction = autoencoder_model.decoder(output_lstm.float().view(-1, model.input_size))
             prediction = prediction.view(-1, half_seq_length, 1, 96, 60)
