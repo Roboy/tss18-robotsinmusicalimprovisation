@@ -69,7 +69,8 @@ def train(epoch):
     model.train()
     train_loss = 0
     train_distance = 0
-    criterion = nn.MSELoss()
+    # criterion = nn.MSELoss()
+    criterion = nn.CosineSimilarity(dim=1, eps=1e-8)
     accuracy_criterion = nn.CosineSimilarity()
     half_seq_length = int(model.seq_length/2)
     for batch_idx, data in enumerate(train_loader):
@@ -94,7 +95,7 @@ def train(epoch):
         input_lstm = embedding[:,:half_seq_length,:]
         _ , output_lstm = model(input_lstm)
 
-        loss = criterion(output_lstm, g_truth)
+        loss = criterion(output_lstm.view(1,-1), g_truth(1,-1))
         loss.backward()
 
         train_loss += loss.item()
@@ -195,7 +196,7 @@ if __name__ == '__main__':
 
     ############HYPERPARAMS#####################
     epochs = 100
-    learning_rate = 1e-1#[1e-3, 1e-4, 1e-5]
+    learning_rate = 1e-4#[1e-3, 1e-4, 1e-5]
     batch_size = 10
     seq_length = 8
     log_interval = 10 # Log/show loss per batch
@@ -204,7 +205,7 @@ if __name__ == '__main__':
     hidden_size = 256#[128, 256, 512]
     lstm_layers = 2#[2, 3]
     lr_decay = 0.5#[1, 0.9, 0.5]
-    lr_decay_step = 5
+    lr_decay_step = 10
     dataset = args.file_path
                 #[#'../../nici_datasets/MAESTRO.npz']#,
                 #'../../nici_datasets/YamahaPianoCompetition2002NoTranspose.npz']
