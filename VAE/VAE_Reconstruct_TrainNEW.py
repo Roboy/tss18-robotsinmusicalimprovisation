@@ -198,9 +198,6 @@ if __name__ == '__main__':
     parser.add_argument("--checkpoint", default=None, help='Path to last checkpoint. \
         If you trained the checkpointed model on multiple GPUs use the --is_dataParallel flag. \
         Default: None', type=str)
-    parser.add_argument("--is_dataParallel", default=False,
-        help='Option to allow loading models trained with multiple GPUs. \
-        Default: False', action="store_true")
     args = parser.parse_args()
 
     if not args.file_path:
@@ -211,9 +208,9 @@ if __name__ == '__main__':
                     flag.")
         sys.exit()
 
-    ################################################################################################
-    ################################################################################################
-    ################################################################################################
+    ############################################################################
+    ############################################################################
+    ############################################################################
     # Hyperparameters
     epochs = 50                     # number of epochs you want to train for
     learning_rate = 1e-3            # starting learning rate
@@ -230,9 +227,9 @@ if __name__ == '__main__':
                                         # leave as is (==0.5) for unit variance
     model_name = args.model_name
                                     # name for checkpoints / tensorboard
-    ################################################################################################
-    ################################################################################################
-    ################################################################################################
+    ############################################################################
+    ############################################################################
+    ############################################################################
 
     writer = SummaryWriter(log_dir=('vae_plots/' + model_name))
     writer.add_text("learning_rate", str(learning_rate))
@@ -310,10 +307,7 @@ if __name__ == '__main__':
     # Load Checkpoint
     if args.checkpoint:
         print("Trying to load checkpoint...")
-        if args.is_dataParallel:
-            model = loadStateDict(model, args.checkpoint)
-        else:
-            model = loadModel(model, args.checkpoint, dataParallelModel=False)
+        model = loadStateDict(model, args.checkpoint)
 
     checkpoint_path = 'checkpoints_vae/'
     best_valid_loss = np.inf
@@ -330,7 +324,6 @@ if __name__ == '__main__':
         writer.add_scalar('loss/train_kld_epoch', kld_train, epoch)
         for i, weight in enumerate(weights):
             writer.add_histogram(('weights/weight{}'.format(i)), weight, global_step=epoch)
-
         writer.add_histogram('embedding', embedding[0], bins='auto', global_step=epoch)
 
         #test
@@ -345,7 +338,7 @@ if __name__ == '__main__':
         writer.add_scalar('loss/valid_reconstruction_loss_epoch', cos_sim_valid, epoch)
         writer.add_scalar('loss/valid_kld_epoch', kld_valid, epoch)
 
-        #save if model better than before
+        #save if model better than before based on validation
         if (valid_loss < best_valid_loss):
             best_valid_loss = valid_loss
             if not os.path.isdir(checkpoint_path):

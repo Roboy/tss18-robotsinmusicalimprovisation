@@ -5,9 +5,9 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title ""
+Title "W-101 PCB"
 Date ""
-Rev ""
+Rev "v1.0"
 Comp ""
 Comment1 ""
 Comment2 ""
@@ -15,11 +15,11 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L midi_controller_pcb-rescue:2772-2772-midi_controller_pcb-rescue IC1
+L midi_controller_pcb-rescue:2772-2772-midi_controller_pcb-rescue-midi_controller_pcb-rescue IC1
 U 1 1 5BEF06B3
 P 6300 3450
 F 0 "IC1" V 6035 2800 50  0000 C CNN
-F 1 "2772" V 6126 2800 50  0000 C CNN
+F 1 "Adafruit Feather 32u4" V 6126 2800 50  0000 C CNN
 F 2 "2772:2772" H 7950 3250 50  0001 L CNN
 F 3 "https://componentsearchengine.com/Datasheets/1/2772.pdf" H 7950 3150 50  0001 L CNN
 F 4 "ADAFRUIT - 2772 - Adafruit Feather Basic Pro ATSAMD21 Cortex M0 98Y0176" H 7950 3050 50  0001 L CNN "Description"
@@ -31,7 +31,7 @@ F 8 "2772" H 7950 2650 50  0001 L CNN "Manufacturer_Part_Number"
 	0    1    1    0   
 $EndComp
 $Comp
-L Device:R_POT RV2
+L midi_controller_pcb-rescue:R_POT-Device RV2
 U 1 1 5BEF0A48
 P 3500 2700
 F 0 "RV2" H 3431 2654 50  0000 R CNN
@@ -42,7 +42,7 @@ F 3 "~" H 3500 2700 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L Device:R_POT RV3
+L midi_controller_pcb-rescue:R_POT-Device RV3
 U 1 1 5BEF0ADE
 P 3500 3150
 F 0 "RV3" H 3430 3104 50  0000 R CNN
@@ -53,7 +53,7 @@ F 3 "~" H 3500 3150 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L Device:R_POT RV4
+L midi_controller_pcb-rescue:R_POT-Device RV4
 U 1 1 5BEF0B06
 P 3500 3550
 F 0 "RV4" H 3431 3504 50  0000 R CNN
@@ -108,7 +108,7 @@ F 3 "" H 7350 3200 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L Device:R R4
+L midi_controller_pcb-rescue:R-Device R4
 U 1 1 5BEF0F2F
 P 7350 3500
 F 0 "R4" H 7420 3546 50  0000 L CNN
@@ -123,7 +123,7 @@ Wire Wire Line
 Wire Wire Line
 	7350 4350 7350 4250
 $Comp
-L Device:R R5
+L midi_controller_pcb-rescue:R-Device R5
 U 1 1 5BEF1012
 P 7950 4050
 F 0 "R5" H 8020 4096 50  0000 L CNN
@@ -143,7 +143,7 @@ Wire Wire Line
 Wire Wire Line
 	7250 4450 7250 4350
 $Comp
-L Device:R R6
+L midi_controller_pcb-rescue:R-Device R6
 U 1 1 5BEF1295
 P 8600 4650
 F 0 "R6" H 8670 4696 50  0000 L CNN
@@ -206,7 +206,7 @@ Wire Wire Line
 Wire Wire Line
 	4850 3550 4850 3300
 $Comp
-L Device:R_POT RV6
+L midi_controller_pcb-rescue:R_POT-Device RV6
 U 1 1 5BEFDA2E
 P 4350 5000
 F 0 "RV6" V 4236 5000 50  0000 C CNN
@@ -217,7 +217,7 @@ F 3 "~" H 4350 5000 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L Device:R_POT RV5
+L midi_controller_pcb-rescue:R_POT-Device RV5
 U 1 1 5BEFDAA2
 P 3850 5000
 F 0 "RV5" V 3736 5000 50  0000 C CNN
@@ -228,7 +228,7 @@ F 3 "~" H 3850 5000 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L Device:R_POT RV1
+L midi_controller_pcb-rescue:R_POT-Device RV1
 U 1 1 5BEFDB1E
 P 3350 5000
 F 0 "RV1" V 3236 5000 50  0000 C CNN
@@ -304,7 +304,7 @@ Wire Wire Line
 	10650 5050 10650 4500
 Connection ~ 10650 4500
 $Comp
-L Device:R R7
+L midi_controller_pcb-rescue:R-Device R7
 U 1 1 5BF22050
 P 9200 5200
 F 0 "R7" H 9270 5246 50  0000 L CNN
@@ -414,7 +414,7 @@ Wire Wire Line
 Wire Wire Line
 	3350 4150 3350 4850
 $Comp
-L Device:R R1
+L midi_controller_pcb-rescue:R-Device R1
 U 1 1 5C00449B
 P 2900 2900
 F 0 "R1" H 2830 2854 50  0000 R CNN
@@ -431,7 +431,7 @@ Wire Wire Line
 Wire Wire Line
 	2900 4050 5000 4050
 $Comp
-L Device:R R2
+L midi_controller_pcb-rescue:R-Device R2
 U 1 1 5C012BD1
 P 3100 3400
 F 0 "R2" H 3030 3354 50  0000 R CNN
@@ -442,7 +442,7 @@ F 3 "~" H 3100 3400 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L Device:R R3
+L midi_controller_pcb-rescue:R-Device R3
 U 1 1 5C012C3B
 P 3250 3700
 F 0 "R3" H 3180 3654 50  0000 R CNN
@@ -492,7 +492,7 @@ Connection ~ 3100 3650
 Wire Wire Line
 	3100 3650 3100 3950
 $Comp
-L Device:C_Small C1
+L midi_controller_pcb-rescue:C_Small-Device C1
 U 1 1 5C03DE4E
 P 2300 3250
 F 0 "C1" V 2071 3250 50  0000 C CNN
@@ -505,7 +505,7 @@ $EndComp
 Wire Wire Line
 	2400 3250 2900 3250
 $Comp
-L Device:C_Small C2
+L midi_controller_pcb-rescue:C_Small-Device C2
 U 1 1 5C03DEEF
 P 2300 3650
 F 0 "C2" V 2071 3650 50  0000 C CNN
@@ -518,7 +518,7 @@ $EndComp
 Wire Wire Line
 	2400 3650 3100 3650
 $Comp
-L Device:C_Small C3
+L midi_controller_pcb-rescue:C_Small-Device C3
 U 1 1 5C03DF41
 P 2300 3850
 F 0 "C3" V 2550 3850 50  0000 C CNN
@@ -605,7 +605,7 @@ Wire Wire Line
 Wire Wire Line
 	4850 2850 5350 2850
 $Comp
-L Device:LED D1
+L midi_controller_pcb-rescue:LED-Device D1
 U 1 1 5C117C70
 P 5350 2525
 F 0 "D1" V 5295 2603 50  0000 L CNN
@@ -626,7 +626,7 @@ Wire Wire Line
 Wire Wire Line
 	7350 3250 7650 3250
 $Comp
-L Device:C_Small C4
+L midi_controller_pcb-rescue:C_Small-Device C4
 U 1 1 5BF25A89
 P 7650 3500
 F 0 "C4" V 7421 3500 50  0000 C CNN
@@ -651,7 +651,7 @@ Wire Wire Line
 	7950 3900 7950 3250
 Connection ~ 7950 3250
 $Comp
-L Device:C_Small C5
+L midi_controller_pcb-rescue:C_Small-Device C5
 U 1 1 5BF38A66
 P 8250 4050
 F 0 "C5" V 8021 4050 50  0000 C CNN
@@ -671,7 +671,7 @@ Wire Wire Line
 Wire Wire Line
 	7950 3250 8250 3250
 $Comp
-L Device:C_Small C6
+L midi_controller_pcb-rescue:C_Small-Device C6
 U 1 1 5BF426CD
 P 8900 4650
 F 0 "C6" V 8671 4650 50  0000 C CNN
@@ -701,7 +701,7 @@ Connection ~ 8600 3250
 Wire Wire Line
 	8900 4750 8900 4900
 $Comp
-L Device:C_Small C7
+L midi_controller_pcb-rescue:C_Small-Device C7
 U 1 1 5BF682FB
 P 9450 5200
 F 0 "C7" V 9221 5200 50  0000 C CNN
@@ -747,7 +747,7 @@ Wire Wire Line
 Wire Wire Line
 	5350 2675 5350 2850
 $Comp
-L Device:R R8
+L midi_controller_pcb-rescue:R-Device R8
 U 1 1 5BF1C52B
 P 5350 2145
 F 0 "R8" H 5280 2099 50  0000 R CNN
@@ -762,7 +762,7 @@ Wire Wire Line
 Wire Wire Line
 	5350 1995 5350 1900
 $Comp
-L Device:LED D2
+L midi_controller_pcb-rescue:LED-Device D2
 U 1 1 5C0042D7
 P 6600 5350
 F 0 "D2" V 6545 5428 50  0000 L CNN
@@ -773,7 +773,7 @@ F 3 "~" H 6600 5350 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L Device:R R9
+L midi_controller_pcb-rescue:R-Device R9
 U 1 1 5C004463
 P 6600 5700
 F 0 "R9" H 6530 5654 50  0000 R CNN

@@ -186,26 +186,20 @@ if __name__ == '__main__':
         sys.exit()
 
 
-    ############HYPERPARAMS#####################
+    ############ HYPERPARAMS ##################################################
     epochs = 100
-    learning_rate = 1e-3#[1e-3, 1e-4, 1e-5]
+    learning_rate = 1e-4
     batch_size = 10
     seq_length = 8
     log_interval = 10 # Log/show loss per batch
     input_size = 100
-    ############LSTM PARAMS#####################
-    hidden_size = 256#[128, 256, 512]
-    lstm_layers = 2#[2, 3]
-    lr_decay = 0.5#[1, 0.9, 0.5]
+    ############LSTM PARAMS##################################
+    hidden_size = 256
+    lstm_layers = 2
+    lr_decay = 0.5
     lr_decay_step = 5
     dataset = args.file_path
-                #[#'../../nici_datasets/MAESTRO.npz']#,
-                #'../../nici_datasets/YamahaPianoCompetition2002NoTranspose.npz']
-                #'../../nici_datasets/MAESTRO.npz'],
-                #'/media/EXTHD/niciDatanpzDatasets/WikifoniaTranspose12up12down.npz',
-                #'/media/EXTHD/niciData/npzDatasets/YamahaPianoCompetition2002NoTranspose.npz']
-    ############################################
-    ############################################
+    ###########################################################################
 
     writer = SummaryWriter(log_dir=('lstm_many2one_plots/' + args.model_name))
     writer.add_text("dataset", dataset)

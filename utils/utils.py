@@ -245,7 +245,7 @@ def debinarizeMidi(a, prediction=True,velocity=127):
 
         # import pdb; pdb.set_trace()
     elif(prediction==False):
-        a[:] = np.where(a == 1,velocity,0)
+        a[:] = np.where(a > 0,velocity,0)
     return a
 
 
