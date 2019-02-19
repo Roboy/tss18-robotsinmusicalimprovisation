@@ -210,13 +210,9 @@ def addCuttedOctaves(matrix):
     return matrix
 
 
-def pianorollMatrixToTempMidi(matrix, path='../tempMidiFiles/temp.mid', prediction=True,
+def pianorollMatrixToTempMidi(matrix, path='../utils/midi_files/temp.mid', prediction=True,
     show=False, showPlayer=False, autoplay=False):
     # matrix must be of LENGTHxPITCH dimension here: (96 or more,128)
-
-    ###THIS IS A WORKAROUND SO NO NEW NOTES ARE SET ON THE LAST 2 TICKS
-    ###IF NOTE IS SET IT WILL RAISE AN ERROR THAT THERE CANNOT BE A BEGIN AND
-    ###END ON 4.0/4.0 (measures)
     if(prediction):
         matrix[-3:,:] = 0
 

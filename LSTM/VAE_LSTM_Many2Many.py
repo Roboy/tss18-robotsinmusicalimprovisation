@@ -17,7 +17,7 @@ from torch import nn, optim
 from torch.nn import functional as F
 from utils.utils import *
 from tensorboardX import SummaryWriter
-from VAE.VAE_Reconstruct_TrainNEW import VAE
+from VAE.VAE_Train import VAE
 from loadModel import loadModel, loadStateDict
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

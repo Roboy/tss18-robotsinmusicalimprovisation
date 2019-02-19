@@ -1,19 +1,19 @@
 # LSTM
 
-![LSTM pipeline](../imgs/lstm_pipeline.png){:class="img-responsive"}
-
+<img align="center" src="../imgs/lstm_pipeline.png"><br>
 
 This folder holds example jupyter scripts for the Encoder-LSTM-Decoder network. Also, you can use the python scripts to train your own LSTM model oder improve the existing approach.
 
 ## Predicter VAE-LSTM Many-2-One
 Predicts an 8th sequence based on 7 input sequences of a MIDI file
 
-![LSTM Many-to-One](../imgs/lstm_detail_many2one.png){:height="50%" width="50%"}
+<img align="center" width="500" src="../imgs/lstm_detail_many2one.png">
+
 
 ## Predciter VAE-LSTM Many-2-Many
 Predicts the next 4 sequences based on 4 input sequences of a MIDI file
 
-![LSTM Many-to-Many](../imgs/lstm_detail_many2many.png){:height="50%" width="50%"}
+<img align="center" width="500" src="../imgs/lstm_detail_many2many.png">
 
 ## Examples
 To use the examples please activate virtual environment and start jupyter notebook from root of this project by:
@@ -41,7 +41,7 @@ python MIDI_file_equalizer.py --file_path path/to/dir
 ### 3. Train and save LSTM model
 Go to the LSTM folder and train and save your model with your MIDI files.
 ```bash
-python VAE_LSTM_Many2Many.py
+python VAE_LSTM_Many2Many.M
 ```
 or
 ```bash

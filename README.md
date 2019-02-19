@@ -23,7 +23,14 @@ Irrespective of the path, ! get decoded by the VAE decoder. After that, the new 
 
 
 ## Examples on YouTube
+[Variational Autoencoder with Latent space modifier (GUI) "Interact Mode"](https://youtu.be/Umlmhky1DVg)
+
 [Variational Autoencoder with Latent space modifier (GUI) "Endless Mode"](https://youtu.be/gBg1Qecc4QY)
+
+[VAE with Robot (Roboy)] - Video coming soon!
+
+## Simulation
+To setup simulation please visit [Roboy Control](https://github.com/Roboy/roboy_control/tree/xyl_simulation)
 
 # Installation
 ## Prerequisites
