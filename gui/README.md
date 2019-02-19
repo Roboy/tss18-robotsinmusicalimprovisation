@@ -1,7 +1,7 @@
 ## Latent space modifier
 A graphical user interface (GUI) to change values in latent space of the variational autoencoder
 
-![Variational Autoencoder GUI](/imgs/gui.png =500x)
+![Variational Autoencoder GUI](/imgs/gui.png)
 
 
 ### How to
@@ -9,7 +9,7 @@ Navigate to this folder and make sure virtual environment is running:
 ```bash
 python VAEsemane_GUI.py
 ```
-####In GUI:
+#### In GUI:
 1. Choose MIDI Port for input device
 
 2. Choose VAE model you want to use
