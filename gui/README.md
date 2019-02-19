@@ -1,11 +1,11 @@
 ## Latent space modifier
 A graphical user interface (GUI) to change values in latent space of the variational autoencoder
 
-![Variational Autoencoder GUI](../imgs/gui.png =500x)
+![Variational Autoencoder GUI](/imgs/gui.png =500x)
 
 
 ### How to
-Navigate to this folder and make sure virtual env is running:
+Navigate to this folder and make sure virtual environment is running:
 ```bash
 python VAEsemane_GUI.py
 ```
