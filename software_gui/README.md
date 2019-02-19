@@ -1,7 +1,7 @@
 ## Latent space modifier
 A graphical user interface (GUI) to change values in latent space of the variational autoencoder
 
-<img align="center" width="500" src="../utils/imgs/gui.png">
+![GUI](../utils/imgs/gui.png)
 
 ### Setup
 1. Connect a MIDI device to your computer (or use VMPK software MIDI device)

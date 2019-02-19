@@ -1,19 +1,19 @@
 # LSTM
 
-<img align="center" src="../imgs/lstm_pipeline.png"><br>
+<img align="center" src="../utils/imgs/lstm_pipeline.png"><br>
 
 This folder holds example jupyter scripts for the Encoder-LSTM-Decoder network. Also, you can use the python scripts to train your own LSTM model oder improve the existing approach.
 
 ## Predicter VAE-LSTM Many-2-One
 Predicts an 8th sequence based on 7 input sequences of a MIDI file
 
-<img align="center" width="500" src="../imgs/lstm_detail_many2one.png">
+<img align="center" width="500" src="../utils/imgs/lstm_detail_many2one.png">
 
 
 ## Predciter VAE-LSTM Many-2-Many
 Predicts the next 4 sequences based on 4 input sequences of a MIDI file
 
-<img align="center" width="500" src="../imgs/lstm_detail_many2many.png">
+<img align="center" width="500" src="../utils/imgs/lstm_detail_many2many.png">
 
 ## Examples
 To use the examples please activate virtual environment and start jupyter notebook from root of this project by:

@@ -10,8 +10,8 @@ or playing instruments. For humans, it takes years of practice to develop creati
 
 This work proposes an end-to-end framework for robotic improvisation with focus on machine learning algorithms in interaction with the control of a musculoskeletal robot. In spite of sophisticated sampling methods, variational autoencoders were chosen to be the basis for musical improvisation. A new framework that eases the control of musculoskeletal robots was applied to play musical sequences on the marimba.
 
-## System Overview
-![System Design](imgs/system_design_new.png)
+## System Design
+![System Design](utils/imgs/system_design_new.png)
 
 The systems input sequence is played with [W-101 MIDI controller](https://github.com/Roboy/tss18-robotsinmusicalimprovisation/tree/master/midi_controller) or any MIDI keyboard. The sequence is then parsed to matrix M which serves as the input to the encoder of the variational autoencoder (VAE).
 Next it can either be
@@ -60,5 +60,3 @@ If you are working on Ubuntu with CUDA 9.0, try:
 pip3 install torch torchvision
 ```
 For other systems or CUDA versions, please visit https://pytorch.org/
-
-6. TODO

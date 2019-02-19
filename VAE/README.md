@@ -1,6 +1,5 @@
 # Variational Autoencoder (VAE)
-
-<img align="center" src="../utils/imgs/vae_v2.png"><br>
+![VAE](../utils/imgs/vae_v2.png)
 
 The architecture of the encoder of this VAE was adapted from the approach for a denoising autoencoder by [Bretan et al. (2017)](https://arxiv.org/abs/1706.04486). The decoder consists of the inverse mapping without reparametrization.
 
