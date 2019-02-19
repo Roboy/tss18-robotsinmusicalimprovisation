@@ -11,43 +11,42 @@ or playing instruments. For humans, it takes years of practice to develop creati
 This work proposes an end-to-end framework for robotic improvisation with focus on machine learning algorithms in interaction with the control of a musculoskeletal robot. In spite of sophisticated sampling methods, variational autoencoders were chosen to be the basis for musical improvisation. A new framework that eases the control of musculoskeletal robots was applied to play musical sequences on the marimba.
 
 ## System Overview
-Overview of the full framework <br>
-
 ![System Design](imgs/system_design_new.png)
 
-The systems input sequence is played with W-101 MIDI controller or any MIDI keyboard. The sequence is then parsed to matrix M which serves as the input to the encoder of the variational autoencoder (VAE).
+The systems input sequence is played with [W-101 MIDI controller](https://github.com/Roboy/tss18-robotsinmusicalimprovisation/tree/master/midi_controller) or any MIDI keyboard. The sequence is then parsed to matrix M which serves as the input to the encoder of the variational autoencoder (VAE).
 Next it can either be
 1. reconstructed (Path 1) --> No changes in latent space
 2. modified (Path 2) --> Latent space modifier [GUI](https://github.com/Roboy/tss18-robotsinmusicalimprovisation/tree/master/gui)
 3. processed by an LSTM network --> [LSTM](https://github.com/Roboy/tss18-robotsinmusicalimprovisation/tree/master/LSTM)
 
-Irrespective of the path, $z$, $z_2$, $z_3$ get decoded by the VAE decoder. After that, the new sequence $\tilde{M}$ can be smoothed by a Note smoother and then sent to the robot or to a software synthesizer.
+Irrespective of the path, ! get decoded by the VAE decoder. After that, the new sequence $\tilde{M}$ can be smoothed by a Note smoother and then sent to the robot or to a software synthesizer.
 
 
+## Examples on YouTube
+[Variational Autoencoder with Latent space modifier (GUI) "Endless Mode"](https://youtu.be/gBg1Qecc4QY)
 
+# Installation
 ## Prerequisites
-1. Create virtual environment one above the root folder of this project:
+1. Create virtual environment one above the root folder of this project and activate it:
 ```bash
 virtualenv ../.rimi -p python3 --no-site-packages
-```
-2. Activate virtual environment by:
-```bash
 source ../.rimi/bin/activate
 ```
-3. Set PYTHONPATH to the root directory of this project or add to ~/.bashrc
+2. Set PYTHONPATH to the root directory of this project or add to ~/.bashrc
 ```bash
 export PYTHONPATH=$PYTHONPATH:/path/to/dir
 ```
-4. OPTIONAL (for Ubuntu): You will need these for python-rtmidi:
+3. OPTIONAL (for Ubuntu): You will need these for python-rtmidi:
 ```bash
 sudo apt-get install libasound-dev
 sudo apt-get install libjack-dev
 ```
-5. Pip install all packages
+
+4. Pip install all packages
 ```bash
 pip3 install -r requirements.txt
 ```
-6. Install PyTorch
+5. Install PyTorch
 
 If you are working on Ubuntu with CUDA 9.0, try:
 ```bash
