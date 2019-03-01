@@ -20,7 +20,7 @@ How to build your own W-101:
 
 7. (OPTIONAL) Assemble PCB using the ordered components. All components except the buttons and on/off switch are placed on the PC.
 
-8. Laser cut the case using ./ble_midi_controller_case.ai
+8. Laser cut the case using ./midi_controller_case/ble_midi_controller_case.ai
 
 9. Mount the assembled PCB to the case and add buttons by soldering wires to the designated places on the PCB.
 
