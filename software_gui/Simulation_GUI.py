@@ -1,15 +1,11 @@
 import sys
 import os
 import torch
-# import threading
-from multiprocessing import Process, Value
+import threading
 import time
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QApplication, QMainWindow, qApp, QAction, QFileDialog
 from PyQt5.uic import loadUi
-#
-# sys.path.append('/home/nwesem/workspace/tss18-robotsinmusicalimprovisation/')
-# print(sys.path)
 from VAE.VAE_Train import VAE
 from utils.LiveInput_ClassCompliant import LiveParser
 from gui_utils.simulation_utils import vae_interact, vae_endless
@@ -89,15 +85,15 @@ class VAEsemane_GUI(QMainWindow):
         # metronome_process = Process(target=self.update_metronome, args=(val,))
         # metronome_process.start()
 
-    def update_metronome(self, val):
+    def update_metronome(self):
         while True:
             if self.live_instrument.human:
-                val.value = self.live_instrument.metronome
                 self.lcd_comp_metronome.display("0")
-                self.lcd_human_metronome.display("{}".format(val.value))
+                self.lcd_human_metronome.display("{}".format(self.live_instrument.metronome))
             else:
                 self.lcd_human_metronome.display("0")
                 self.lcd_comp_metronome.display("{}".format(self.live_instrument.metronome))
+            time.sleep(0.1)
 
     def update_bpm(self):
         current_val = self.slider_bpm.value()
