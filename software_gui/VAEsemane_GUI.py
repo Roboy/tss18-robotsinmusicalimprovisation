@@ -6,7 +6,7 @@ import time
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QApplication, QMainWindow, qApp, QAction, QFileDialog
 from PyQt5.uic import loadUi
-from VAE.VAE_Reconstruct_TrainNEW import VAE
+from VAE.VAE_Train import VAE
 from utils.LiveInput_ClassCompliant import LiveParser
 from gui_utils.vae_gui import vae_interact, vae_endless
 from loadModel import loadModel, loadStateDict

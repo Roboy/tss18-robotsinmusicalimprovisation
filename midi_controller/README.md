@@ -6,7 +6,7 @@
 ## DIY
 How to build your own W-101:
 
-1. Mill or order PCB using gerber files located in ./pcb/gerber or send an email to <niclaswesemann@gmail.com> to get a preassembled PCB.
+1. Mill or order PCB using gerber files located in ./pcb/gerber or send an email to <niclaswesemann@gmail.com> to get an assembled PCB.
 
 2. (OPTIONAL) Order components to assemble PCB as shown in ./pcb/midi_controller_pcb_component_list.csv
 
