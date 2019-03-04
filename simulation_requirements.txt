@@ -1,0 +1,8 @@
+numpy
+matplotlib
+pypianoroll
+pygame
+mido
+python-rtmidi
+music21
+tensorboardX

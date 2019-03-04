@@ -4,7 +4,7 @@ import torch
 import torch.utils.data as data
 import pypianoroll as ppr
 import glob
-from utils.utils import transposeNotesHigherLower, cutOctaves
+from .utils import transposeNotesHigherLower, cutOctaves
 
 
 class createDatasetAE(data.Dataset):

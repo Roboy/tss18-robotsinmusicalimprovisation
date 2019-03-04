@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.utils.data
 from utils.utils import (cutOctaves, debinarizeMidi, addCuttedOctaves)
-from VAE.VAE_Reconstruct_TrainNEW import VAE
+from VAE.VAE_Train import VAE
 from loadModel import loadModel, loadStateDict
 from utils.LiveInput_ClassCompliant import LiveParser
 from mido import MidiFile, Message
@@ -100,16 +100,16 @@ if __name__ == '__main__':
         sys.exit()
 
     # initialize live input instrument
-    live_instrument = LiveParser(port=args.port, number_seq=args.bars,
-                                bpm=args.bpm, ppq=12)
+    live_instrument = LiveParser(port=args.port, bars=args.bars,
+                                bpm=args.bpm, ppq=24)
     live_instrument.open_inport(live_instrument.parse_notes)
     live_instrument.open_outport()
 
     #load model and corresponding weights
     model = VAE()
-    if args.is_dataParallel:
+    try:
         model = loadStateDict(model, args.model_path)
-    else:
+    except:
         model = loadModel(model, args.model_path)
 
     # check for gpu support and send model to gpu if possible
