@@ -12,6 +12,10 @@ from gui_utils.simulation_utils import vae_interact, vae_endless
 from loadModel import loadModel, loadStateDict
 import mido
 import numpy as np
+import rospy
+from rospy.numpy_msg import numpy_msg
+from std_msgs.msg import Float32MultiArray
+
 
 
 class VAEsemane_GUI(QMainWindow):
@@ -23,6 +27,10 @@ class VAEsemane_GUI(QMainWindow):
         self.is_running = False
         self.temperature = self.slider_temperature.value()/100.
         self.initUIConnects()
+        self.ros_node = rospy.init_node('np_publisher', anonymous=True)
+        self.ros_publisher = rospy.Publisher('vae_sequence',
+                        numpy_msg(Float32MultiArray), queue_size=1000)
+        self.vae_thread_alive = False
 
     def initUIConnects(self):
         # menu bar
@@ -142,18 +150,23 @@ class VAEsemane_GUI(QMainWindow):
             self.model.eval()
 
     def btn_run_clicked(self):
-        self.is_running = True
-        vae_thread = threading.Thread(target=vae_interact, args=(self,))
-        vae_thread.setDaemon(True)
-        vae_thread.start()
+        # print("before {}".format(self.vae_thread_alive))
+        # print(threading.active_count())
+        if not self.is_running:
+            vae_thread = threading.Thread(target=vae_interact, args=(self,))
+            vae_thread.setDaemon(True)
+            vae_thread.start()
+            self.is_running = vae_thread.is_alive()
+            print("after {}".format(self.vae_thread_alive))
         # vae_process = Process(target=vae_interact, args=(self,))
         # vae_process.start()
 
     def btn_run_endless_clicked(self):
-        self.is_running = True
-        vae_thread = threading.Thread(target=vae_endless, args=(self,))
-        vae_thread.setDaemon(True)
-        vae_thread.start()
+        if not self.is_running:
+            vae_thread = threading.Thread(target=vae_endless, args=(self,))
+            vae_thread.setDaemon(True)
+            vae_thread.start()
+            self.is_running = vae_thread.is_alive()
 
     def btn_stop_clicked(self):
         self.is_running = False

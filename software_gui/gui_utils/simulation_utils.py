@@ -2,7 +2,17 @@ import torch
 import numpy as np
 from utils.utils import (cutOctaves, debinarizeMidi, addCuttedOctaves)
 from utils.NoteSmoother import NoteSmoother
+import roslib
+import rospy
+from rospy.numpy_msg import numpy_msg
+from std_msgs.msg import Float32MultiArray
 
+def numpy_publisher(pub, prediction):
+    r = rospy.Rate(10) # 10hz
+    msg = Float32MultiArray()
+    msg.data = prediction
+    pub.publish(msg)
+    r.sleep()
 
 def vae_interact(gui):
     live_instrument = gui.live_instrument
@@ -61,9 +71,13 @@ def vae_interact(gui):
             smoother = NoteSmoother(prediction, threshold=2)
             prediction = smoother.smooth()
 
-            # play predicted sequence note by note
+            # sent to robot
             if gui.chx_simulate_robot.isChecked():
                 print("\nPublisher\n")
+                msg = Float32MultiArray()
+                msg.data = prediction.flatten()
+                gui.ros_publisher.publish(msg)
+            # or play in software
             else:
                 print("\nPrediction\n")
                 live_instrument.computer_play(prediction=prediction)
