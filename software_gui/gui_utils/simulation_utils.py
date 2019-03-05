@@ -5,7 +5,7 @@ from utils.NoteSmoother import NoteSmoother
 import roslib
 import rospy
 from rospy.numpy_msg import numpy_msg
-from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import Float32MultiArray, Int32
 
 def numpy_publisher(pub, prediction):
     r = rospy.Rate(10) # 10hz
@@ -16,8 +16,9 @@ def numpy_publisher(pub, prediction):
 
 def vae_interact(gui):
     live_instrument = gui.live_instrument
-    model = gui.model
     device = gui.device
+    print("device = {}".format(device))
+    model = gui.model.to(device)
     dials = gui.dials
     while True:
         print("\nUser input\n")
@@ -50,7 +51,7 @@ def vae_interact(gui):
             dial_vals = []
             for dial in dials:
                 dial_vals.append(dial.value())
-            dial_tensor = torch.FloatTensor(dial_vals)/100.
+            dial_tensor = (torch.FloatTensor(dial_vals)/100.).to(device)
             new = mu + (dial_tensor * 0.5 * logvar.exp())
             pred = model.decoder(new).squeeze(1)
 
@@ -77,6 +78,15 @@ def vae_interact(gui):
                 msg = Float32MultiArray()
                 msg.data = prediction.flatten()
                 gui.ros_publisher.publish(msg)
+
+                clock_msg = Int32()
+                live_instrument.reset_clock()
+                while True:
+                    done = live_instrument.computer_clock()
+                    clock_msg.data = live_instrument.current_tick
+                    gui.clock_publisher.publish(clock_msg.data)
+                    if done:
+                        break
             # or play in software
             else:
                 print("\nPrediction\n")

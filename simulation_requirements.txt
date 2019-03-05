@@ -6,3 +6,4 @@ mido
 python-rtmidi
 music21
 tensorboardX
+vext.pyqt5

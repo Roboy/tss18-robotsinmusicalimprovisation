@@ -14,7 +14,7 @@ import mido
 import numpy as np
 import rospy
 from rospy.numpy_msg import numpy_msg
-from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import Float32MultiArray, Int32
 
 
 
@@ -30,6 +30,7 @@ class VAEsemane_GUI(QMainWindow):
         self.ros_node = rospy.init_node('np_publisher', anonymous=True)
         self.ros_publisher = rospy.Publisher('vae_sequence',
                         numpy_msg(Float32MultiArray), queue_size=1000)
+        self.clock_publisher = rospy.Publisher('vae_clock', Int32, queue_size=10)
         self.vae_thread_alive = False
 
     def initUIConnects(self):
@@ -141,10 +142,8 @@ class VAEsemane_GUI(QMainWindow):
     def set_pretrained_model(self):
         rel_path = "../utils/pretrained_models/vae_model.pth"
         self.model = VAE()
-        try:
-            self.model = loadModel(self.model, rel_path, dataParallelModel=True)
-        except:
-            self.model = loadStateDict(self.model, rel_path)
+
+        self.model = loadStateDict(self.model, rel_path)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         if self.model.train():
             self.model.eval()

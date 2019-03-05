@@ -96,7 +96,7 @@ class LiveParser():
             # print("clock {}".format(self.current_tick))
             if self.current_tick % self.ppq == 0:
                 self.counter_metronome += 1
-        if self.current_tick == self.seq_length_ticks-1:
+        if self.current_tick >= self.seq_length_ticks-1:
             return 1
         if self.counter_metronome > self.metronome:
             self.metronome = self.counter_metronome
