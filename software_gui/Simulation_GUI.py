@@ -14,7 +14,7 @@ import mido
 import numpy as np
 import rospy
 from rospy.numpy_msg import numpy_msg
-from std_msgs.msg import Float32MultiArray, Int32
+from std_msgs.msg import Float32MultiArray, Int32, Int32MultiArray
 
 
 
@@ -27,11 +27,12 @@ class VAEsemane_GUI(QMainWindow):
         self.is_running = False
         self.temperature = self.slider_temperature.value()/100.
         self.initUIConnects()
-        self.ros_node = rospy.init_node('np_publisher', anonymous=True)
+        self.ros_node = rospy.init_node('gui_publisher', anonymous=True)
         self.ros_publisher = rospy.Publisher('vae_sequence',
                         numpy_msg(Float32MultiArray), queue_size=1000)
         self.clock_publisher = rospy.Publisher('vae_clock', Int32, queue_size=10)
         self.vae_thread_alive = False
+        self.midi_publisher = rospy.Publisher('midi_publisher', Int32MultiArray, queue_size=10)
 
     def initUIConnects(self):
         # menu bar

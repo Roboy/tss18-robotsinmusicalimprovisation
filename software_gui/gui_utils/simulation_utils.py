@@ -5,7 +5,8 @@ from utils.NoteSmoother import NoteSmoother
 import roslib
 import rospy
 from rospy.numpy_msg import numpy_msg
-from std_msgs.msg import Float32MultiArray, Int32
+from std_msgs.msg import Float32MultiArray, Int32MultiArray, Int32
+import mido
 
 def numpy_publisher(pub, prediction):
     r = rospy.Rate(10) # 10hz
@@ -75,17 +76,41 @@ def vae_interact(gui):
             # sent to robot
             if gui.chx_simulate_robot.isChecked():
                 print("\nPublisher\n")
-                msg = Float32MultiArray()
-                msg.data = prediction.flatten()
-                gui.ros_publisher.publish(msg)
-
-                clock_msg = Int32()
+                note_msg = Int32MultiArray()
+                live_instrument.human = False
                 live_instrument.reset_clock()
+                play_tick = -1
+                old_midi_on = np.zeros(1)
+                played_notes = []
                 while True:
                     done = live_instrument.computer_clock()
-                    clock_msg.data = live_instrument.current_tick
-                    gui.clock_publisher.publish(clock_msg.data)
+                    if live_instrument.current_tick > play_tick:
+                        play_tick = live_instrument.current_tick
+                        midi_on = np.argwhere(prediction[play_tick] > 0)
+                        if midi_on.any():
+                            for note in midi_on[0]:
+                                if note not in old_midi_on:
+                                    current_vel = int(prediction[live_instrument.current_tick,note])
+                                    mido_msg = mido.Message('note_on', note=note, velocity=current_vel)
+                                    note_msg.data = mido_msg.bytes()
+                                    gui.midi_publisher.publish(note_msg)
+                                    played_notes.append(note)
+                        else:
+                            for note in played_notes:
+                                # self.out_port.send(mido.Message('note_off',
+                                #                             note=note))#, velocity=100))
+                                played_notes.pop(0)
+
+                        if old_midi_on.any():
+                            for note in old_midi_on[0]:
+                                if note not in midi_on:
+                                    # self.out_port.send(mido.Message('note_off', note=note))
+                                    continue
+                        old_midi_on = midi_on
+
                     if done:
+                        live_instrument.human = True
+                        live_instrument.reset_clock()
                         break
             # or play in software
             else:
