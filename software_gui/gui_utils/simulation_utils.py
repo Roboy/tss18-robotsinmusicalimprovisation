@@ -18,7 +18,6 @@ def numpy_publisher(pub, prediction):
 def vae_interact(gui):
     live_instrument = gui.live_instrument
     device = gui.device
-    print("device = {}".format(device))
     model = gui.model.to(device)
     dials = gui.dials
     while True:
@@ -123,8 +122,8 @@ def vae_interact(gui):
 
 def vae_endless(gui):
     live_instrument = gui.live_instrument
-    model = gui.model
     device = gui.device
+    model = gui.model.to(device)
     dials = gui.dials
     print("\nUser input\n")
     # reset live input clock and prerecorded sequences
@@ -155,8 +154,8 @@ def vae_endless(gui):
             dial_vals = []
             for dial in dials:
                 dial_vals.append(dial.value())
-            dial_tensor = torch.FloatTensor(dial_vals)/100.
-            print(dial_tensor)
+            dial_tensor = (torch.FloatTensor(dial_vals)/100.).to(device)
+            # print(dial_tensor)
             new = mu + (dial_tensor * 0.5 * logvar.exp())
             pred = model.decoder(new).squeeze(1)
 
@@ -177,9 +176,49 @@ def vae_endless(gui):
             smoother = NoteSmoother(prediction, threshold=2)
             prediction = smoother.smooth()
 
-            # play predicted sequence note by note
-            print("\nPrediction\n")
-            live_instrument.computer_play(prediction=prediction)
+            # sent to robot
+            if gui.chx_simulate_robot.isChecked():
+                print("\nPublisher\n")
+                note_msg = Int32MultiArray()
+                live_instrument.human = False
+                live_instrument.reset_clock()
+                play_tick = -1
+                old_midi_on = np.zeros(1)
+                played_notes = []
+                while True:
+                    done = live_instrument.computer_clock()
+                    if live_instrument.current_tick > play_tick:
+                        play_tick = live_instrument.current_tick
+                        midi_on = np.argwhere(prediction[play_tick] > 0)
+                        if midi_on.any():
+                            for note in midi_on[0]:
+                                if note not in old_midi_on:
+                                    current_vel = int(prediction[live_instrument.current_tick,note])
+                                    mido_msg = mido.Message('note_on', note=note, velocity=current_vel)
+                                    note_msg.data = mido_msg.bytes()
+                                    gui.midi_publisher.publish(note_msg)
+                                    played_notes.append(note)
+                        else:
+                            for note in played_notes:
+                                # self.out_port.send(mido.Message('note_off',
+                                #                             note=note))#, velocity=100))
+                                played_notes.pop(0)
+
+                        if old_midi_on.any():
+                            for note in old_midi_on[0]:
+                                if note not in midi_on:
+                                    # self.out_port.send(mido.Message('note_off', note=note))
+                                    continue
+                        old_midi_on = midi_on
+
+                    if done:
+                        live_instrument.human = True
+                        live_instrument.reset_clock()
+                        break
+            # or play in software
+            else:
+                print("\nPrediction\n")
+                live_instrument.computer_play(prediction=prediction)
 
         live_instrument.reset_sequence()
         sequence = prediction
