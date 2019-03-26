@@ -6,8 +6,8 @@ from utils.NoteSmoother import NoteSmoother
 
 def vae_interact(gui):
     live_instrument = gui.live_instrument
-    model = gui.model
     device = gui.device
+    model = gui.model.to(device)
     dials = gui.dials
     while True:
         print("\nUser input\n")
@@ -60,7 +60,7 @@ def vae_interact(gui):
             prediction = addCuttedOctaves(prediction)
             smoother = NoteSmoother(prediction, threshold=2)
             prediction = smoother.smooth()
-            
+
             # play predicted sequence note by note
             print("\nPrediction\n")
             live_instrument.computer_play(prediction=prediction)
@@ -71,8 +71,8 @@ def vae_interact(gui):
 
 def vae_endless(gui):
     live_instrument = gui.live_instrument
-    model = gui.model
     device = gui.device
+    model = gui.model.to(device)
     dials = gui.dials
     print("\nUser input\n")
     # reset live input clock and prerecorded sequences
@@ -104,7 +104,7 @@ def vae_endless(gui):
             for dial in dials:
                 dial_vals.append(dial.value())
             dial_tensor = torch.FloatTensor(dial_vals)/100.
-            print(dial_tensor)
+            # print(dial_tensor)
             new = mu + (dial_tensor * 0.5 * logvar.exp())
             pred = model.decoder(new).squeeze(1)
 
@@ -133,3 +133,34 @@ def vae_endless(gui):
         sequence = prediction
         if not gui.is_running:
             break
+
+
+def vae_generate(gui):
+    live_instrument = gui.live_instrument
+    device = gui.device
+    model = gui.model.to(device)
+    dials = gui.dials
+    bars = gui.slider_bars.value()
+
+    gaussian = torch.distributions.Normal(torch.zeros(100), torch.ones(100))
+    with torch.no_grad():
+        samples = []
+        for i in range(bars):
+            samples.append(gaussian.sample())
+        sample = torch.Tensor(bars,100).to(device)
+        torch.stack(samples, out=sample, dim=0)
+        recon = model.decoder(sample.to(device))
+        recon = torch.softmax(recon, dim=3).squeeze(1)
+        # recon /= np.max(np.abs(recon))
+        generated = recon[0]
+        if bars > 1:
+            for r in recon[1:]:
+                generated = torch.cat((generated, r), dim=0)
+        generated[generated < (1-gui.slider_temperature.value()/100)] = 0
+        generated = generated.cpu().numpy()
+        generated = debinarizeMidi(generated, prediction=False)
+        generated = addCuttedOctaves(generated)
+        smoother = NoteSmoother(generated, threshold=1)
+        generated = smoother.smooth()
+        live_instrument.computer_play(prediction=generated)
+    gui.is_running = False

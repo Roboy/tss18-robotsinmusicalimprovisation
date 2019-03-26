@@ -3,15 +3,15 @@ import os
 import torch
 import threading
 import time
+import mido
+import numpy as np
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QApplication, QMainWindow, qApp, QAction, QFileDialog
 from PyQt5.uic import loadUi
 from VAE.VAE_Train import VAE
 from utils.LiveInput_ClassCompliant import LiveParser
-from gui_utils.vae_gui import vae_interact, vae_endless
+from gui_utils.vae_gui import vae_interact, vae_endless, vae_generate
 from loadModel import loadModel, loadStateDict
-import mido
-import numpy as np
 
 
 class VAEsemane_GUI(QMainWindow):
@@ -39,6 +39,7 @@ class VAEsemane_GUI(QMainWindow):
         self.menu_midi_port.triggered.connect(self.set_instrument)
         # third tab set model path
         self.action_find.triggered.connect(self.set_model_path)
+        self.action_pretrained.triggered.connect(self.set_pretrained_model)
 
         # buttons
         self.btn_run.clicked.connect(self.btn_run_clicked)
@@ -46,6 +47,7 @@ class VAEsemane_GUI(QMainWindow):
         self.btn_randomize.clicked.connect(self.btn_randomize_clicked)
         self.btn_reset.clicked.connect(self.btn_reset_clicked)
         self.btn_run_endless.clicked.connect(self.btn_run_endless_clicked)
+        self.btn_generate.clicked.connect(self.btn_generate_clicked)
 
         # dials --> get list of dials and sort them by object name
         self.dials = []
@@ -57,10 +59,6 @@ class VAEsemane_GUI(QMainWindow):
         for dial in self.dials:
             dial.setMinimum(-1000)
             dial.setMaximum(1000)
-
-        # progress bars
-        self.pbar_human_metronome.setMinimum(0)
-        self.pbar_comp_metronome.setMinimum(0)
 
         # sliders
         self.lbl_bpm.setText("{} BPM".format(self.slider_bpm.value()))
@@ -94,6 +92,8 @@ class VAEsemane_GUI(QMainWindow):
             else:
                 self.lcd_human_metronome.display("0")
                 self.lcd_comp_metronome.display("{}".format(self.live_instrument.metronome))
+            time.sleep(0.01)
+
 
     def update_bpm(self):
         current_val = self.slider_bpm.value()
@@ -114,31 +114,6 @@ class VAEsemane_GUI(QMainWindow):
         if self.live_instrument:
             self.live_instrument.update_bars(current_val)
 
-    def start_progress_bar(self):
-        #progress bars
-        self.pbar_human_metronome.setMaximum(4*self.live_instrument.bars)
-        self.pbar_comp_metronome.setMaximum(4*self.live_instrument.bars)
-        progress_bar_thread = threading.Thread(target=self.update_progress_bar)
-        progress_bar_thread.setDaemon(True)
-        progress_bar_thread.start()
-
-    def update_progress_bar(self):
-        while True:
-            print(self.live_instrument.human)
-            if self.live_instrument.human:
-                if not pbar_comp_metronome.value() == 0:
-                    self.pbar_comp_metronome.setValue(0)
-                current_val = self.live_instrument.metronome
-                print(current_val)
-                if current_val > self.pbar_human_metronome.value():
-                    self.pbar_human_metronome.setValue(current_val)
-            else:
-                if not self.pbar_human_metronome.value() == 0:
-                    self.pbar_human_metronome.setValue(0)
-                current_val = self.live_instrument.metronome
-                if current_val > self.pbar_comp_metronome.value():
-                    self.pbar_comp_metronome.setValue(current_val)
-
     def search_instruments(self):
         # this function could search for new midi instruments if they were
         # connected after gui was startet
@@ -155,21 +130,38 @@ class VAEsemane_GUI(QMainWindow):
         if self.model.train():
             self.model.eval()
 
+    def set_pretrained_model(self):
+        rel_path = "../utils/pretrained_models/vae_model.pth"
+        self.model = VAE()
+
+        self.model = loadStateDict(self.model, rel_path)
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if self.model.train():
+            self.model.eval()
+
     def btn_run_clicked(self):
-        self.is_running = True
-        vae_thread = threading.Thread(target=vae_interact, args=(self,))
-        vae_thread.setDaemon(True)
-        vae_thread.start()
+        if not self.is_running:
+            vae_thread = threading.Thread(target=vae_interact, args=(self,))
+            vae_thread.setDaemon(True)
+            vae_thread.start()
+            self.is_running = vae_thread.is_alive()
 
     def btn_run_endless_clicked(self):
-        self.is_running = True
-        vae_thread = threading.Thread(target=vae_endless, args=(self,))
-        vae_thread.setDaemon(True)
-        vae_thread.start()
-
+        if not self.is_running:
+            vae_thread = threading.Thread(target=vae_endless, args=(self,))
+            vae_thread.setDaemon(True)
+            vae_thread.start()
+            self.is_running = vae_thread.is_alive()
 
     def btn_stop_clicked(self):
         self.is_running = False
+
+    def btn_generate_clicked(self):
+        if not self.is_running:
+            vae_thread = threading.Thread(target=vae_generate, args=(self,))
+            vae_thread.setDaemon(True)
+            vae_thread.start()
+            self.is_running = vae_thread.is_alive()
 
     def btn_randomize_clicked(self):
         for dial in self.dials:
@@ -190,5 +182,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     gui = VAEsemane_GUI()
     gui.show()
-    # import pdb; pdb.set_trace()
     sys.exit(app.exec_())

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1028</width>
-    <height>856</height>
+    <height>855</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -84,32 +84,6 @@
         </property>
        </spacer>
       </item>
-      <item row="0" column="2">
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="2" column="3">
-       <widget class="QProgressBar" name="pbar_comp_metronome">
-        <property name="maximum">
-         <number>4</number>
-        </property>
-        <property name="value">
-         <number>0</number>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="3">
        <widget class="QLCDNumber" name="lcd_comp_metronome">
         <property name="sizePolicy">
@@ -141,19 +115,6 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QProgressBar" name="pbar_human_metronome">
-        <property name="maximum">
-         <number>4</number>
-        </property>
-        <property name="value">
-         <number>0</number>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="1">
        <widget class="QLabel" name="label">
         <property name="text">
@@ -169,6 +130,19 @@
          <number>-1</number>
         </property>
        </widget>
+      </item>
+      <item row="0" column="2">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </item>
@@ -1548,6 +1522,20 @@
         </property>
        </widget>
       </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="btn_generate">
+        <property name="text">
+         <string>Generate</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="Line" name="line_4">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item row="5" column="0">
@@ -1765,6 +1753,7 @@
     <property name="title">
      <string>Model</string>
     </property>
+    <addaction name="action_pretrained"/>
     <addaction name="action_find"/>
    </widget>
    <addaction name="menu_file"/>
@@ -1783,6 +1772,11 @@
   <action name="action_find">
    <property name="text">
     <string>Find...</string>
+   </property>
+  </action>
+  <action name="action_pretrained">
+   <property name="text">
+    <string>Load pretrained</string>
    </property>
   </action>
  </widget>
