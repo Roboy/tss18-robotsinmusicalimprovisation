@@ -16,17 +16,19 @@ This work proposes an end-to-end framework for robotic improvisation with focus 
 The systems input sequence is played with [W-101 MIDI controller](https://github.com/Roboy/tss18-robotsinmusicalimprovisation/tree/master/midi_controller) or any MIDI keyboard. The sequence is then parsed to matrix M which serves as the input to the encoder of the variational autoencoder (VAE).
 Next it can either be
 1. reconstructed (Path 1) --> No changes in latent space
-2. modified (Path 2) --> Latent space modifier [GUI](https://github.com/Roboy/tss18-robotsinmusicalimprovisation/tree/master/gui)
+2. modified (Path 2) --> Latent space modifier [GUI](https://github.com/Roboy/tss18-robotsinmusicalimprovisation/tree/master/software_gui)
 3. processed by an LSTM network --> [LSTM](https://github.com/Roboy/tss18-robotsinmusicalimprovisation/tree/master/LSTM)
 
-Irrespective of the path, ! get decoded by the VAE decoder. After that, the new sequence $\tilde{M}$ can be smoothed by a Note smoother and then sent to the robot or to a software synthesizer.
+Irrespective of the path, z gets decoded by the VAE decoder. After that, the new sequence can be smoothed by a Note smoother and then sent to the robot or to a software synthesizer.
 
 
 ## Examples on YouTube
 #### Software synthesis
-[Variational Autoencoder with Latent space modifier (GUI) "Interact Mode"](https://youtu.be/Umlmhky1DVg)
+[Variational Autoencoder with Latent space modifier (GUI) - "Generate Mode"](https://youtu.be/teKCWBg3_KY)
 
-[Variational Autoencoder with Latent space modifier (GUI) "Endless Mode"](https://youtu.be/gBg1Qecc4QY)
+[Variational Autoencoder with Latent space modifier (GUI) - "Interact Mode"](https://youtu.be/Umlmhky1DVg)
+
+[Variational Autoencoder with Latent space modifier (GUI) - "Endless Mode"](https://youtu.be/gBg1Qecc4QY)
 
 #### Human robot interaction
 [Variational Autoencoder (GUI) with Roboy robot - "Interact Mode"](https://youtu.be/qSQtkbWPEY0)
@@ -34,7 +36,7 @@ Irrespective of the path, ! get decoded by the VAE decoder. After that, the new 
 [Variational Autoencoder (GUI) with Roboy robot - "Endless Mode"](https://youtu.be/_TltfiEmHZI)
 
 ## Simulation
-To setup simulation please visit [Roboy Control](https://github.com/Roboy/roboy_control/tree/xyl_simulation)
+To setup simulation please visit [Roboy Control](https://github.com/Roboy/roboy_control/tree/xyl_simulation/src/xylophone_plugin)
 
 # Installation
 ## Prerequisites
