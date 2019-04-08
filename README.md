@@ -38,6 +38,9 @@ Irrespective of the path, z gets decoded by the VAE decoder. After that, the new
 ## Simulation
 To setup simulation please visit [Roboy Control](https://github.com/Roboy/roboy_control/tree/xyl_simulation/src/xylophone_plugin)
 
+## Pretrained models
+Get pretrained models following this [link](https://drive.google.com/drive/folders/1pGhy42CJnaWlqZ_A0MQ7cfGE_4eig6hk?usp=sharing) and move the "pretrained_models" folder to /path/to/tss18-robotsinmusicalimprovisation/utils
+
 # Installation
 ## Prerequisites
 1. Create virtual environment one above the root folder of this project and activate it:
@@ -66,3 +69,4 @@ If you are working on Ubuntu with CUDA 9.0, try:
 pip3 install torch torchvision
 ```
 For other systems or CUDA versions, please visit https://pytorch.org/
+
