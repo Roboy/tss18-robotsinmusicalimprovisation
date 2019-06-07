@@ -8,8 +8,8 @@ import numpy as np
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QApplication, QMainWindow, qApp, QAction, QFileDialog
 from PyQt5.uic import loadUi
-from VAE.VAE_Train import VAE
-from utils.LiveInput_ClassCompliant import LiveParser
+from VAE.VAE_model import VAE
+from utils.LiveInput import LiveParser
 from gui_utils.vae_gui import vae_interact, vae_endless, vae_generate
 from loadModel import loadModel, loadStateDict
 

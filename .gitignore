@@ -3,3 +3,4 @@ utils/__pycache__
 tempMidiFiles/temp.mid
 .ipynb_checkpoints
 *.DS_Store
+utils/pretrained_models

@@ -3,10 +3,10 @@ import sys
 import numpy as np
 import torch
 import torch.utils.data
-from utils.utils import (cutOctaves, debinarizeMidi, addCuttedOctaves)
-from VAE.VAE_Train import VAE
+from utils.raspi_utils import (cutOctaves, debinarizeMidi, addCuttedOctaves)
+from VAE.VAE_model import VAE
 from loadModel import loadModel, loadStateDict
-from utils.LiveInput_ClassCompliant import LiveParser
+from utils.LiveInput import LiveParser
 from mido import MidiFile, Message
 np.set_printoptions(precision=1, threshold=np.inf)
 

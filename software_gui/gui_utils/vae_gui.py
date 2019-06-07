@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from utils.utils import (cutOctaves, debinarizeMidi, addCuttedOctaves)
+from utils.raspi_utils import (cutOctaves, debinarizeMidi, addCuttedOctaves)
 from utils.NoteSmoother import NoteSmoother
 
 
