@@ -70,3 +70,6 @@ pip3 install torch torchvision
 ```
 For other systems or CUDA versions, please visit https://pytorch.org/
 
+# VAEsemane for Raspberry Pi
+I added a clean repository containing the VAE with an updated GUI (to fit smaller screen sizes like 720x480, e.g. 
+Raspberry Pi touchscreens), please follow [this link](https://github.com/nwesem/VAEsemane_RasPi) to the repository.
